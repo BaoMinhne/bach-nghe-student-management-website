@@ -117,6 +117,9 @@ CREATE TABLE score (
     FOREIGN KEY (semester_id) REFERENCES semester(semester_id)
 );
 
+INSERT INTO system_user (user_username, user_pass, user_role)
+VALUES ('admin', 'admin', 0);
+
 INSERT INTO location (loca_code, loca_name) VALUES
 ('PD', 'Phong Điền'),
 ('BM', 'Bình Minh'),
