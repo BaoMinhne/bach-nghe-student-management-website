@@ -248,3 +248,25 @@ ORDER BY
     s.student_code,
     m.module_code;
     
+SELECT
+    s.student_code AS 'MÃ HS',
+    s.student_middle_name AS 'HỌ ĐỆM',
+    s.student_name AS 'TÊN',
+    m.module_code AS 'Mã Môn học',
+    m.module_name AS 'Tên Môn học',
+    se.semester_number AS 'Học kỳ',
+    se.semester_start_date AS 'Ngày bắt đầu',
+    se.semester_end_date AS 'Ngày kết thúc',
+    sc.score AS 'Tổng điểm'
+FROM 
+    student s
+    JOIN class_student cs ON s.student_code = cs.student_code
+    JOIN class c ON cs.class_id = c.class_id
+    LEFT JOIN score sc ON s.student_code = sc.student_code 
+        AND c.class_id = sc.class_id
+	JOIN semester se ON sc.semester_id = se.semester_id
+    LEFT JOIN module m ON sc.module_id = m.module_id
+WHERE 
+     s.student_code = '0092/24-THUD' and se.semester_number = '2'
+ORDER BY 
+    m.module_code;
