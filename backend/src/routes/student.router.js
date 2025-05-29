@@ -8,6 +8,11 @@ const router = express.Router();
 router.get("/getScore", studentController.getScore);
 router.all("/getScore", methodNotAllowed);
 router.get("/getScoreBySemester", studentController.getScoreBySemester);
+router.all("/getScoreBySemester", methodNotAllowed);
+router.get("/getStudentInfo", studentController.getStudentInfo);
+router.all("/getStudentInfo", methodNotAllowed);
+router.put("/updateStudentInfo", studentController.updateStudentInfo);
+router.all("/updateStudentInfo", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 

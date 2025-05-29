@@ -61,6 +61,33 @@ const student = {
 
     return result;
   },
+
+  getStudentInfo: async (studentCode) => {
+    const result = await knex("student").where("student_code", studentCode);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  },
+
+  updateStudentInfo: async (studentCode, updateData) => {
+    const result = await knex("student")
+      .where("student_code", studentCode)
+      .update({
+        student_address: updateData.student_address,
+        student_email: updateData.student_email,
+        student_phone: updateData.student_phone,
+        student_IDCard: updateData.student_IDCard,
+        student_country: updateData.student_country,
+      });
+
+    if (result === 0) {
+      return null;
+    }
+    return result;
+  },
 };
 
 module.exports = student;
