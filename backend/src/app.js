@@ -6,6 +6,7 @@ const session = require("express-session");
 
 const authRouter = require("./routes/auth.router");
 const studentRouter = require("./routes/student.router");
+const teacherRouter = require("./routes/teacher.router");
 
 const {
   resourceNotFound,
@@ -46,6 +47,7 @@ app.use("/public", express.static("public"));
 
 authRouter.setup(app);
 studentRouter.setup(app);
+teacherRouter.setup(app);
 
 //handle 404 response
 app.use(resourceNotFound);
