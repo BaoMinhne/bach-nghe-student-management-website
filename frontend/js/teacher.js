@@ -10,13 +10,24 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  const saveButtons = document.querySelectorAll('#studentTable button');
-  saveButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const row = button.closest('tr');
-      const name = row.cells[1].textContent;
-      const score = row.querySelector('input').value;
-      alert(`Đã lưu điểm ${score} cho ${name}`);
-    });
-  });
 });
+
+    const editModal = document.getElementById('editModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const name = button.getAttribute('data-name');
+      const className = button.getAttribute('data-class');
+      const score = button.getAttribute('data-score');
+
+      document.getElementById('studentName').value = name;
+      document.getElementById('studentClass').value = className;
+      document.getElementById('studentScore').value = score;
+    });
+
+    document.getElementById('editScoreForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      alert('Điểm đã được cập nhật!');
+      const modal = bootstrap.Modal.getInstance(editModal);
+      modal.hide();
+    });

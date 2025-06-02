@@ -33,7 +33,7 @@ body {
 .logo-wrapper span {
   font-weight: bold;
   font-size: 1.2rem;
-  color: #fbbf24; /* Màu vàng */
+  color: #fbbf24;
 }
 
 .topbar a {
@@ -78,25 +78,50 @@ body {
 }
 /* MAIN CONTENT */
 .main-content {
-  margin-left: 250px;
+  margin-left: 340px;
   margin-top: 60px;
   padding: 30px;
   text-align: center !important;
+  display: flex;
+   flex-wrap:wrap;
+}
+/* Card */
+.main-content .card {
+  max-width: 250px;
+  height: 320px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+  
+.main-content .card-img-top{
+  max-width: 250px;
+  height: 150px;
+}
+.main-content .card-body{
+  padding: 0 10px;
+  max-height: 150px;
 }
 
-
-table {
-  width: 100%;
-  margin-top: 1rem;
-  border-collapse: collapse;
+/* MARQUEE HOVER TEXT */
+.marquee-hover {
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.marquee-hover span {
+  display: inline-block;
+  white-space: nowrap;
+  transform: translateX(0);
+  transition: transform 0s;
 }
 
-table thead {
-  background-color: #f8f9fa;
+.marquee-hover:hover span {
+  animation: marquee 5s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
