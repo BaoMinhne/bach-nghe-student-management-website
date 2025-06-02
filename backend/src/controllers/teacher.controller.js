@@ -2,7 +2,6 @@ const teacherService = require("../models/teacher.model");
 const JSend = require("../jsend");
 const ApiError = require("../api-error");
 const moment = require("moment");
-const teacher = require("../models/teacher.model");
 
 async function getTeacherInfo(req, res, next) {
   const teacherCode = req.query.teacherCode;
@@ -88,7 +87,63 @@ async function updateTeacherInfo(req, res, next) {
   }
 }
 
+async function getModuleTeaching(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+
+  try {
+    const moduleTeaching = await teacherService.getModuleTeaching(teacherCode);
+
+    if (!moduleTeaching) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    res.json({
+      message: "Module teaching retrieved successfully",
+      status: "success",
+      data: moduleTeaching,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, "Invalid teacher code or data not found"));
+  }
+}
+
+async function getStudentInClass(req, res, next) {
+  const { teacherCode, moduleCode, classCode } = req.query;
+
+  if (!teacherCode || !moduleCode || !classCode) {
+    return next(new ApiError(400, "All parameters are required"));
+  }
+
+  try {
+    const students = await teacherService.getStudentInClass({
+      teacherCode,
+      moduleCode,
+      classCode,
+    });
+
+    if (!students) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    res.json({
+      message: "Students in class retrieved successfully",
+      status: "success",
+      data: students,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, "Invalid parameters or data not found"));
+  }
+}
+
 module.exports = {
   getTeacherInfo,
   updateTeacherInfo,
+  getModuleTeaching,
+  getStudentInClass,
 };

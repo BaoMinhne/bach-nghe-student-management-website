@@ -9,6 +9,10 @@ router.get("/getTeacherInfo", teacherController.getTeacherInfo);
 router.all("/getTeacherInfo", methodNotAllowed);
 router.put("/updateTeacherInfo", teacherController.updateTeacherInfo);
 router.all("/updateTeacherInfo", methodNotAllowed);
+router.get("/getModuleTeaching", teacherController.getModuleTeaching);
+router.all("/getModuleTeaching", methodNotAllowed);
+router.get("/getStudentInClass", teacherController.getStudentInClass);
+router.all("/getStudentInClass", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 
