@@ -1,0 +1,106 @@
+body{
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f9fafb;
+}
+
+/* Topbar */
+.topbar {
+  height: 60px;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.logo-wrapper img {
+  height: 35px;
+  margin-right: 10px;
+}
+
+.logo-wrapper span {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #fbbf24; /* Màu vàng */
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 250px;
+  height: calc(100% - 56px);
+  background-color: #0f172a;;
+  color: #fff;
+  z-index: 9999999;
+  padding: 20px;
+}
+
+
+.sidebar .menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar .menu li {
+  margin-bottom: 15px;
+}
+
+.sidebar .menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .menu i {
+  margin-right: 10px;
+}
+
+.sidebar .menu li a:hover {
+  background-color: #2a3d4d;
+}
+
+
+/* Main content */
+.main-content {
+  margin-left: 250px;
+  margin-top: 60px;
+  padding: 30px;
+}
+
+.info-wrapper {
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 900px;
+}
+
+.info-card {
+  background-color: #3ddbd9;
+  color: #fff;
+  padding: 25px;
+  text-align: center;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.form-section {
+  padding: 25px;
+  font-size: 16px;
+}
