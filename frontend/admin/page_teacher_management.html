@@ -13,8 +13,10 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="logo-wrapper">
-    <a href="page_admin.html"><img src="../images/logo_Truong_Bach_Nghe.png" alt="Logo">
-      <span>Trường Trung Cấp Bách Nghệ</span></a>
+      <a href="page_admin.html">
+        <img src="../images/logo_Truong_Bach_Nghe.png" alt="Logo">
+        <span>Trường Trung Cấp Bách Nghệ</span>
+      </a>
     </div>
     <div class="dropdown">
       <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -29,13 +31,13 @@
   </div>
 
   <!-- SIDEBAR -->
-  <div class="sidebar"> 
+<div class="sidebar"> 
     <ul class="menu">
       <li><a href="page_create_account.html"><i class="bi bi-person-plus me-2"></i> Tạo tài khoản</a></li>
       <li><a href="page_student_management.html"><i class="bi bi-people me-2"></i> QL học viên</a></li>
       <li><a href="page_class_management.html"><i class="bi bi-journal-plus me-2"></i> QL lớp học</a></li>
       <li><a href="page_teacher_management.html"><i class="bi bi-person-workspace me-2"></i> QL giảng viên</a></li>
-      <li><a href="#"><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a></li>
+      <li><a href="page_admin_statistics.html"><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a></li>
       <li><a href="../login/login.html"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a></li>
     </ul>
   </div>
@@ -70,7 +72,9 @@
           <td>phuongtran@example.com</td>
           <td>456 Cái Răng, Cần Thơ</td>
           <td>
-            <button class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil-square"></i> Sửa</button>
+            <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#editTeacherModal">
+              <i class="bi bi-pencil-square"></i> Sửa
+            </button>
             <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Xóa</button>
           </td>
         </tr>
@@ -112,6 +116,47 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
             <button type="submit" class="btn btn-primary">Thêm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SỬA GIẢNG VIÊN -->
+  <div class="modal fade" id="editTeacherModal" tabindex="-1" aria-labelledby="editTeacherModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editTeacherForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editTeacherModalLabel">Sửa thông tin giảng viên</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editTeacherId">
+            <div class="mb-3">
+              <label for="editHoTen" class="form-label">Họ và tên</label>
+              <input type="text" class="form-control" id="editHoTen" required>
+            </div>
+            <div class="mb-3">
+              <label for="editChuyenMon" class="form-label">Chuyên môn</label>
+              <input type="text" class="form-control" id="editChuyenMon" required>
+            </div>
+            <div class="mb-3">
+              <label for="editSdt" class="form-label">Số điện thoại</label>
+              <input type="text" class="form-control" id="editSdt" required>
+            </div>
+            <div class="mb-3">
+              <label for="editEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="editEmail" required>
+            </div>
+            <div class="mb-3">
+              <label for="editDiaChi" class="form-label">Địa chỉ</label>
+              <input type="text" class="form-control" id="editDiaChi" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
           </div>
         </form>
       </div>

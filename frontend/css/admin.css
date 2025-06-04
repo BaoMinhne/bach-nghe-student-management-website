@@ -38,6 +38,8 @@ body {
 
 .topbar a {
   text-decoration: none;
+  display: flex;
+  align-items: center;
 }
 
 /* SIDEBAR */
@@ -85,6 +87,8 @@ body {
 
 
 table {
+  align-items: center;
+  text-align: center;
   width: 100%;
   margin-top: 1rem;
   border-collapse: collapse;
@@ -94,6 +98,7 @@ table th,
 table td {
   border: 1px solid #ddd;
   padding: 8px;
+  border-radius: 5px;
 }
 
 table thead {
