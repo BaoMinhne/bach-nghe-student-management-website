@@ -16,11 +16,7 @@ async function getScore(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "Score retrieved successfully",
-      status: "success",
-      data: score,
-    });
+    return res.json(JSend.success(score));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid student code or data not found"));
@@ -53,11 +49,7 @@ async function getScoreBySemester(req, res, next) {
       );
     }
 
-    res.json({
-      message: "Score retrieved successfully",
-      status: "success",
-      data: score,
-    });
+    return res.json(JSend.success(score));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid student code or data not found"));
@@ -78,11 +70,7 @@ async function getStudentInfo(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "Student info retrieved successfully",
-      status: "success",
-      data: studentInfo,
-    });
+    return res.json(JSend.success(studentInfo));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid student code or data not found"));
@@ -130,11 +118,7 @@ async function updateStudentInfo(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "The student's information update successfully",
-      status: "success",
-      data: updateData,
-    });
+    return res.json(JSend.success(updateData));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Infomation not valid or data not found"));
