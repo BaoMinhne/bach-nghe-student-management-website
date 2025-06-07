@@ -31,17 +31,18 @@ async function login(req, res, next) {
       }
     );
 
-    res.json({
-      message: "Login successful, Hello " + user.user_username,
-      status: "success",
-      token,
-      user: {
-        id: user.user_id,
-        username: user.user_username,
-        role: user.user_role,
-        status: user.user_status,
-      },
-    });
+    res.json(
+      JSend.success({
+        message: "Login successful",
+        token,
+        user: {
+          id: user.user_id,
+          username: user.user_username,
+          role: user.user_role,
+          status: user.user_status,
+        },
+      })
+    );
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid username or password"));

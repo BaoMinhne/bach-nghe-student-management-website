@@ -78,10 +78,11 @@ CREATE TABLE module (
 
 CREATE TABLE class_student (
     class_student_id INT AUTO_INCREMENT PRIMARY KEY,
-    class_id INT NOT NULL,
+    class_subject_id INT NOT NULL,
     student_code VARCHAR(255) NOT NULL,
-    FOREIGN KEY (class_id) REFERENCES class(class_id),
-    FOREIGN KEY (student_code) REFERENCES student(student_code)
+    FOREIGN KEY (class_subject_id) REFERENCES class_subject(class_subject_id),
+    FOREIGN KEY (student_code) REFERENCES student(student_code),
+    UNIQUE (class_subject_id, student_code)
 );
 
 CREATE TABLE class_subject (
@@ -94,37 +95,32 @@ CREATE TABLE class_subject (
     FOREIGN KEY (semester_id) REFERENCES semester(semester_id)
 );
 
+ 
 CREATE TABLE teacher_subject_class (
     id INT AUTO_INCREMENT PRIMARY KEY,
     teacher_code VARCHAR(255) NOT NULL,
-    class_id INT NOT NULL,
-    module_id INT NOT NULL,
-    semester_id INT DEFAULT NULL,
+    class_subject_id INT NOT NULL,
     FOREIGN KEY (teacher_code) REFERENCES teacher(teacher_code),
-    FOREIGN KEY (class_id) REFERENCES class(class_id),
-    FOREIGN KEY (module_id) REFERENCES module(module_id),
-    FOREIGN KEY (semester_id) REFERENCES semester(semester_id)
+    FOREIGN KEY (class_subject_id) REFERENCES class_subject(class_subject_id),
+    UNIQUE (teacher_code, class_subject_id) -- Đảm bảo một giảng viên chỉ được gán một lần cho mỗi lớp học phần
 );
 
+DROP TABLE score;
 CREATE TABLE score (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    class_subject_id INT NOT NULL,
     student_code VARCHAR(255) NOT NULL,
-    class_id INT NOT NULL,
     score DECIMAL(5,2) DEFAULT NULL,
-    module_id INT DEFAULT NULL,
-    semester_id INT DEFAULT NULL,
+    FOREIGN KEY (class_subject_id) REFERENCES class_subject(class_subject_id),
     FOREIGN KEY (student_code) REFERENCES student(student_code),
-    FOREIGN KEY (module_id) REFERENCES module (module_id),
-    FOREIGN KEY (class_id) REFERENCES class(class_id),
-    FOREIGN KEY (semester_id) REFERENCES semester(semester_id),
-    UNIQUE (student_code, class_id, module_id, semester_id)
+    UNIQUE (class_subject_id, student_code)
 );
 
 INSERT INTO system_user (user_username, user_pass, user_role)
 VALUES ('admin', 'admin', 0);
 
 INSERT INTO location (loca_code, loca_name) VALUES
-('PD', 'Phong Điền'),
+('PD', 'Phong Điền'),	
 ('BM', 'Bình Minh'),
 ('BT', 'Bình Tân'),
 ('TB', 'Tam Bình'),
@@ -178,26 +174,124 @@ INSERT INTO student (student_code, student_middle_name, student_name, student_da
 ('0095/24-THUD', 'Võ Hữu', 'Lượng', '2008-10-11', 'male'),
 ('0102/24-THUD', 'Phan Ngọc', 'My', NULL, 'female');
 
-INSERT INTO class_student (class_id, student_code) VALUES
-(3, '0092/24-THUD'),
+-- thêm sinh viên vào lớp 
+INSERT INTO class_student (class_subject_id, student_code) VALUES
+-- Lớp NBHG-THK02-2 (class_id = 3), HK1, các môn MH01, MH02, MH03
+(1, '0092/24-THUD'), -- class_subject_id = 1, Giáo dục chính trị
+(1, '0093/24-THUD'),
+(1, '0094/24-THUD'),
+(1, '0095/24-THUD'),
+(1, '0102/24-THUD'),
+(2, '0092/24-THUD'), -- class_subject_id = 2, Tin học
+(2, '0093/24-THUD'),
+(2, '0094/24-THUD'),
+(2, '0095/24-THUD'),
+(2, '0102/24-THUD'),
+(3, '0092/24-THUD'), -- class_subject_id = 3, Tiếng Anh
 (3, '0093/24-THUD'),
 (3, '0094/24-THUD'),
 (3, '0095/24-THUD'),
-(3, '0102/24-THUD');
+(3, '0102/24-THUD'),
+-- Thêm các sinh viên khác trong class_id = 3
+(1, '0096/24-THUD'),
+(1, '0097/24-THUD'),
+(1, '0098/24-THUD'),
+(1, '0099/24-THUD'),
+(1, '0100/24-THUD'),
+(2, '0096/24-THUD'),
+(2, '0097/24-THUD'),
+(2, '0098/24-THUD'),
+(2, '0099/24-THUD'),
+(2, '0100/24-THUD'),
+(3, '0096/24-THUD'),
+(3, '0097/24-THUD'),
+(3, '0098/24-THUD'),
+(3, '0099/24-THUD'),
+(3, '0100/24-THUD'),
+-- ... tiếp tục cho các sinh viên từ 0101 đến 0135
+(1, '0135/24-THUD'),
+(2, '0135/24-THUD'),
+(3, '0135/24-THUD'),
+-- Lớp PD-HDDL-01 (class_id = 1), HK2, môn MH01, MH03
+(5, '0092/24-THUD'), -- class_subject_id = 5, Giáo dục chính trị
+(5, '0093/24-THUD'),
+(5, '0094/24-THUD'),
+(5, '0095/24-THUD'),
+(5, '0096/24-THUD'),
+(6, '0092/24-THUD'), -- class_subject_id = 6, Tiếng Anh
+(6, '0093/24-THUD'),
+(6, '0094/24-THUD'),
+(6, '0095/24-THUD'),
+(6, '0096/24-THUD'),
+-- Lớp TB-THUD-01 (class_id = 2), HK1, HK2, môn MH01, MH02
+(8, '0097/24-THUD'), -- class_subject_id = 8, Giáo dục chính trị
+(8, '0098/24-THUD'),
+(8, '0099/24-THUD'),
+(8, '0100/24-THUD'),
+(8, '0101/24-THUD'),
+(9, '0097/24-THUD'), -- class_subject_id = 9, Tin học
+(9, '0098/24-THUD'),
+(9, '0099/24-THUD'),
+(9, '0100/24-THUD'),
+(9, '0101/24-THUD'),
+-- Lớp BT-HDDL-35 (class_id = 4), HK1, HK2, môn MH01, MH02
+(10, '0102/24-THUD'), -- class_subject_id = 10, Giáo dục chính trị
+(10, '0103/24-THUD'),
+(10, '0104/24-THUD'),
+(10, '0105/24-THUD'),
+(10, '0106/24-THUD'),
+(11, '0102/24-THUD'), -- class_subject_id = 11, Tin học
+(11, '0103/24-THUD'),
+(11, '0104/24-THUD'),
+(11, '0105/24-THUD'),
+(11, '0106/24-THUD'),
+-- Lớp BT-KTDN-01 (class_id = 5), HK1, HK2, môn MH03, MH04
+(12, '0107/24-THUD'), -- class_subject_id = 12, Tiếng Anh
+(12, '0108/24-THUD'),
+(12, '0109/24-THUD'),
+(12, '0110/24-THUD'),
+(12, '0111/24-THUD'),
+(13, '0107/24-THUD'), -- class_subject_id = 13, Lập trình cơ bản
+(13, '0108/24-THUD'),
+(13, '0109/24-THUD'),
+(13, '0110/24-THUD'),
+(13, '0111/24-THUD');
 
 INSERT INTO class_subject (class_id, module_id, semester_id) VALUES
-(3, 1, 9),
-(3, 2, 9),
-(3, 3, 9);
+(3, 1, 9),  -- class_subject_id = 1 (giả sử), NBHG-THK02-2, Giáo dục chính trị, HK1
+(3, 2, 9),  -- class_subject_id = 2, NBHG-THK02-2, Tin học, HK1
+(3, 3, 9),  -- class_subject_id = 3, NBHG-THK02-2, Tiếng Anh, HK1
+(3, 4, 10), -- class_subject_id = 4, NBHG-THK02-2, Lập trình cơ bản, HK2
+(1, 1, 2),  -- class_subject_id = 5, PD-HDDL-01, Giáo dục chính trị, HK2
+(1, 3, 2),  -- class_subject_id = 6, PD-HDDL-01, Tiếng Anh, HK2
+(1, 4, 3),  -- class_subject_id = 7, PD-HDDL-01, Lập trình cơ bản, HK3
+(2, 1, 5),  -- class_subject_id = 8, TB-THUD-01, Giáo dục chính trị, HK1
+(2, 2, 6),  -- class_subject_id = 9, TB-THUD-01, Tin học, HK2
+(4, 1, 13), -- class_subject_id = 10, BT-HDDL-35, Giáo dục chính trị, HK1
+(4, 2, 14), -- class_subject_id = 11, BT-HDDL-35, Tin học, HK2
+(5, 3, 17), -- class_subject_id = 12, BT-KTDN-01, Tiếng Anh, HK1
+(5, 4, 18); -- class_subject_id = 13, BT-KTDN-01, Lập trình cơ bản, HK2
 
 
 INSERT INTO teacher (teacher_code, teacher_name, teacher_status) VALUES
 ('GV001', 'Nguyễn Văn A', 'teaching'),
 ('GV002', 'Trần Thị B', 'teaching');
 
-INSERT INTO teacher_subject_class (teacher_code, class_id, module_id, semester_id) VALUES
-('GV001', 3, 1, 9),
-('GV002', 3, 2, 9);
+-- thêm giảng viên vào lớp
+INSERT INTO teacher_subject_class (teacher_code, class_subject_id) VALUES
+('GV001', 1),  -- GV001 dạy Giáo dục chính trị, NBHG-THK02-2, HK1
+('GV002', 2),  -- GV002 dạy Tin học, NBHG-THK02-2, HK1
+('GV003', 3),  -- GV003 dạy Tiếng Anh, NBHG-THK02-2, HK1
+('GV003', 4),  -- GV003 dạy Lập trình cơ bản, NBHG-THK02-2, HK2
+('GV001', 5),  -- GV001 dạy Giáo dục chính trị, PD-HDDL-01, HK2
+('GV003', 6),  -- GV003 dạy Tiếng Anh, PD-HDDL-01, HK2
+('GV003', 7),  -- GV003 dạy Lập trình cơ bản, PD-HDDL-01, HK3
+('GV001', 8),  -- GV001 dạy Giáo dục chính trị, TB-THUD-01, HK1
+('GV002', 9),  -- GV002 dạy Tin học, TB-THUD-01, HK2
+('GV001', 10), -- GV001 dạy Giáo dục chính trị, BT-HDDL-35, HK1
+('GV002', 11), -- GV002 dạy Tin học, BT-HDDL-35, HK2
+('GV003', 12), -- GV003 dạy Tiếng Anh, BT-KTDN-01, HK1
+('GV003', 13); -- GV003 dạy Lập trình cơ bản, BT-KTDN-01, HK2
 
 SELECT 
     l.loca_name AS 'Tên Trung Tâm',
@@ -222,31 +316,32 @@ GROUP BY
 ORDER BY 
     l.loca_name,
     co.course_code;
-    
-    
-SELECT 
+
+
+-- Truy vấn điểm môn học của sinh viên 
+SELECT distinct
     s.student_code AS 'MÃ HS',
     s.student_middle_name AS 'HỌ ĐỆM',
     s.student_name AS 'TÊN',
-    s.student_date_of_birth AS 'NGÀY SINH',
-    s.student_gender AS 'GIỚI TÍNH',
     m.module_code AS 'Mã Môn học',
     m.module_name AS 'Tên Môn học',
     sc.score AS 'Tổng điểm'
 FROM 
     student s
     JOIN class_student cs ON s.student_code = cs.student_code
-    JOIN class c ON cs.class_id = c.class_id
+    JOIN class_subject csj ON cs.class_subject_id = csj.class_subject_id
+    JOIN class c ON csj.class_id = c.class_id
+    JOIN module m ON csj.module_id = m.module_id
     LEFT JOIN score sc ON s.student_code = sc.student_code 
-        AND c.class_id = sc.class_id
-    LEFT JOIN module m ON sc.module_id = m.module_id
-WHERE 
-    c.class_code = 'NBHG-THK02-2'
+        AND csj.class_subject_id = sc.class_subject_id
+	where m.module_code = 'MH01'
 ORDER BY 
     s.student_code,
     m.module_code;
-    
-SELECT
+
+
+-- Truy vấn điểm môn học của 1 sinh viên
+SELECT distinct
     s.student_code AS 'MÃ HS',
     s.student_middle_name AS 'HỌ ĐỆM',
     s.student_name AS 'TÊN',
@@ -259,13 +354,14 @@ SELECT
 FROM 
     student s
     JOIN class_student cs ON s.student_code = cs.student_code
-    JOIN class c ON cs.class_id = c.class_id
+    JOIN class_subject csj ON cs.class_subject_id = csj.class_subject_id
+    JOIN class c ON csj.class_id = c.class_id
+    JOIN module m ON csj.module_id = m.module_id
+    JOIN semester se ON csj.semester_id = se.semester_id
     LEFT JOIN score sc ON s.student_code = sc.student_code 
-        AND c.class_id = sc.class_id
-	JOIN semester se ON sc.semester_id = se.semester_id
-    LEFT JOIN module m ON sc.module_id = m.module_id
+        AND csj.class_subject_id = sc.class_subject_id
 WHERE 
-     s.student_code = '0092/24-THUD' and se.semester_number = '2'
+    s.student_code = '0092/24-THUD' AND se.semester_number = '1'
 ORDER BY 
     m.module_code;
 
@@ -280,22 +376,36 @@ join module m on c.module_id = m.module_id;
 
 select * from class;
 
-SELECT 
+SELECT distinct
     c.class_code, c.class_name, m.module_id, m.module_name, cst.student_code, 
     s.student_middle_name, s.student_name, tsc.teacher_code, t.teacher_name, 
     sc.score, se.semester_number, se.semester_id 
 FROM class_subject cs
 JOIN module m ON cs.module_id = m.module_id
 JOIN class c ON cs.class_id = c.class_id
-JOIN class_student cst ON c.class_id = cst.class_id
+JOIN class_student cst ON cs.class_subject_id = cst.class_subject_id
 JOIN student s ON cst.student_code = s.student_code
-JOIN teacher_subject_class tsc ON c.class_id = tsc.class_id AND tsc.module_id = m.module_id
+JOIN teacher_subject_class tsc ON cs.class_subject_id = tsc.class_subject_id
 JOIN teacher t ON tsc.teacher_code = t.teacher_code 
 LEFT JOIN score sc ON s.student_code = sc.student_code 
-     AND sc.class_id = c.class_id 
-     AND sc.module_id = m.module_id
-LEFT JOIN semester se ON sc.semester_id = se.semester_id
-WHERE s.student_code = '0102/24-THUD';
+     AND cs.class_subject_id = sc.class_subject_id
+LEFT JOIN semester se ON cs.semester_id = se.semester_id
+WHERE s.student_code = '0092/24-THUD';
+
+SELECT class_subject_id, teacher_code -- , COUNT(*) as count
+FROM teacher_subject_class
+GROUP BY class_subject_id, teacher_code
+HAVING COUNT(*) > 1;
+
+SELECT class_subject_id, COUNT(class_subject_id) as count
+FROM teacher_subject_class
+GROUP BY class_subject_id;
+
+DELETE t1 FROM teacher_subject_class t1
+INNER JOIN teacher_subject_class t2 
+WHERE t1.id > t2.id 
+AND t1.class_subject_id = t2.class_subject_id 
+AND t1.teacher_code = t2.teacher_code;
 
 select * from module;
 
@@ -345,71 +455,66 @@ INSERT INTO student (student_code, student_middle_name, student_name, student_da
 ('0134/24-THUD', 'Nguyễn Quốc', 'Vui', '2009-04-24', 'male'),
 ('0135/24-THUD', 'Huỳnh Gia', 'Yến', '2009-09-19', 'female');
 
-INSERT INTO class_student (class_id, student_code) VALUES
-(3, '0096/24-THUD'),
-(3, '0097/24-THUD'),
-(3, '0098/24-THUD'),
-(3, '0099/24-THUD'),
-(3, '0100/24-THUD'),
-(3, '0101/24-THUD'),
-(3, '0103/24-THUD'),
-(3, '0104/24-THUD'),
-(3, '0105/24-THUD'),
-(3, '0106/24-THUD'),
-(3, '0107/24-THUD'),
-(3, '0108/24-THUD'),
-(3, '0109/24-THUD'),
-(3, '0110/24-THUD'),
-(3, '0111/24-THUD'),
-(3, '0112/24-THUD'),
-(3, '0113/24-THUD'),
-(3, '0114/24-THUD'),
-(3, '0115/24-THUD'),
-(3, '0116/24-THUD'),
-(3, '0117/24-THUD'),
-(3, '0118/24-THUD'),
-(3, '0119/24-THUD'),
-(3, '0120/24-THUD'),
-(3, '0121/24-THUD'),
-(3, '0122/24-THUD'),
-(3, '0123/24-THUD'),
-(3, '0124/24-THUD'),
-(3, '0125/24-THUD'),
-(3, '0126/24-THUD'),
-(3, '0127/24-THUD'),
-(3, '0128/24-THUD'),
-(3, '0129/24-THUD'),
-(3, '0130/24-THUD'),
-(3, '0131/24-THUD'),
-(3, '0132/24-THUD'),
-(3, '0133/24-THUD'),
-(3, '0134/24-THUD'),
-(3, '0135/24-THUD');
 
-INSERT INTO score (student_code, class_id, module_id, semester_id, score) VALUES
-('0092/24-THUD', 3, 1, 9, 8.50),
-('0092/24-THUD', 3, 2, 9, 7.75),
-('0092/24-THUD', 3, 1, 10, 7.80),
-('0092/24-THUD', 3, 3, 10, 8.10),
-('0092/24-THUD', 3, 1, 11, 8.90),
-('0092/24-THUD', 3, 2, 11, 6.50),
-('0093/24-THUD', 3, 1, 9, 9.00),
-('0093/24-THUD', 3, 2, 9, 8.25),
-('0093/24-THUD', 3, 1, 10, 8.20),
-('0093/24-THUD', 3, 3, 10, 7.90),
-('0093/24-THUD', 3, 1, 11, 9.10),
-('0093/24-THUD', 3, 2, 11, 8.00),
-('0094/24-THUD', 3, 1, 10, 6.90),
-('0094/24-THUD', 3, 3, 10, 7.50),
-('0094/24-THUD', 3, 1, 11, 7.20),
-('0094/24-THUD', 3, 2, 11, 8.30),
-('0095/24-THUD', 3, 1, 10, 8.50),
-('0095/24-THUD', 3, 3, 10, 8.00),
-('0095/24-THUD', 3, 1, 11, 7.70),
-('0095/24-THUD', 3, 2, 11, 6.80),
-('0102/24-THUD', 3, 1, 10, 7.40),
-('0102/24-THUD', 3, 3, 10, 8.20),
-('0102/24-THUD', 3, 1, 11, 8.60),
-('0102/24-THUD', 3, 2, 11, 7.90);
+-- thêm điểm cho sinh viên
+INSERT INTO score (class_subject_id, student_code, score) VALUES
+(1, '0092/24-THUD', 8.50), -- class_subject_id = 1, Giáo dục chính trị, HK1
+(2, '0092/24-THUD', 7.75), -- class_subject_id = 2, Tin học, HK1
+(1, '0093/24-THUD', 9.00),
+(2, '0093/24-THUD', 8.25),
+(3, '0094/24-THUD', 6.90), -- class_subject_id = 3, Tiếng Anh, HK1
+(3, '0094/24-THUD', 7.50),
+(3, '0095/24-THUD', 8.00),
+(1, '0095/24-THUD', 8.50),
+(3, '0102/24-THUD', 7.40),
+(3, '0102/24-THUD', 8.20);
 
-select * from module;
+-- Lớp PD-HDDL-01 (class_id = 1)
+INSERT INTO score (class_subject_id, student_code)
+SELECT 5, cs.student_code -- class_subject_id = 5, Giáo dục chính trị, HK2
+FROM class_student cs
+WHERE cs.class_subject_id = 5;
+
+INSERT INTO score (class_subject_id, student_code)
+SELECT 6, cs.student_code -- class_subject_id = 6, Tiếng Anh, HK2
+FROM class_student cs
+WHERE cs.class_subject_id = 6;
+
+INSERT INTO score (class_subject_id, student_code)
+SELECT 7, cs.student_code -- class_subject_id = 7, Lập trình cơ bản, HK3
+FROM class_student cs
+WHERE cs.class_subject_id = 7;
+
+-- Lớp TB-THUD-01 (class_id = 2)
+INSERT INTO score (class_subject_id, student_code)
+SELECT 8, cs.student_code -- class_subject_id = 8, Giáo dục chính trị, HK1
+FROM class_student cs
+WHERE cs.class_subject_id = 8;
+
+INSERT INTO score (class_subject_id, student_code)
+SELECT 9, cs.student_code -- class_subject_id = 9, Tin học, HK2
+FROM class_student cs
+WHERE cs.class_subject_id = 9;
+
+-- Lớp BT-HDDL-35 (class_id = 4)
+INSERT INTO score (class_subject_id, student_code)
+SELECT 10, cs.student_code -- class_subject_id = 10, Giáo dục chính trị, HK1
+FROM class_student cs
+WHERE cs.class_subject_id = 10;
+
+INSERT INTO score (class_subject_id, student_code)
+SELECT 11, cs.student_code -- class_subject_id = 11, Tin học, HK2
+FROM class_student cs
+WHERE cs.class_subject_id = 11;
+
+-- Lớp BT-KTDN-01 (class_id = 5)
+INSERT INTO score (class_subject_id, student_code)
+SELECT 12, cs.student_code -- class_subject_id = 12, Tiếng Anh, HK1
+FROM class_student cs
+WHERE cs.class_subject_id = 12;
+
+INSERT INTO score (class_subject_id, student_code)
+SELECT 13, cs.student_code -- class_subject_id = 13, Lập trình cơ bản, HK2
+FROM class_student cs
+WHERE cs.class_subject_id = 13;
+select * from score;
