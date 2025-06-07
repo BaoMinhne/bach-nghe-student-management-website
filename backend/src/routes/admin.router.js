@@ -12,6 +12,10 @@ router.get("/getStudentAccount", adminController.getStudentAccount);
 router.all("/getStudentAccount", methodNotAllowed);
 router.get("/getTeacherAccount", adminController.getTeacherAccount);
 router.all("/getTeacherAccount", methodNotAllowed);
+router.post("/createClass", adminController.createClassWithTeacher);
+router.all("/createClass", methodNotAllowed);
+router.post("/addStudentsToClass", adminController.addStudentsToClass);
+router.all("/addStudentsToClass", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 
