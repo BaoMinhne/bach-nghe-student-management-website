@@ -13,8 +13,10 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="logo-wrapper">
-    <a href="page_admin.html"><img src="../images/logo_Truong_Bach_Nghe.png" alt="Logo">
-      <span>Trường Trung Cấp Bách Nghệ</span></a>
+      <a href="page_admin.html">
+        <img src="../images/logo_Truong_Bach_Nghe.png" alt="Logo">
+        <span>Trường Trung Cấp Bách Nghệ</span>
+      </a>
     </div>
     <div class="dropdown">
       <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -35,14 +37,13 @@
       <li><a href="page_student_management.html"><i class="bi bi-people me-2"></i> QL học viên</a></li>
       <li><a href="page_class_management.html"><i class="bi bi-journal-plus me-2"></i> QL lớp học</a></li>
       <li><a href="page_teacher_management.html"><i class="bi bi-person-workspace me-2"></i> QL giảng viên</a></li>
-      <li><a href="#"><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a></li>
+      <li><a href="page_admin_statistics.html"><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a></li>
       <li><a href="../login/login.html"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</a></li>
     </ul>
   </div>
 
   <!-- MAIN CONTENT -->
   <div class="main-content">
-    <!-- Bộ lọc -->
     <div class="filters mb-4 d-flex flex-wrap gap-3">
       <div class="form-group">
         <label for="courseFilter">Chọn khóa học: </label>
@@ -56,15 +57,14 @@
         <button class="btn btn-primary" onclick="locLop()">Lọc</button>
       </div>
     </div>
+    
     <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4>Danh sách lớp học</h4>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createClassModal">
+      <h4>Danh sách lớp học</h4>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createClassModal">
         <i class="bi bi-plus-circle me-1"></i> Tạo lớp học
-    </button>
+      </button>
     </div>
 
-
-    <!-- Danh sách lớp học -->
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
@@ -80,7 +80,7 @@
         <tr>
           <td>1</td>
           <td>DLK02-1</td>
-          <td>Lớp Phát triển phần mềm A</td>
+          <td><a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#viewClassModal">Lớp Phát triển phần mềm A</a></td>
           <td>2023</td>
           <td>Trần Bích Phượng</td>
           <td>
@@ -108,15 +108,27 @@
           <form id="editClassForm">
             <div class="mb-3">
               <label for="maLop" class="form-label">Mã lớp</label>
-              <input type="text" class="form-control" id="maLop">
+              <select class="form-select" id="maLop">
+                <option value="DLK01-1">DLK01-1</option>
+                <option value="DLK02-1">DLK02-1</option>
+                <option value="DLK03-1">DLK03-1</option>
+              </select>
             </div>
             <div class="mb-3">
               <label for="tenLop" class="form-label">Tên lớp</label>
-              <input type="text" class="form-control" id="tenLop">
+              <select class="form-select" id="tenLop">
+                <option value="Lớp CNTT A">Lớp CNTT A</option>
+                <option value="Lớp CNTT B">Lớp CNTT B</option>
+                <option value="Lớp Phát triển phần mềm A">Lớp Phát triển phần mềm A</option>
+              </select>
             </div>
             <div class="mb-3">
               <label for="khoaHoc" class="form-label">Khóa học</label>
-              <input type="text" class="form-control" id="khoaHoc">
+              <select class="form-select" id="khoaHoc">
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </select>
             </div>
             <div class="mb-3">
               <label for="cvht" class="form-label">CVHT</label>
@@ -133,75 +145,149 @@
   </div>
 
   <!-- Modal tạo lớp học mới -->
-<div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="createClassModalLabel">Tạo lớp học mới</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        <form id="createClassForm">
-          <div class="mb-3">
-            <label for="newMaLop" class="form-label">Mã lớp</label>
-            <input type="text" class="form-control" id="newMaLop">
-          </div>
-          <div class="mb-3">
-            <label for="newTenLop" class="form-label">Tên lớp</label>
-            <input type="text" class="form-control" id="newTenLop">
-          </div>
-          <div class="mb-3">
-            <label for="newKhoaHoc" class="form-label">Khóa học</label>
-            <input type="text" class="form-control" id="newKhoaHoc">
-          </div>
-          <div class="mb-3">
-            <label for="newCVHT" class="form-label">CVHT</label>
-            <input type="text" class="form-control" id="newCVHT">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" id="btnAddClass">Thêm lớp</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal tạo lớp học mới -->
-<div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="createClassModalLabel">Tạo lớp học mới</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        <form id="createClassForm">
-          <div class="mb-3">
-            <label for="newMaLop" class="form-label">Mã lớp</label>
-            <input type="text" class="form-control" id="newMaLop">
-          </div>
-          <div class="mb-3">
-            <label for="newTenLop" class="form-label">Tên lớp</label>
-            <input type="text" class="form-control" id="newTenLop">
-          </div>
-          <div class="mb-3">
-            <label for="newKhoaHoc" class="form-label">Khóa học</label>
-            <input type="text" class="form-control" id="newKhoaHoc">
-          </div>
-          <div class="mb-3">
-            <label for="newCVHT" class="form-label">CVHT</label>
-            <input type="text" class="form-control" id="newCVHT">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" id="btnAddClass">Thêm lớp</button>
+  <div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createClassModalLabel">Tạo lớp học mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <form id="createClassForm">
+            <div class="mb-3">
+              <label for="newMaLop" class="form-label">Mã lớp</label>
+              <select class="form-select" id="newMaLop">
+                <option value="DLK01-1">DLK01-1</option>
+                <option value="DLK02-1">DLK02-1</option>
+                <option value="DLK03-1">DLK03-1</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="newTenLop" class="form-label">Tên lớp</label>
+              <select class="form-select" id="newTenLop">
+                <option value="Lớp CNTT A">Lớp CNTT A</option>
+                <option value="Lớp CNTT B">Lớp CNTT B</option>
+                <option value="Lớp Phát triển phần mềm A">Lớp Phát triển phần mềm A</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="newKhoaHoc" class="form-label">Khóa học</label>
+              <select class="form-select" id="newKhoaHoc">
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="newCVHT" class="form-label">CVHT</label>
+              <input type="text" class="form-control" id="newCVHT">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" id="btnAddClass">Thêm lớp</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Modal xem chi tiết lớp học -->
+  <div class="modal fade" id="viewClassModal" tabindex="-1" aria-labelledby="viewClassModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewClassModalLabel">Chi tiết lớp học</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Mã lớp:</strong> DLK02-1</p>
+          <p><strong>Tên lớp:</strong> Lớp Phát triển phần mềm A</p>
+          <p><strong>Khóa học:</strong> 2023</p>
+          <p><strong>CVHT:</strong> Trần Bích Phượng</p>
+
+          <h6>Danh sách sinh viên</h6>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mã số SV</th>
+                <th>Họ đệm</th>
+                <th>Tên</th>
+                <th>Giới tính</th>
+                <th>Địa chỉ</th>
+                <th>SĐT liên hệ</th>
+              </tr>
+            </thead>
+            <tbody id="studentList">
+              <tr>
+                <td>1</td>
+                <td>SV001</td>
+                <td>Nguyễn Văn</td>
+                <td>An</td>
+                <td>Nam</td>
+                <td>TP.HCM</td>
+                <td>0901234567</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+            <i class="bi bi-person-plus-fill me-1"></i> Thêm sinh viên
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal thêm sinh viên -->
+  <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addStudentModalLabel">Thêm sinh viên vào lớp</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <form id="studentForm">
+            <div class="mb-3">
+              <label for="studentId" class="form-label">Mã số sinh viên</label>
+              <input type="text" class="form-control" id="studentId">
+            </div>
+            <div class="mb-3">
+              <label for="studentLastName" class="form-label">Họ đệm</label>
+              <input type="text" class="form-control" id="studentLastName">
+            </div>
+            <div class="mb-3">
+              <label for="studentFirstName" class="form-label">Tên</label>
+              <input type="text" class="form-control" id="studentFirstName">
+            </div>
+            <div class="mb-3">
+              <label for="studentGender" class="form-label">Giới tính</label>
+              <select class="form-select" id="studentGender">
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="studentAddress" class="form-label">Địa chỉ</label>
+              <input type="text" class="form-control" id="studentAddress">
+            </div>
+            <div class="mb-3">
+              <label for="studentPhone" class="form-label">SĐT liên hệ</label>
+              <input type="text" class="form-control" id="studentPhone">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="themSinhVien()">Thêm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

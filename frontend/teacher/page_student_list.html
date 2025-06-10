@@ -6,7 +6,7 @@
   <title>Danh sách học viên</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
-  <link rel="stylesheet" href="../css/teacher.css"/>
+  <link rel="stylesheet" href="../css/page_student_list_teacher.css"/>
 </head>
 <body>
   <!-- Topbar -->
@@ -36,22 +36,27 @@
   </div>
 
   <div class="main-content p-4">
-    <h3>Danh sách học viên</h3>
+    <h3>Danh Sách Học Viên</h3>
 
     <div class="filters mb-3">
+      <div>
       <label for="classFilter" class="form-label">Lọc theo lớp:</label>
       <select id="classFilter" class="form-select w-auto d-inline-block">
         <option value="all">Tất cả</option>
         <option value="DLK02-1">DLK02-1</option>
         <option value="DLK02-2">DLK02-2</option>
       </select>
+      </div>
+      <button type="button" class="btn btn-outline-success"><i class="bi bi-file-excel me-2"></i>Import Excel</button>
     </div>
 
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
           <th>STT</th>
-          <th>Họ tên</th>
+          <th>MÃ số sinh viên</th>
+          <th>Họ đệm</th>
+          <th>Tên</th>
           <th>Lớp</th>
           <th>Điểm cuối kỳ</th>
           <th>Ghi chú</th>
@@ -60,7 +65,9 @@
       <tbody id="studentTable">
         <tr>
           <td>1</td>
-          <td>Nguyễn Văn A</td>
+          <td>BNCT0123</td>
+          <td>Nguyễn Văn</td>
+          <td> A</td>
           <td>DLK02-1</td>
           <td>7.5</td>
           <td>
@@ -70,7 +77,9 @@
         </tr>
         <tr>
           <td>2</td>
-          <td>Trần Thị B</td>
+          <td>BNCT0123</td>
+          <td>Trần Thị</td>
+          <td> B</td>
           <td>DLK02-2</td>
           <td>8.0</td>
           <td>

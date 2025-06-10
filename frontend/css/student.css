@@ -36,9 +36,10 @@ body{
   color: #fbbf24; 
 }
 .topbar a {
+  display: flex;
+  align-items: center;
   text-decoration: none;
 }
-
 /* Sidebar */
 .sidebar {
   position: fixed;
@@ -120,8 +121,8 @@ body{
 table {
   width: 100%;
   margin-top: 1rem;
-  border-collapse: collapse;
-  align-items: center;
+  border-collapse:separate;
+  text-align: center;
 }
 
 table th,
