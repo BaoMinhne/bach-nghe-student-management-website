@@ -1,6 +1,7 @@
 const adminService = require("../models/admin.model");
 const JSend = require("../jsend");
 const ApiError = require("../api-error");
+const { as } = require("../database/knex");
 
 async function createStudentAccount(req, res, next) {
   const { username, password } = req.body;
@@ -88,9 +89,61 @@ async function getTeacherAccount(req, res, next) {
   }
 }
 
+async function createClassWithTeacher(req, res, next) {
+  const { classID, moduleID, semesterID, teacherCode } = req.body;
+
+  if (!classID || !moduleID || !semesterID || !teacherCode) {
+    return res.status(400).json(JSend.fail("All fields are required"));
+  }
+
+  try {
+    const newClass = await adminService.createClassWithTeacher({
+      classID,
+      moduleID,
+      semesterID,
+      teacherCode,
+    });
+
+    if (!newClass) {
+      return next(new ApiError(401, "Create class failed"));
+    }
+
+    return res.status(201).json(JSend.success(newClass));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(JSend.error("Internal server error", err));
+  }
+}
+
+async function addStudentsToClass(req, res, next) {
+  const { class_subject_id, student_codes } = req.body;
+
+  if (
+    typeof class_subject_id === "undefined" ||
+    class_subject_id === null ||
+    !Array.isArray(student_codes) ||
+    student_codes.length === 0
+  ) {
+    return res.status(400).json(JSend.fail("Missing or invalid data"));
+  }
+
+  try {
+    const result = await adminService.addStudentsToClass({
+      class_subject_id,
+      student_codes,
+    });
+
+    return res.status(201).json(JSend.success({ added: result }));
+  } catch (err) {
+    console.error(err);
+    return next(new ApiError(500, "Internal server error"));
+  }
+}
 module.exports = {
   createStudentAccount,
   createTeacherAccount,
   getStudentAccount,
   getTeacherAccount,
+  createClassWithTeacher,
+  addStudentsToClass,
 };

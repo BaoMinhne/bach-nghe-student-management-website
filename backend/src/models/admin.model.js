@@ -82,6 +82,99 @@ const admin = {
 
     return users;
   },
+
+  createClassWithTeacher: async ({
+    classID,
+    moduleID,
+    semesterID,
+    teacherCode,
+  }) => {
+    const trx = await knex.transaction();
+    try {
+      const [clsId] = await trx("class_subject").insert({
+        class_id: classID,
+        module_id: moduleID,
+        semester_id: semesterID,
+      });
+
+      if (!clsId) {
+        throw new Error("Failed to insert class_subject");
+      }
+
+      await trx("teacher_subject_class").insert({
+        teacher_code: teacherCode,
+        class_subject_id: clsId,
+      });
+
+      await trx.commit();
+      const newClass = await knex("class_subject")
+        .where("class_subject.class_subject_id", clsId)
+        .join("class", "class_subject.class_id", "class.class_id")
+        .join("module", "class_subject.module_id", "module.module_id")
+        .join("semester", "class_subject.semester_id", "semester.semester_id")
+        .join(
+          "teacher_subject_class",
+          "class_subject.class_subject_id",
+          "teacher_subject_class.class_subject_id"
+        )
+        .join(
+          "teacher",
+          "teacher_subject_class.teacher_code",
+          "teacher.teacher_code"
+        )
+        .select(
+          "class_subject.class_subject_id",
+          "module.module_name",
+          "class.class_name",
+          "semester.semester_number",
+          "teacher.teacher_name"
+        )
+        .first();
+
+      return newClass;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error creating class_subject:", error.message);
+      throw error;
+    }
+  },
+
+  addStudentsToClass: async ({ class_subject_id, student_codes }) => {
+    const trx = await knex.transaction();
+    try {
+      // Check if class_subject_id exists
+      const classSubject = await trx("class_subject")
+        .where({ class_subject_id })
+        .first();
+
+      if (!classSubject) {
+        throw new Error("Class subject not found");
+      }
+
+      const students = [];
+      // Insert each student code into the class_subject_student table
+      for (const studentCode of student_codes) {
+        try {
+          await trx("class_student").insert({
+            class_subject_id,
+            student_code: studentCode,
+          });
+          students.push(studentCode);
+        } catch (err) {
+          // Bỏ qua duplicate entry (đã tồn tại)
+          console.error("Error adding students to class_subject:", err.message);
+          throw err;
+        }
+      }
+
+      await trx.commit();
+      return students;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error adding students to class subject:", error.message);
+      throw error;
+    }
+  },
 };
 
 module.exports = admin;

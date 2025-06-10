@@ -17,11 +17,7 @@ async function getTeacherInfo(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "Teacher information retrieved successfully",
-      status: "success",
-      data: teacherInfo,
-    });
+    return res.json(JSend.success(teacherInfo));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid teacher code or data not found"));
@@ -76,11 +72,7 @@ async function updateTeacherInfo(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "The teacher's information update successfully",
-      status: "success",
-      data: updateData,
-    });
+    return res.json(JSend.success(updateData));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Infomation not valid or data not found"));
@@ -101,11 +93,7 @@ async function getModuleTeaching(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "Module teaching retrieved successfully",
-      status: "success",
-      data: moduleTeaching,
-    });
+    return res.json(JSend.success(moduleTeaching));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid teacher code or data not found"));
@@ -130,11 +118,7 @@ async function getStudentInClass(req, res, next) {
       return next(new ApiError(401, "Data not found"));
     }
 
-    res.json({
-      message: "Students in class retrieved successfully",
-      status: "success",
-      data: students,
-    });
+    return res.json(JSend.success(students));
   } catch (error) {
     console.log(error);
     return next(new ApiError(401, "Invalid parameters or data not found"));
