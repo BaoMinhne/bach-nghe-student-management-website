@@ -15,7 +15,17 @@ const {
 } = require("./controllers/errors.controller");
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5501",
+      "http://localhost",
+      "http://127.0.0.1:5501",
+    ],
+    credentials: true, // Cho phép gửi cookie qua CORS
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
