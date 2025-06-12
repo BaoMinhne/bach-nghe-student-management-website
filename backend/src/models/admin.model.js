@@ -142,7 +142,7 @@ const admin = {
   addStudentsToClass: async ({ class_subject_id, student_codes }) => {
     const trx = await knex.transaction();
     try {
-      // Check if class_subject_id exists
+      // Kiểm tra class_subject_id có tồn tại không
       const classSubject = await trx("class_subject")
         .where({ class_subject_id })
         .first();
@@ -152,18 +152,31 @@ const admin = {
       }
 
       const students = [];
-      // Insert each student code into the class_subject_student table
+
       for (const studentCode of student_codes) {
         try {
+          // Thêm vào class_student
           await trx("class_student").insert({
             class_subject_id,
             student_code: studentCode,
           });
+
+          // Thêm vào score (với điểm NULL ban đầu)
+          await trx("score").insert({
+            class_subject_id,
+            student_code: studentCode,
+            score: null, // optional vì mặc định đã là null
+          });
+
           students.push(studentCode);
         } catch (err) {
-          // Bỏ qua duplicate entry (đã tồn tại)
-          console.error("Error adding students to class_subject:", err.message);
-          throw err;
+          // Nếu bị duplicate (đã tồn tại trong class_student hoặc score), ghi log và bỏ qua
+          console.error("Lỗi khi thêm sinh viên:", err.message);
+
+          // Nếu lỗi không phải duplicate thì rollback
+          if (!err.message.includes("duplicate")) {
+            throw err;
+          }
         }
       }
 

@@ -84,11 +84,13 @@ async function updateStudentInfo(req, res, next) {
   }
 
   const {
+    student_date_of_birth,
     student_address,
     student_email,
     student_phone,
     student_IDCard,
     student_country,
+    student_gender,
   } = req.body;
 
   if (
@@ -100,13 +102,21 @@ async function updateStudentInfo(req, res, next) {
   ) {
     return next(new ApiError(400, "All fields are required"));
   }
+  //   let dateOfBirth = null;
+  //   if (student_date_of_birth) {
+  //     dateOfBirth = moment(student_date_of_birth, "MM-DD-YYYY").format(
+  //       "YYYY-MM-DD"
+  //     );
+  //   }
 
   const updateData = {
+    student_date_of_birth,
     student_address,
     student_email,
     student_phone,
     student_IDCard,
     student_country,
+    student_gender,
   };
 
   try {

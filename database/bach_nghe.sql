@@ -14,7 +14,7 @@ create table student (
     student_IDCard varchar(255) default null,
     student_country varchar(255) default null
 );
-
+select * from student;
 create table teacher (
 	teacher_code varchar(255) primary key,
     teacher_name varchar(255) not null,
@@ -33,6 +33,7 @@ create table system_user (
     user_role int not null default 1, -- 0: admin, 1: sinh viên, 2: giảng viên
     user_status int default 1 -- 1: active, 0: locked
 );
+select * from system_user;
 
 create table course (
 	course_id int auto_increment primary key,
@@ -105,7 +106,6 @@ CREATE TABLE teacher_subject_class (
     UNIQUE (teacher_code, class_subject_id) -- Đảm bảo một giảng viên chỉ được gán một lần cho mỗi lớp học phần
 );
 
-DROP TABLE score;
 CREATE TABLE score (
     id INT AUTO_INCREMENT PRIMARY KEY,
     class_subject_id INT NOT NULL,
@@ -389,25 +389,11 @@ JOIN teacher_subject_class tsc ON cs.class_subject_id = tsc.class_subject_id
 JOIN teacher t ON tsc.teacher_code = t.teacher_code 
 LEFT JOIN score sc ON s.student_code = sc.student_code 
      AND cs.class_subject_id = sc.class_subject_id
-LEFT JOIN semester se ON cs.semester_id = se.semester_id
+JOIN semester se ON cs.semester_id = se.semester_id
 WHERE s.student_code = '0092/24-THUD';
 
-SELECT class_subject_id, teacher_code -- , COUNT(*) as count
-FROM teacher_subject_class
-GROUP BY class_subject_id, teacher_code
-HAVING COUNT(*) > 1;
 
-SELECT class_subject_id, COUNT(class_subject_id) as count
-FROM teacher_subject_class
-GROUP BY class_subject_id;
-
-DELETE t1 FROM teacher_subject_class t1
-INNER JOIN teacher_subject_class t2 
-WHERE t1.id > t2.id 
-AND t1.class_subject_id = t2.class_subject_id 
-AND t1.teacher_code = t2.teacher_code;
-
-select * from module;
+select * from teacher_subject_class;
 
 select * from student where student_code = '0092/24-THUD';
 select * from score where student_code = '0102/24-THUD' and module_id = 1;

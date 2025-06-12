@@ -41,6 +41,7 @@ bach-nghe-student-management-website/
 ├── frontend/
 │   ├── admin/
 │   │   ├── page_admin.html
+│   │   ├── page_admin_statistics.html
 │   │   ├── page_class_management.html
 │   │   ├── page_create_account.html
 │   │   ├── page_student_management.html
@@ -49,17 +50,26 @@ bach-nghe-student-management-website/
 │   │   ├── admin.css
 │   │   ├── info_student.css
 │   │   ├── login.css
+│   │   ├── page_student_list_teacher.css
 │   │   ├── student.css
 │   │   └── teacher.css
 │   ├── images/
 │   │   ├── bg_login.jpg
 │   │   └── logo_Truong_Bach_Nghe.png
 │   ├── js/
-│   │   ├── class_management.js
-│   │   ├── login.js
-│   │   ├── student_management.js
-│   │   ├── teacher.js
-│   │   └── teacher_management.js
+│   │   ├── Administrator/
+│   │   │   ├── class_management.js
+│   │   │   ├── student_management.js
+│   │   │   └── teacher_management.js
+│   │   ├── Authentication/
+│   │   │   ├── login.js
+│   │   │   ├── logout.js
+│   │   │   └── storage.js
+│   │   ├── Student/
+│   │   ├── Teacher/
+│   │   │   └── teacher.js
+│   │   ├── test_chart.js
+│   │   └── toast.js
 │   ├── login/
 │   │   └── login.html
 │   ├── student/
@@ -70,7 +80,8 @@ bach-nghe-student-management-website/
 │       ├── page_student_list.html
 │       └── page_teacher_home.html
 ├── .gitignore
-└── README.md
+├── README.md
+└── source_dump.txt
 ```
 
 ## FILE CONTENTS
@@ -121,7 +132,17 @@ const {
 } = require("./controllers/errors.controller");
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5501",
+      "http://localhost",
+      "http://127.0.0.1:5501",
+    ],
+    credentials: true, // Cho phép gửi cookie qua CORS
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -1321,7 +1342,72 @@ module.exports.setup = (app) => {
 
 ```
 
-### frontend\js\class_management.js
+### frontend\js\test_chart.js
+```js
+document.addEventListener("DOMContentLoaded", function () {
+  const ctx = document.getElementById("classChart").getContext("2d");
+  const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Lớp A", "Lớp B", "Lớp C", "Lớp D", "Lớp E"],
+      datasets: [{
+        label: "Số sinh viên",
+        data: [30, 45, 25, 50, 40],
+        backgroundColor: "#3B82F6",
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+});
+
+```
+
+### frontend\js\toast.js
+```js
+function showToast(message, type = "info") {
+  const bgColors = {
+    success: "linear-gradient(to right, #00b09b, #96c93d)",
+    error: "linear-gradient(to right, #e52d27, #b31217)",
+    info: "linear-gradient(to right, #2193b0, #6dd5ed)",
+    warn: "linear-gradient(to right, #f7971e, #ffd200)",
+  };
+
+  const icons = {
+    success: "✅",
+    error: "❌",
+    info: "ℹ️",
+    warn: "⚠️",
+  };
+
+  const icon = icons[type] || "";
+  const textWithIcon = `<span style="display:flex;align-items:center;gap:6px;">${icon} ${message}</span>`;
+
+  Toastify({
+    text: textWithIcon,
+    duration: 3000,
+    close: false,
+    gravity: "top",
+    position: "right",
+    backgroundColor: bgColors[type] || bgColors.info,
+    stopOnFocus: true,
+    escapeMarkup: false, // <--- Cho phép hiển thị HTML
+  }).showToast();
+}
+
+window.showToast = showToast;
+
+```
+
+### frontend\js\Administrator\class_management.js
 ```js
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".btn-edit").forEach(btn => {
@@ -1388,27 +1474,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 ```
 
-### frontend\js\login.js
-```js
-const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const username = loginForm.querySelector('input[type="text"]').value;
-                const password = loginForm.querySelector('input[type="password"]').value;
-                
-                if (username && password) {
-                    alert('Đăng nhập thành công! Username: ' + username);
-                } else {
-                    alert('Vui lòng nhập đầy đủ thông tin!');
-                }
-            });
-        } else {
-            console.error('Không tìm thấy form đăng nhập!');
-        }
-```
-
-### frontend\js\student_management.js
+### frontend\js\Administrator\student_management.js
 ```js
 let selectedRow = null;
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
@@ -1461,44 +1527,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ```
 
-### frontend\js\teacher.js
-```js
-document.addEventListener('DOMContentLoaded', function () {
-  const filter = document.getElementById('classFilter');
-  const tableRows = document.querySelectorAll('#studentTable tr');
-
-  filter.addEventListener('change', () => {
-    const selectedClass = filter.value;
-    tableRows.forEach(row => {
-      const classCell = row.cells[2].textContent;
-      row.style.display = (selectedClass === 'all' || classCell === selectedClass) ? '' : 'none';
-    });
-  });
-
-});
-
-    const editModal = document.getElementById('editModal');
-    editModal.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      const name = button.getAttribute('data-name');
-      const className = button.getAttribute('data-class');
-      const score = button.getAttribute('data-score');
-
-      document.getElementById('studentName').value = name;
-      document.getElementById('studentClass').value = className;
-      document.getElementById('studentScore').value = score;
-    });
-
-    document.getElementById('editScoreForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      alert('Điểm đã được cập nhật!');
-      const modal = bootstrap.Modal.getInstance(editModal);
-      modal.hide();
-    });
-```
-
-### frontend\js\teacher_management.js
+### frontend\js\Administrator\teacher_management.js
 ```js
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("teacherForm");
@@ -1538,4 +1567,154 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+```
+
+### frontend\js\Authentication\login.js
+```js
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const username = loginForm.querySelector('input[type="text"]').value;
+    const password = loginForm.querySelector('input[type="password"]').value;
+
+    if (!username || !password) {
+      showToast("Please enter complete information!", "warn");
+      return;
+    }
+    try {
+      const API_BASE = "http://localhost:3000";
+      const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        const { token, user } = result.data;
+        Storage.saveUser(user, token);
+
+        // Chuyển hướng theo phân quyền
+        switch (user.role) {
+          case 0:
+            window.location.href = "../admin/page_admin.html";
+            break;
+          case 1:
+            window.location.href = "../student/page_student.html";
+            break;
+          case 2:
+            window.location.href = "../teacher/page_teacher_home.html";
+            break;
+          default:
+            showToast("User role not determined!!!", "warn");
+        }
+      } else {
+        showToast(`Login Fail: ${result.message}`, "error");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast(`Unable to connect to server: ${error.message}`, "error");
+    }
+  });
+} else {
+  console.error("Không tìm thấy form đăng nhập!");
+}
+
+```
+
+### frontend\js\Authentication\logout.js
+```js
+function handleLogout() {
+  // Gọi API logout nếu muốn xoá session trên server
+  fetch("http://localhost:3000/api/v1/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  }).catch((err) => {
+    console.warn("Không thể gọi logout từ server:", err.message);
+  });
+
+  Storage.clear();
+  window.location.href = "../login/login.html";
+}
+
+// Gắn tự động nếu có phần tử logout nào
+window.addEventListener("DOMContentLoaded", () => {
+  const btns = [
+    document.getElementById("logoutBtn"),
+    document.getElementById("sidebarLogout"),
+  ];
+
+  btns.forEach((btn) => {
+    if (btn) {
+      btn.addEventListener("click", handleLogout);
+    }
+  });
+});
+
+```
+
+### frontend\js\Authentication\storage.js
+```js
+const Storage = {
+  saveUser: (user, token) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+  },
+  getUser: () => {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  },
+  getToken: () => localStorage.getItem("token"),
+  getRole: () => {
+    const user = Storage.getUser();
+    return user ? user.role : null;
+  },
+  isLoggedIn: () => !!Storage.getToken(),
+  clear: () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  },
+};
+
+window.Storage = Storage;
+
+```
+
+### frontend\js\Teacher\teacher.js
+```js
+document.addEventListener('DOMContentLoaded', function () {
+  const filter = document.getElementById('classFilter');
+  const tableRows = document.querySelectorAll('#studentTable tr');
+
+  filter.addEventListener('change', () => {
+    const selectedClass = filter.value;
+    tableRows.forEach(row => {
+      const classCell = row.cells[2].textContent;
+      row.style.display = (selectedClass === 'all' || classCell === selectedClass) ? '' : 'none';
+    });
+  });
+
+});
+
+    const editModal = document.getElementById('editModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const name = button.getAttribute('data-name');
+      const className = button.getAttribute('data-class');
+      const score = button.getAttribute('data-score');
+
+      document.getElementById('studentName').value = name;
+      document.getElementById('studentClass').value = className;
+      document.getElementById('studentScore').value = score;
+    });
+
+    document.getElementById('editScoreForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      alert('Điểm đã được cập nhật!');
+      const modal = bootstrap.Modal.getInstance(editModal);
+      modal.hide();
+    });
 ```
