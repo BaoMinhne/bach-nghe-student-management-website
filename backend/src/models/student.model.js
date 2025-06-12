@@ -12,7 +12,7 @@ const student = {
       .join("class as c", "csub.class_id", "c.class_id")
       .join("module as m", "csub.module_id", "m.module_id")
       .join("semester as se", "csub.semester_id", "se.semester_id")
-      .leftJoin("score as sc", function () {
+      .join("score as sc", function () {
         this.on("cs.class_subject_id", "=", "sc.class_subject_id").andOn(
           "s.student_code",
           "=",
@@ -26,6 +26,7 @@ const student = {
         "s.student_name as TÊN",
         "m.module_code as Mã Môn học",
         "m.module_name as Tên Môn học",
+        "c.class_name AS Đơn Vị Học",
         "se.semester_number as Học kỳ",
         "se.semester_start_date as Ngày bắt đầu",
         "se.semester_end_date as Ngày kết thúc",
@@ -47,7 +48,7 @@ const student = {
       .join("class as c", "csub.class_id", "c.class_id")
       .join("module as m", "csub.module_id", "m.module_id")
       .join("semester as se", "csub.semester_id", "se.semester_id")
-      .leftJoin("score as sc", function () {
+      .join("score as sc", function () {
         this.on("cs.class_subject_id", "=", "sc.class_subject_id").andOn(
           "s.student_code",
           "=",
@@ -62,6 +63,7 @@ const student = {
         "s.student_name as TÊN",
         "m.module_code as Mã Môn học",
         "m.module_name as Tên Môn học",
+        "c.class_name AS Đơn Vị Học",
         "se.semester_number as Học kỳ",
         "se.semester_start_date as Ngày bắt đầu",
         "se.semester_end_date as Ngày kết thúc",
@@ -86,11 +88,13 @@ const student = {
     const result = await knex("student")
       .where("student_code", studentCode)
       .update({
+        student_date_of_birth: updateData.student_date_of_birth,
         student_address: updateData.student_address,
         student_email: updateData.student_email,
         student_phone: updateData.student_phone,
         student_IDCard: updateData.student_IDCard,
         student_country: updateData.student_country,
+        student_gender: updateData.student_gender,
       });
 
     if (result === 0) {

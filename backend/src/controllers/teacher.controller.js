@@ -52,7 +52,6 @@ async function updateTeacherInfo(req, res, next) {
     dateOfBirth = moment(teacher_date_of_birth, "DD-MM-YYYY").format(
       "YYYY-MM-DD"
     );
-    // console.log(dateOfBirth);
   }
 
   const updateData = {
