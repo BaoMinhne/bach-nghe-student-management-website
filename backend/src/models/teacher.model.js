@@ -41,6 +41,7 @@ const teacher = {
       .join("semester as se", "csub.semester_id", "se.semester_id")
       .where("t.teacher_code", teacherCode)
       .distinct(
+        "csub.class_subject_id",
         "t.teacher_code",
         "t.teacher_name",
         "c.class_code",
@@ -101,6 +102,137 @@ const teacher = {
         "sc.score"
       )
       .orderBy([{ column: "s.student_code" }]);
+
+    return result;
+  },
+
+  updateStudentScore: async (classSubjectId, studentCode, score) => {
+    const result = await knex("score")
+      .where({
+        class_subject_id: classSubjectId,
+        student_code: studentCode,
+      })
+      .update({ score });
+
+    if (result === 0) {
+      return null;
+    }
+    return result;
+  },
+
+  getStudentPassing: async (teacherCode) => {
+    const result = await knex("teacher_subject_class as tsc")
+      .join(
+        "class_subject as csj",
+        "tsc.class_subject_id",
+        "csj.class_subject_id"
+      )
+      .join("class as c", "csj.class_id", "c.class_id")
+      .join("module as m", "csj.module_id", "m.module_id")
+      .join(
+        "class_student as cs",
+        "csj.class_subject_id",
+        "cs.class_subject_id"
+      )
+      .leftJoin("score as sc", function () {
+        this.on("sc.class_subject_id", "=", "csj.class_subject_id").andOn(
+          "sc.student_code",
+          "=",
+          "cs.student_code"
+        );
+      })
+      .where("tsc.teacher_code", teacherCode)
+      .select(
+        "c.class_code as class",
+        "m.module_name as subject",
+        knex.raw("COUNT(DISTINCT cs.student_code) as total_students"),
+        knex.raw(
+          "COUNT(DISTINCT CASE WHEN sc.score >= 4.0 THEN sc.student_code END) as passed_students"
+        )
+      )
+      .groupBy(["c.class_code", "m.module_name"])
+      .orderBy(["c.class_code", "m.module_name"]);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result;
+  },
+
+  getPassingPropotion: async (teacherCode) => {
+    const result = await knex("teacher_subject_class as tsc")
+      .join(
+        "class_subject as csj",
+        "tsc.class_subject_id",
+        "csj.class_subject_id"
+      )
+      .join(
+        "class_student as cs",
+        "cs.class_subject_id",
+        "csj.class_subject_id"
+      )
+      .leftJoin("score as sc", function () {
+        this.on("sc.class_subject_id", "=", "csj.class_subject_id").andOn(
+          "sc.student_code",
+          "=",
+          "cs.student_code"
+        );
+      })
+      .where("tsc.teacher_code", teacherCode)
+      .select(
+        knex.raw("COUNT(DISTINCT cs.student_code) AS total_students"),
+        knex.raw(`
+        COUNT(DISTINCT CASE WHEN sc.score >= 4.0 THEN sc.student_code END) AS passed_students
+      `),
+        knex.raw(`
+        ROUND(
+          COUNT(DISTINCT CASE WHEN sc.score >= 4.0 THEN sc.student_code END) * 100.0
+          / NULLIF(COUNT(DISTINCT cs.student_code), 0), 2
+        ) AS passing_percentage
+      `)
+      );
+
+    if (!result || result.length === 0) {
+      return null;
+    }
+
+    return result[0]; // vì chỉ có 1 hàng kết quả
+  },
+
+  getAvgScore: async (teacherCode) => {
+    const result = await knex("teacher_subject_class as tsc")
+      .join(
+        "class_subject as csj",
+        "tsc.class_subject_id",
+        "csj.class_subject_id"
+      )
+      .join("class as c", "csj.class_id", "c.class_id")
+      .join("module as m", "csj.module_id", "m.module_id")
+      .join(
+        "class_student as cs",
+        "csj.class_subject_id",
+        "cs.class_subject_id"
+      )
+      .join("score as sc", function () {
+        this.on("sc.class_subject_id", "=", "csj.class_subject_id").andOn(
+          "sc.student_code",
+          "=",
+          "cs.student_code"
+        );
+      })
+      .where("tsc.teacher_code", teacherCode)
+      .select(
+        "c.class_code as class",
+        "m.module_name as subject",
+        knex.raw(" ROUND(AVG(sc.score), 2) as average_score")
+      )
+      .groupBy(["c.class_code", "m.module_name"])
+      .orderBy("c.class_code", "asc");
+
+    if (result.length === 0) {
+      return null;
+    }
 
     return result;
   },
