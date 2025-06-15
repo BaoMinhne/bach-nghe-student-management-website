@@ -124,9 +124,106 @@ async function getStudentInClass(req, res, next) {
   }
 }
 
+async function updateStudentScore(req, res, next) {
+  const { classSubjectId, studentCode, score } = req.body;
+
+  if (
+    !classSubjectId ||
+    !studentCode ||
+    score === undefined ||
+    score === null
+  ) {
+    return next(new ApiError(400, "All parameters are required"));
+  }
+
+  try {
+    const scores = await teacherService.updateStudentScore(
+      classSubjectId,
+      studentCode,
+      score
+    );
+
+    if (!scores) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(scores));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, "Invalid parameters or data not found"));
+  }
+}
+
+async function getStudentPassing(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+
+  try {
+    const students = await teacherService.getStudentPassing(teacherCode);
+
+    if (!students) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(students));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, `${error.message}`));
+  }
+}
+
+async function getPassingPropotion(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+
+  try {
+    const students = await teacherService.getPassingPropotion(teacherCode);
+
+    if (!students) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(students));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, `${error.message}`));
+  }
+}
+
+async function getAvgScore(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+
+  try {
+    const students = await teacherService.getAvgScore(teacherCode);
+
+    if (!students) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(students));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, `${error.message}`));
+  }
+}
+
 module.exports = {
   getTeacherInfo,
   updateTeacherInfo,
   getModuleTeaching,
   getStudentInClass,
+  updateStudentScore,
+  getStudentPassing,
+  getPassingPropotion,
+  getAvgScore,
 };
