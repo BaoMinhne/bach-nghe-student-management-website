@@ -47,7 +47,7 @@ function renderModulesList(modules) {
             <span>${module["module_code"]} - ${module["module_name"]}</span>
           </h5>
           <p class="card-text marquee-hover">
-            <span>Ms. ${module["teacher_name"]}</span>
+            <span>${module["teacher_name"]}</span>
           </p>
           <p class="card-text card_class_name marquee-hover">
             <span>Class: ${module["class_name"]}</span>

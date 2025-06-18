@@ -1,16 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  //   const filter = document.getElementById("classFilter");
-  //   const tableRows = document.querySelectorAll("#studentTable tr");
-
-  //   filter.addEventListener("change", () => {
-  //     const selectedClass = filter.value;
-  //     tableRows.forEach((row) => {
-  //       const classCell = row.cells[2].textContent;
-  //       row.style.display =
-  //         selectedClass === "all" || classCell === selectedClass ? "" : "none";
-  //     });
-  //   });
-
   getStudentList();
 });
 

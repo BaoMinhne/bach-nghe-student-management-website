@@ -30,7 +30,7 @@
           type="button"
           data-bs-toggle="dropdown"
         >
-          Trần Thị Bích Phượng
+          <span class="teacher_name"></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="#">Đổi mật khẩu</a></li>
@@ -87,9 +87,18 @@
           <label class="module_label">Môn: </label>
           <span class="module_name"></span>
         </div>
-        <button type="button" class="btn btn-outline-success ms-auto">
-          <i class="bi bi-file-excel me-2"></i>Import Excel
-        </button>
+        <label
+          for="excelFile"
+          class="btn btn-outline-success d-flex align-items-center gap-2"
+        >
+          <i class="bi bi-file-earmark-excel"></i> Import Excel
+        </label>
+        <input
+          type="file"
+          id="excelFile"
+          accept=".xlsx, .xls"
+          style="display: none"
+        />
       </div>
 
       <table class="table table-bordered table-striped">
@@ -201,5 +210,8 @@
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
     <script src="../js/Teacher/teacher_student_list.js"></script>
+    <script src="../js/Teacher/teacher_information.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="../js/Teacher/teacher_import_excel.js"></script>
   </body>
 </html>

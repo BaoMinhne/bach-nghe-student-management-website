@@ -21,6 +21,16 @@ router.get("/getPassingPropotion", teacherController.getPassingPropotion);
 router.all("/getPassingPropotion", methodNotAllowed);
 router.get("/getAvgScore", teacherController.getAvgScore);
 router.all("/getAvgScore", methodNotAllowed);
+router.get("/getStudentCodeByName", teacherController.getStudentCodeByName);
+router.all("/getStudentCodeByName", methodNotAllowed);
+router.post("/importStudentScores", teacherController.importStudentScores);
+router.all("/importStudentScores", methodNotAllowed);
+router.get("/getScoreProgress", teacherController.getScoreProgress);
+router.all("/getScoreProgress", methodNotAllowed);
+router.get("/getCountTeaching", teacherController.getCountTeaching);
+router.all("/getCountTeaching", methodNotAllowed);
+router.get("/getLastUpdate", teacherController.getLastUpdate);
+router.all("/getLastUpdate", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 

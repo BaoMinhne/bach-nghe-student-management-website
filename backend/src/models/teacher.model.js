@@ -236,6 +236,127 @@ const teacher = {
 
     return result;
   },
+
+  getStudentCodeByName: async (studentMiddleName, studentName) => {
+    const result = await knex("student")
+      .where({
+        student_middle_name: studentMiddleName,
+        student_name: studentName,
+      })
+      .select("student_code");
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0].student_code;
+  },
+
+  importStudentScores: async (classSubjectId, students) => {
+    const updated = [];
+    const skipped = [];
+    for (const student of students) {
+      try {
+        const exists = await knex("score")
+          .where({
+            class_subject_id: classSubjectId,
+            student_code: student.student_code,
+          })
+          .select("score")
+          .first();
+
+        if (!exists) {
+          skipped.push(student.student_code);
+          continue;
+        }
+
+        if (student.score === "" || student.score === undefined) {
+          skipped.push(student.student_code);
+          continue;
+        }
+
+        if (Number(exists.score) === Number(student.score)) {
+          skipped.push(student.student_code);
+          continue;
+        }
+
+        await knex("score")
+          .where({
+            class_subject_id: classSubjectId,
+            student_code: student.student_code,
+          })
+          .update({ score: student.score });
+
+        updated.push(student.student_code);
+      } catch (error) {
+        console.error(
+          `Error processing student ${student.student_code}:`,
+          error
+        );
+        continue;
+      }
+    }
+    return {
+      updatedCount: updated.length,
+      updated,
+      skipped,
+    };
+  },
+
+  getScoreProgress: async (teacherCode) => {
+    const result = await knex("teacher_subject_class as tsc")
+      .join(
+        "class_student as cs",
+        "cs.class_subject_id",
+        "tsc.class_subject_id"
+      )
+      .leftJoin("score as s", function () {
+        this.on("s.class_subject_id", "=", "cs.class_subject_id")
+          .andOn("s.student_code", "=", "cs.student_code")
+          .andOnNotNull("s.score");
+      })
+      .where("tsc.teacher_code", teacherCode)
+      .countDistinct("cs.student_code as tong_sinh_vien")
+      .countDistinct({ so_diem_da_nhap: "s.student_code" })
+      .groupBy("tsc.teacher_code");
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  },
+
+  getCountTeaching: async (teacherCode) => {
+    const result = await knex("teacher_subject_class as tsc")
+      .where("tsc.teacher_code", teacherCode)
+      .countDistinct("tsc.class_subject_id as count_teaching");
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0].count_teaching;
+  },
+
+  getLastUpdate: async (teacherCode) => {
+    const result = await knex("score as s")
+      .join(
+        "teacher_subject_class as tsc",
+        "tsc.class_subject_id",
+        "s.class_subject_id"
+      )
+      .where("tsc.teacher_code", teacherCode)
+      .whereNotNull("s.score")
+      .max("updated_at as last_update")
+      .first();
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
+  },
 };
 
 module.exports = teacher;
