@@ -217,6 +217,141 @@ async function getAvgScore(req, res, next) {
   }
 }
 
+async function getStudentCodeByName(req, res, next) {
+  const { studentMiddleName, studentName } = req.query;
+
+  if (!studentMiddleName || !studentName) {
+    return next(
+      new ApiError(
+        400,
+        "Both student middle name and student name are required"
+      )
+    );
+  }
+
+  try {
+    const studentCode = await teacherService.getStudentCodeByName(
+      studentMiddleName,
+      studentName
+    );
+
+    if (!studentCode) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(studentCode));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, "Invalid parameters or data not found"));
+  }
+}
+
+async function importStudentScores(req, res, next) {
+  const { classSubjectId, students } = req.body;
+
+  if (!classSubjectId || !students || !Array.isArray(students)) {
+    return next(new ApiError(400, "Invalid input data"));
+  }
+
+  try {
+    const result = await teacherService.importStudentScores(
+      classSubjectId,
+      students
+    );
+
+    /*
+	{
+	Testing data structure:
+		"classSubjectId" : "2",
+		"students" : [
+			{"student_code": "0092/24-THUD", "score": ""},
+			{"student_code": "0093/24-THUD", "score": 3.006666666666667},
+			{"student_code": "0094/24-THUD", "score": 3.8},
+			{"student_code": "0095/24-THUD", "score": 7.466666666666667},
+			{"student_code": "0096/24-THUD", "score": 5},
+			{"student_code": "0097/24-THUD", "score": 6},
+			{"student_code": "0098/24-THUD", "score": 7},
+			{"student_code": "0099/24-THUD", "score": 8},
+			{"student_code": "0100/24-THUD", "score": 9},
+			{"student_code": "0101/24-THUD", "score": 10}
+		]
+	}
+	*/
+
+    if (!result) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(result));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, "Invalid parameters or data not found"));
+  }
+}
+
+async function getScoreProgress(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+
+  try {
+    const progress = await teacherService.getScoreProgress(teacherCode);
+
+    if (!progress) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(progress));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, `${error.message}`));
+  }
+}
+
+async function getCountTeaching(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+
+  try {
+    const count = await teacherService.getCountTeaching(teacherCode);
+
+    if (count === null) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(count));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, `${error.message}`));
+  }
+}
+
+async function getLastUpdate(req, res, next) {
+  const teacherCode = req.query.teacherCode;
+  if (!teacherCode) {
+    return next(new ApiError(400, "teacher code is required"));
+  }
+  try {
+    const lastUpdate = await teacherService.getLastUpdate(teacherCode);
+
+    if (!lastUpdate) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    const updatedAt = Object.values(lastUpdate)[0]; // lấy giá trị từ 'max(`updated_at`)' key
+    const formatted = moment(updatedAt).format("HH:mm DD/MM/YYYY ");
+
+    return res.json(JSend.success(formatted));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, `${error.message}`));
+  }
+}
+
 module.exports = {
   getTeacherInfo,
   updateTeacherInfo,
@@ -226,4 +361,9 @@ module.exports = {
   getStudentPassing,
   getPassingPropotion,
   getAvgScore,
+  getStudentCodeByName,
+  importStudentScores,
+  getScoreProgress,
+  getCountTeaching,
+  getLastUpdate,
 };

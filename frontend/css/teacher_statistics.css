@@ -130,3 +130,12 @@ body {
   height: 220px !important;
   margin: auto;
 }
+
+.progres_icon {
+  color: #17c09e;
+}
+
+.update_icon {
+  color: rgb(54, 157, 226);
+  margin-top: 5px;
+}

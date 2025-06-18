@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", function () {
   getStudentPassing();
   getPassingPropotion();
   getAvgScore();
+  getScoreProgress();
+  getCountTeaching();
+  getLastUpdate();
 });
 
 async function getStudentPassing() {
@@ -82,6 +85,116 @@ async function getAvgScore() {
   }
 }
 
+async function getScoreProgress() {
+  const teacher = Storage.getUser();
+  if (!teacher || !teacher.username) {
+    Swal.fire("Lỗi", "Không xác định được giảng viên!", "error");
+    return;
+  }
+  const API_BASE = "http://localhost:3000";
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/v1/teacher/getScoreProgress?teacherCode=${teacher.username}`
+    );
+    const result = await res.json();
+    console.log("Score Progress Result:", result);
+
+    if (result.status === "success") {
+      console.log("Score Progress Data:", result.data);
+      renderScoreProgress(result.data);
+    } else {
+      Swal.fire("Thông báo", "Không lấy được tiến độ điểm!", "warning");
+    }
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Lỗi", "Lỗi khi lấy dữ liệu tiến độ điểm!", "error");
+  }
+}
+
+function renderScoreProgress(datas) {
+  const score = document.querySelector(".score_progress");
+
+  if (datas.length === 0) {
+    score.textContent = "Không có dữ liệu tiến độ điểm!!";
+    return;
+  }
+
+  const totalClasses = datas.tong_sinh_vien;
+  const enteredScores = datas.so_diem_da_nhap;
+  const progressPercentage = ((enteredScores / totalClasses) * 100).toFixed(2);
+
+  score.textContent = progressPercentage + "%";
+}
+
+async function getCountTeaching() {
+  const teacher = Storage.getUser();
+  if (!teacher || !teacher.username) {
+    Swal.fire("Lỗi", "Không xác định được giảng viên!", "error");
+    return;
+  }
+  const API_BASE = "http://localhost:3000";
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/v1/teacher/getCountTeaching?teacherCode=${teacher.username}`
+    );
+    const result = await res.json();
+    console.log("Count Teaching Result:", result);
+    if (result.status === "success" && result.data) {
+      console.log("Count Teaching Data:", result.data);
+      renderCountTeaching(result.data);
+    } else {
+      Swal.fire("Thông báo", "Không lấy được số lượng lớp dạy!", "warning");
+    }
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Lỗi", "Lỗi khi lấy dữ liệu số lượng lớp dạy!", "error");
+  }
+}
+
+function renderCountTeaching(data) {
+  const countElement = document.querySelector(".count_teaching");
+  if (data) {
+    countElement.textContent = data;
+  } else {
+    countElement.textContent = "Không có dữ liệu!";
+  }
+  console.log("Count Teaching Data:", data);
+}
+
+async function getLastUpdate() {
+  const teacher = Storage.getUser();
+  if (!teacher || !teacher.username) {
+    Swal.fire("Lỗi", "Không xác định được giảng viên!", "error");
+    return;
+  }
+  const API_BASE = "http://localhost:3000";
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/v1/teacher/getLastUpdate?teacherCode=${teacher.username}`
+    );
+    const result = await res.json();
+
+    if (result.status === "success" && result.data) {
+      console.log("Last Update Data:", result.data);
+      renderLastUpdate(result.data);
+    } else {
+      Swal.fire("Thông báo", "Không lấy được lần cuối cập nhật!", "warning");
+    }
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Lỗi", "Lỗi khi lấy dữ liệu lần cuối cập nhật!", "error");
+  }
+}
+
+function renderLastUpdate(data) {
+  const lastUpdateElement = document.querySelector(".last_update");
+  if (data) {
+    lastUpdateElement.textContent = ` ${data}`;
+  } else {
+    lastUpdateElement.textContent = "Không có dữ liệu cập nhật!";
+  }
+}
+
 function renderStudentPassingChart(datas) {
   const ctx = document.getElementById("studentPassingChart").getContext("2d");
   const labels = datas.map((item) => `${item.subject}`);
@@ -153,7 +266,7 @@ function renderAvgScoreChart(datas) {
   const scores = datas.map((item) => item.average_score);
 
   new Chart(ctx, {
-    type: "line",
+    type: "bar",
     data: {
       labels: labels,
       datasets: [
@@ -161,16 +274,13 @@ function renderAvgScoreChart(datas) {
           label: "Điểm trung bình",
           data: scores,
           borderColor: "#FFA726",
-          backgroundColor: "rgba(255, 167, 38, 0.2)",
-          pointBackgroundColor: "#FFA726",
-          pointBorderColor: "#FFA726",
-          pointRadius: 5,
-          fill: false,
-          tension: 0.3, // bo tròn nhẹ đường
+          backgroundColor: "rgba(255, 167, 38, 0.6)",
+          borderWidth: 1,
         },
       ],
     },
     options: {
+      indexAxis: "y", // ✅ vẽ ngang
       responsive: true,
       plugins: {
         legend: {
@@ -183,7 +293,7 @@ function renderAvgScoreChart(datas) {
         },
       },
       scales: {
-        y: {
+        x: {
           beginAtZero: true,
           max: 10,
           title: {
@@ -191,11 +301,11 @@ function renderAvgScoreChart(datas) {
             text: "Thang điểm 10",
           },
         },
-        x: {
+        y: {
           ticks: {
-            maxRotation: 45,
-            minRotation: 20,
             autoSkip: false,
+            maxRotation: 0,
+            minRotation: 0,
           },
         },
       },
