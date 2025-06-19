@@ -47,16 +47,51 @@ const admin = {
     return null;
   },
 
-  getStudentAccount: async () => {
-    const users = await knex("system_user").select("*").where({
-      user_role: 1, // Assuming 1 is the role for students
-    });
+  getAccountList: async () => {
+    const users = await knex("system_user")
+      .select("*")
+      .whereNot({ user_role: 0 }) // 0 = admin
+      .orderBy("user_role", "asc")
+      .orderBy("user_username", "asc");
 
-    if (users.length === 0) {
-      return null;
+    if (users.length === 0) return null;
+
+    const result = [];
+
+    for (const user of users) {
+      let roleName = "";
+      let extraInfo = null;
+
+      if (user.user_role === 1) {
+        roleName = "Học viên";
+        extraInfo = await knex("student")
+          .select(
+            "student_middle_name",
+            "student_name",
+            "student_email",
+            "student_phone"
+          )
+          .where({ student_code: user.user_username })
+          .first();
+      } else if (user.user_role === 2) {
+        roleName = "Giảng viên";
+        extraInfo = await knex("teacher")
+          .select("teacher_name", "teacher_email", "teacher_phone")
+          .where({ teacher_code: user.user_username })
+          .first();
+      }
+
+      result.push({
+        user_id: user.user_id,
+        user_username: user.user_username,
+        user_pass: user.user_pass,
+        user_role: roleName,
+        user_status: user.user_status,
+        info: extraInfo || null,
+      });
     }
 
-    return users;
+    return result;
   },
 
   getStudentAccount: async () => {
@@ -68,7 +103,33 @@ const admin = {
       return null;
     }
 
-    return users;
+    const result = [];
+
+    for (const user of users) {
+      let extraInfo = null;
+      let roleName = "";
+      roleName = "Học viên";
+      extraInfo = await knex("student")
+        .select(
+          "student_middle_name",
+          "student_name",
+          "student_email",
+          "student_phone"
+        )
+        .where({ student_code: user.user_username })
+        .first();
+
+      result.push({
+        user_id: user.user_id,
+        user_username: user.user_username,
+        user_pass: user.user_pass,
+        user_role: roleName,
+        user_status: user.user_status,
+        info: extraInfo || null,
+      });
+    }
+
+    return result;
   },
 
   getTeacherAccount: async () => {
@@ -80,7 +141,28 @@ const admin = {
       return null;
     }
 
-    return users;
+    const result = [];
+
+    for (const user of users) {
+      let extraInfo = null;
+      let roleName = "";
+      roleName = "Giảng viên";
+      extraInfo = await knex("teacher")
+        .select("teacher_name", "teacher_email", "teacher_phone")
+        .where({ teacher_code: user.user_username })
+        .first();
+
+      result.push({
+        user_id: user.user_id,
+        user_username: user.user_username,
+        user_pass: user.user_pass,
+        user_role: roleName,
+        user_status: user.user_status,
+        info: extraInfo || null,
+      });
+    }
+
+    return result;
   },
 
   createClassWithTeacher: async ({
@@ -187,6 +269,30 @@ const admin = {
       console.error("Error adding students to class subject:", error.message);
       throw error;
     }
+  },
+
+  updateAccount: async ({ currentCode, newPassword, newStatus }) => {
+    const updates = {};
+
+    // chỉ thêm nếu có giá trị
+    if (typeof newPassword === "string" && newPassword.trim() !== "") {
+      updates.user_pass = newPassword.trim();
+    }
+
+    if (typeof newStatus === "number") {
+      updates.user_status = newStatus;
+    }
+
+    // nếu không có gì để update, thì báo lỗi
+    if (Object.keys(updates).length === 0) {
+      throw new Error("No valid fields provided for update.");
+    }
+
+    const updatedRows = await knex("system_user")
+      .where({ user_username: currentCode })
+      .update(updates);
+
+    return updatedRows;
   },
 };
 

@@ -16,6 +16,10 @@ router.post("/createClass", adminController.createClassWithTeacher);
 router.all("/createClass", methodNotAllowed);
 router.post("/addStudentsToClass", adminController.addStudentsToClass);
 router.all("/addStudentsToClass", methodNotAllowed);
+router.get("/getAccountList", adminController.getAccountList);
+router.all("/getAccountList", methodNotAllowed);
+router.put("/updateAccount", adminController.updateAccount);
+router.all("/updateAccount", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 

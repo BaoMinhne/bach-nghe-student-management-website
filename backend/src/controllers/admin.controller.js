@@ -76,13 +76,26 @@ async function getStudentAccount(req, res, next) {
   }
 }
 
+async function getAccountList(req, res, next) {
+  try {
+    const users = await adminService.getAccountList();
+    if (!users) {
+      return next(new ApiError(404, "No user accounts found"));
+    }
+    return res.status(200).json(JSend.success(users));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(JSend.error("Internal server error", err));
+  }
+}
+
 async function getTeacherAccount(req, res, next) {
   try {
-    const students = await adminService.getTeacherAccount();
-    if (!students) {
-      return next(new ApiError(404, "No student accounts found"));
+    const users = await adminService.getTeacherAccount();
+    if (!users) {
+      return next(new ApiError(404, "No user accounts found"));
     }
-    return res.status(200).json(JSend.success(students));
+    return res.status(200).json(JSend.success(users));
   } catch (err) {
     console.error(err);
     return res.status(500).json(JSend.error("Internal server error", err));
@@ -139,6 +152,31 @@ async function addStudentsToClass(req, res, next) {
     return next(new ApiError(500, "Internal server error"));
   }
 }
+
+async function updateAccount(req, res, next) {
+  const { currentCode, newPassword, newStatus } = req.body;
+
+  if (!currentCode || newPassword === undefined || isNaN(newStatus)) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const updatedUser = await adminService.updateAccount({
+      currentCode,
+      newPassword,
+      newStatus,
+    });
+
+    if (!updatedUser) {
+      return next(new ApiError(404, "Account not found"));
+    }
+
+    return res.status(200).json(JSend.success(updatedUser));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(JSend.error("Internal server error", err));
+  }
+}
 module.exports = {
   createStudentAccount,
   createTeacherAccount,
@@ -146,4 +184,6 @@ module.exports = {
   getTeacherAccount,
   createClassWithTeacher,
   addStudentsToClass,
+  getAccountList,
+  updateAccount,
 };
