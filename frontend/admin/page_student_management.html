@@ -85,18 +85,39 @@
     <!-- MAIN CONTENT -->
     <div class="main-content p-4">
       <!-- Bộ lọc -->
-      <div class="filters mb-4 d-flex flex-wrap gap-3">
-        <div class="form-group">
-          <label for="class">Chọn lớp: </label>
-          <select class="form-select" id="class">
-            <option selected>PDCT-DLK02-1</option>
-            <option>PDCT-DLK02-2</option>
-            <option>PDCT-DLK02-3</option>
-          </select>
+      <div class="filters mb-4 d-flex flex-wrap gap-3 align-items-center">
+        <h4>DANH SÁCH HỌC VIÊN</h4>
+        <div>
+          <label
+            for="excelFile"
+            class="btn btn-outline-success d-flex align-items-center gap-2"
+          >
+            <i class="bi bi-file-earmark-excel"></i> Import Excel
+          </label>
+          <input
+            type="file"
+            id="excelFile"
+            accept=".xlsx, .xls"
+            style="display: none"
+          />
         </div>
-        <div class="align-self-end">
-          <button class="btn btn-primary" onclick="locKetQua()">Lọc</button>
+
+        <div>
+          <button
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#addStudentModal"
+          >
+            <i class="bi bi-plus-circle me-1"></i> Thêm Học Viên
+          </button>
         </div>
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control"
+          placeholder="Tìm kiếm theo tên, mã số..."
+          style="max-width: 300px"
+        />
       </div>
 
       <!-- Bảng học viên -->
@@ -105,27 +126,27 @@
           <tr>
             <th>STT</th>
             <th>MÃ SỐ SINH VIÊN</th>
-            <th>HỌ ĐỆM</th>
-            <th>TÊN</th>
+            <th>HỌ TÊN</th>
             <th>GIỚI TÍNH</th>
             <th>NGÀY SINH</th>
             <th>ĐỊA CHỈ</th>
             <th>EMAIL</th>
             <th>SĐT LIÊN HỆ</th>
-            <th>GHI CHÚ</th>
+            <th>TRẠNG THÁI</th>
+            <th>-</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="student_list">
           <tr>
             <td>1</td>
             <td>0094/24-THUD</td>
             <td>Nguyễn Văn</td>
-            <td>A</td>
             <td>Nam</td>
             <td>19/6/2025</td>
             <td>123 Ninh Kiều</td>
             <td>nguyenvana@gmail.com</td>
             <td>123456789</td>
+            <td>đang học</td>
             <td>
               <button class="btn btn-sm btn-warning me-1 btn-edit">
                 <i class="bi bi-pencil-square"></i> Sửa
@@ -137,6 +158,80 @@
           </tr>
         </tbody>
       </table>
+      <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+      </nav>
+    </div>
+
+    <!-- MODAL THÊM HỌC VIÊN -->
+    <div
+      class="modal fade"
+      id="addStudentModal"
+      tabindex="-1"
+      aria-labelledby="addStudentModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="studentForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addStudentModalLabel">
+                Thêm Học Viên
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Đóng"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="maSo" class="form-label">Mã Số Học Viên</label>
+                <input type="text" class="form-control" id="maSo" required />
+              </div>
+              <div class="mb-3">
+                <label for="hoDem" class="form-label">Họ Đệm</label>
+                <input type="text" class="form-control" id="hoDem" required />
+              </div>
+              <div class="mb-3">
+                <label for="tenHocVien" class="form-label">Tên Học Viên</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="tenHocVien"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="sdt" class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" id="sdt" required />
+              </div>
+              <!-- <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="email" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    required
+                  />
+                </div>
+              </div> -->
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <button type="submit" class="btn btn-primary">Thêm</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <!-- Modal chỉnh sửa -->
@@ -161,17 +256,13 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form id="editForm">
+            <form id="editStudentForm">
               <div class="row g-3">
                 <div class="col-md-6">
                   <label for="editMaSV" class="form-label"
                     >Mã số sinh viên</label
                   >
                   <input type="text" class="form-control" id="editMaSV" />
-                </div>
-                <div class="col-md-6">
-                  <label for="editMatKhau" class="form-label">Mật khẩu</label>
-                  <input type="text" class="form-control" id="editMatKhau" />
                 </div>
                 <div class="col-md-6">
                   <label for="editHoDem" class="form-label">Họ đệm</label>
@@ -182,42 +273,34 @@
                   <input type="text" class="form-control" id="editTen" />
                 </div>
                 <div class="col-md-6">
-                  <label for="editGioiTinh" class="form-label">Giới tính</label>
-                  <select class="form-select" id="editGioiTinh">
-                    <option>Nam</option>
-                    <option>Nữ</option>
+                  <label for="editTrangThai" class="form-label"
+                    >Trạng Thái</label
+                  >
+                  <select class="form-select" id="editTrangThai">
+                    <option value="studying">Đang Học</option>
+                    <option value="inactive">Tạm Nghỉ</option>
+                    <option value="graduated">Tốt Nghiệp</option>
+                    <option value="dropout">Bỏ Học</option>
                   </select>
                 </div>
-                <div class="col-md-6">
-                  <label for="editDVHT" class="form-label">ĐVHT</label>
-                  <input type="text" class="form-control" id="editDVHT" />
-                </div>
-                <div class="col-md-6">
-                  <label for="editCVHT" class="form-label">CVHT</label>
-                  <input type="text" class="form-control" id="editCVHT" />
-                </div>
-                <div class="col-md-6">
-                  <label for="editDiaChi" class="form-label">Địa chỉ</label>
-                  <input type="text" class="form-control" id="editDiaChi" />
-                </div>
-                <div class="col-md-6">
-                  <label for="editSDT" class="form-label">SĐT liên hệ</label>
-                  <input type="text" class="form-control" id="editSDT" />
-                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Đóng
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="btnSaveChanges"
+                >
+                  Lưu thay đổi
+                </button>
               </div>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Đóng
-            </button>
-            <button type="button" class="btn btn-primary" id="btnSaveChanges">
-              Lưu thay đổi
-            </button>
           </div>
         </div>
       </div>
@@ -226,9 +309,12 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
-    <script src="../js/Administrator/student_management.js"></script>
+    <script src="../js/Administrator/manage_student/admin_display_student.js"></script>
+    <script src="../js/Administrator/manage_student/admin_import_student_list.js"></script>
+    <script src="../js/Administrator/manage_student/admin_add_student.js"></script>
+    <script src="../js/Administrator/manage_student/admin_update_student.js"></script>
   </body>
 </html>

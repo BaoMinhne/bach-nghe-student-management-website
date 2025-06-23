@@ -56,6 +56,8 @@ async function getAccountList() {
 
     if (result.status === "success" && Array.isArray(result.data)) {
       console.log("Account:", result.data);
+      listAccount = result.data;
+      searchAccounts = [...listAccount];
       renderListAccount(result.data);
     } else {
       Swal.fire("Thông báo", "Không lấy được dữ liệu!", "warning");
@@ -66,11 +68,99 @@ async function getAccountList() {
   }
 }
 
+const limitRows = 10;
+let currentPage = 1;
+let listAccount = [];
+let searchAccounts = [];
+
 function renderListAccount(datas) {
+  searchAccounts = datas;
+  displayListAccount(currentPage);
+  renderPagination();
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(searchAccounts.length / limitRows);
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
+
+  const maxVisible = 3; // Số nút trang muốn hiển thị xung quanh trang hiện tại
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+  // Điều chỉnh nếu cuối danh sách
+  if (endPage - startPage < maxVisible - 1) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+
+  // Nút "«" ← previous
+  if (currentPage > 1) {
+    pagination.appendChild(createPageItem("«", currentPage - 1));
+  }
+
+  // Nút trang đầu + dấu ...
+  if (startPage > 1) {
+    pagination.appendChild(createPageItem(1, 1));
+    if (startPage > 2) {
+      pagination.appendChild(createEllipsis());
+    }
+  }
+
+  // Các nút trang chính giữa
+  for (let i = startPage; i <= endPage; i++) {
+    const li = createPageItem(i, i);
+    if (i === currentPage) li.classList.add("active");
+    pagination.appendChild(li);
+  }
+
+  // Dấu ... + trang cuối
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      pagination.appendChild(createEllipsis());
+    }
+    pagination.appendChild(createPageItem(totalPages, totalPages));
+  }
+
+  // Nút "»" → next
+  if (currentPage < totalPages) {
+    pagination.appendChild(createPageItem("»", currentPage + 1));
+  }
+}
+
+// Tạo nút trang
+function createPageItem(label, pageNum) {
+  const li = document.createElement("li");
+  li.className = "page-item";
+  const a = document.createElement("a");
+  a.className = "page-link";
+  a.href = "#";
+  a.textContent = label;
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    currentPage = pageNum;
+    displayStudentListPage(currentPage);
+    renderPagination();
+  });
+  li.appendChild(a);
+  return li;
+}
+
+// Tạo dấu ...
+function createEllipsis() {
+  const li = document.createElement("li");
+  li.className = "page-item disabled";
+  li.innerHTML = `<span class="page-link">...</span>`;
+  return li;
+}
+
+function displayListAccount(page) {
   const accountList = document.getElementById("account-list");
   accountList.innerHTML = ""; // Clear existing rows
+  const start = (page - 1) * limitRows;
+  const end = start + limitRows;
+  const items = searchAccounts.slice(start, end);
 
-  datas.forEach((account, index) => {
+  items.forEach((account, index) => {
     const row = document.createElement("tr");
 
     // Tạo input password
@@ -225,3 +315,26 @@ async function updateAccount(currentCode, newPassword, newStatus) {
     Swal.fire("Lỗi", "Có lỗi xảy ra khi cập nhật điểm!", "error");
   }
 }
+
+document.getElementById("searchInput").addEventListener("input", function () {
+  const keyword = this.value.trim().toLowerCase();
+
+  const filtered = listAccount.filter((account) => {
+    const fullName = account.info
+      ? `${account.info.student_middle_name || ""} ${
+          account.info.student_name || ""
+        }`.toLowerCase()
+      : "";
+
+    const teacherName = account.info?.teacher_name?.toLowerCase() || "";
+
+    return (
+      account.user_username.toLowerCase().includes(keyword) ||
+      fullName.includes(keyword) ||
+      teacherName.includes(keyword)
+    );
+  });
+
+  currentPage = 1;
+  renderListAccount(filtered);
+});

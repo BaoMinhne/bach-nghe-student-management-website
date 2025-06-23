@@ -1,4 +1,6 @@
 const knex = require("../database/knex");
+const moment = require("moment");
+
 const admin = {
   createStudentAccount: async ({ username, password }) => {
     const student = await knex("system_user").insert({
@@ -293,6 +295,163 @@ const admin = {
       .update(updates);
 
     return updatedRows;
+  },
+
+  getStudentList: async () => {
+    const students = await knex("student").select("*");
+
+    if (students.length === 0) {
+      return null;
+    }
+
+    const result = [];
+    let formatted = 0;
+    for (const student of students) {
+      if (student.student_date_of_birth) {
+        const dateOfBirth = student.student_date_of_birth; // lấy giá trị từ 'max(`updated_at`)' key
+        formatted = moment(dateOfBirth).format("DD/MM/YYYY ");
+      }
+
+      result.push({
+        student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_date_of_birth: formatted,
+        student_gender: student.student_gender,
+        student_address: student.student_address,
+        student_email: student.student_email,
+        student_phone: student.student_phone,
+        student_status: student.student_status,
+        student_IDCard: student.student_IDCard,
+        student_country: student.student_country,
+      });
+    }
+
+    return result;
+  },
+
+  importStudentList: async (students) => {
+    const inserted = [];
+    const skipped = [];
+    for (const student of students) {
+      try {
+        const exists = await knex("student")
+          .where({
+            student_middle_name: student.student_middle_name,
+            student_name: student.student_name,
+          })
+          .select("*")
+          .first();
+
+        if (exists) {
+          skipped.push(
+            student.student_middle_name + " " + student.student_name
+          );
+          continue;
+        }
+
+        if (student.student_middle_name === "" || student.student_name === "") {
+          skipped.push(
+            student.student_middle_name + " " + student.student_name
+          );
+          continue;
+        }
+
+        let formatted = 0;
+        if (student.student_date_of_birth) {
+          formatted = moment(
+            student.student_date_of_birth,
+            "DD/MM/YYYY"
+          ).format("YYYY-MM-DD");
+        }
+
+        if (
+          student.student_gender === null ||
+          student.student_gender === "" ||
+          student.student_gender === undefined
+        ) {
+          student.student_gender = "other";
+        }
+
+        await knex("student").insert({
+          student_code: student.student_code,
+          student_middle_name: student.student_middle_name,
+          student_name: student.student_name,
+          student_date_of_birth: formatted,
+          student_gender: student.student_gender,
+        });
+        inserted.push(student.student_middle_name + " " + student.student_name);
+      } catch (error) {
+        console.error(
+          `Error processing student ${student.student_code}:`,
+          error
+        );
+        continue;
+      }
+    }
+    // console.log("skip: \n" + skipped);
+    // console.log("insert: \n" + inserted);
+    return {
+      insertedCount: inserted.length,
+      inserted,
+      skipped,
+    };
+  },
+
+  getLastStudentCode: async () => {
+    const stCode = await knex("student")
+      .select("student_code")
+      .orderBy("student_code", "desc")
+      .limit(1);
+
+    if (!stCode) {
+      return null;
+    }
+
+    return stCode[0];
+  },
+
+  addNewStudent: async (student) => {
+    let formatted = 0;
+    const inserted = [];
+    if (student.student_date_of_birth) {
+      formatted = moment(student.student_date_of_birth, "DD/MM/YYYY").format(
+        "YYYY-MM-DD"
+      );
+    }
+    const newStudent = await knex("student").insert({
+      student_code: student.student_code,
+      student_middle_name: student.student_middle_name,
+      student_name: student.student_name,
+      student_phone: student.student_phone,
+    });
+
+    if (newStudent) {
+      inserted.push({
+        student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_phone: student.student_phone,
+      });
+      return inserted[0];
+    }
+
+    return null;
+  },
+
+  updateStudentInfor: async (student) => {
+    const updateCount = await knex("student")
+      .where({ student_code: student.student_code })
+      .update({
+        // student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_status: student.student_status,
+      });
+
+    if (updateCount === 0) return null;
+
+    return { message: "Cập nhật thành công", updated: updateCount };
   },
 };
 

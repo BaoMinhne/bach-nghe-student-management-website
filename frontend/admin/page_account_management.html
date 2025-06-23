@@ -85,7 +85,7 @@
     <!-- MAIN CONTENT -->
     <div class="main-content p-4">
       <!-- Bộ lọc -->
-      <div class="filters mb-4 d-flex flex-wrap gap-3">
+      <div class="filters mb-4 d-flex flex-wrap gap-3 align-items-center">
         <div class="form-group">
           <label for="class">Phân Quyền: </label>
           <select class="form-select" id="role_filter">
@@ -99,6 +99,15 @@
           <button class="btn btn-primary" onclick="filterAccounts()">
             Lọc
           </button>
+        </div>
+        <div class="">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Tìm kiếm theo tên, mã số..."
+            style="max-width: 300px"
+          />
         </div>
       </div>
 
@@ -145,6 +154,9 @@
           </tr>
         </tbody>
       </table>
+      <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+      </nav>
     </div>
 
     <!-- Modal chỉnh sửa -->
@@ -224,6 +236,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
-    <script src="../js/Administrator/account_management.js"></script>
+    <script src="../js/Administrator/manage_account/account_management.js"></script>
   </body>
 </html>

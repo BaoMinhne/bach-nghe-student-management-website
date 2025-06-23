@@ -114,8 +114,58 @@ table thead {
   min-width: auto;
   color: inherit;
 }
-
 .btn-edit,
 .edit_icon {
   font-weight: 500 !important;
+}
+
+.table td,
+.table th {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marquee-hover {
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.marquee-hover span {
+  display: inline-block;
+  min-width: 100%;
+  transform: translateX(0);
+  transition: transform 0s;
+}
+
+/* MARQUEE HOVER TEXT */
+.marquee-hover {
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.marquee-hover span {
+  display: inline-block;
+  white-space: nowrap;
+  transform: translateX(0);
+  transition: transform 0s;
+}
+
+.marquee-hover:hover span {
+  animation: marquee 5s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }

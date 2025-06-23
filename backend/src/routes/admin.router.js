@@ -20,6 +20,16 @@ router.get("/getAccountList", adminController.getAccountList);
 router.all("/getAccountList", methodNotAllowed);
 router.put("/updateAccount", adminController.updateAccount);
 router.all("/updateAccount", methodNotAllowed);
+router.get("/getStudentList", adminController.getStudentList);
+router.all("/getStudentList", methodNotAllowed);
+router.post("/importStudentList", adminController.importStudentList);
+router.all("/importStudentList", methodNotAllowed);
+router.get("/getLastStudentCode", adminController.getLastStudentCode);
+router.all("/getLastStudentCode", methodNotAllowed);
+router.post("/addNewStudent", adminController.addNewStudent);
+router.all("/addNewStudent", methodNotAllowed);
+router.put("/updateStudentInfor", adminController.updateStudentInfor);
+router.all("/updateStudentInfor", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 
