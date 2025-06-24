@@ -89,12 +89,12 @@ function displayStudentListPage(page) {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td><span>${start + index + 1}</span></td>
-      <td><span>${student.student_code}</span></td>
-      <td><span>${student.student_middle_name} ${
+      <td class="marquee-hover"><span>${student.student_code}</span></td>
+      <td class="marquee-hover"><span>${student.student_middle_name} ${
       student.student_name
     }</span></td>
-      <td><span>${transferValue(student.student_gender)}</span></td>
-      <td><span>${transferValue(student.student_date_of_birth)}</span></td>
+      <td class="marquee-hover"><span>${transferValue(student.student_gender)}</span></td>
+      <td class="marquee-hover"><span>${transferValue(student.student_date_of_birth)}</span></td>
       <td class="marquee-hover"><span>${transferValue(
         student.student_address
       )}</span></td>
@@ -104,19 +104,18 @@ function displayStudentListPage(page) {
       <td class="marquee-hover"><span>${transferValue(
         student.student_phone
       )}</span></td>
-      <td><span>${transferValue(student.student_status)}</span></td>
+      <td class="marquee-hover"><span>${transferValue(student.student_status)}</span></td>
       <td>
         <button
-			data-bs-toggle="modal"
-			data-bs-target="#editModal"
-			data-bs-target="#editModal"
-			data-student-code="${student["student_code"]}"
-            data-middle-name="${student["student_middle_name"]}"
-			data-name=" ${student["student_name"]}"
-            data-status="${student["student_status"]}"
-			class="btn btn-sm btn-warning me-1 btn-edit" 
-          <i class="bi bi-pencil-square"></i> Sửa 
-        </button>
+      data-bs-toggle="modal"
+      data-bs-target="#editModal"
+      data-student-code="${student.student_code}"
+      data-middle-name="${student.student_middle_name}"
+      data-name="${student.student_name}"
+      data-status="${student.student_status}"
+      class="btn btn-sm btn-warning me-1 btn-edit">
+      <i class="bi bi-pencil-square me-2"></i>Sửa
+    </button>
       </td>
     `;
     studentList.appendChild(row);
