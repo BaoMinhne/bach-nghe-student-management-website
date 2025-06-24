@@ -30,6 +30,14 @@ router.post("/addNewStudent", adminController.addNewStudent);
 router.all("/addNewStudent", methodNotAllowed);
 router.put("/updateStudentInfor", adminController.updateStudentInfor);
 router.all("/updateStudentInfor", methodNotAllowed);
+router.get("/getTeacherList", adminController.getTeacherList);
+router.all("/getTeacherList", methodNotAllowed);
+router.get("/getLastTeacherCode", adminController.getLastTeacherCode);
+router.all("/getLastTeacherCode", methodNotAllowed);
+router.post("/addNewTeacher", adminController.addNewTeacher);
+router.all("/addNewTeacher", methodNotAllowed);
+router.put("/updateTeacherInfor", adminController.updateTeacherInfor);
+router.all("/updateTeacherInfor", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 

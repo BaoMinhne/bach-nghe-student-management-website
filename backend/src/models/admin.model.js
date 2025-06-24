@@ -453,6 +453,108 @@ const admin = {
 
     return { message: "Cập nhật thành công", updated: updateCount };
   },
+
+  getTeacherList: async () => {
+    const teachers = await knex("teacher").select("*");
+
+    if (teachers.length === 0) {
+      return null;
+    }
+
+    const result = [];
+    let formatted = 0;
+    for (const teacher of teachers) {
+      if (teacher.teacher_date_of_birth) {
+        const dateOfBirth = teacher.teacher_date_of_birth; // lấy giá trị từ 'max(`updated_at`)' key
+        formatted = moment(dateOfBirth).format("DD/MM/YYYY ");
+      }
+
+      result.push({
+        teacher_code: teacher.teacher_code,
+        teacher_name: teacher.teacher_name,
+        teacher_date_of_birth: formatted,
+        teacher_gender: teacher.teacher_gender,
+        teacher_address: teacher.teacher_address,
+        teacher_email: teacher.teacher_email,
+        teacher_phone: teacher.teacher_phone,
+        teacher_status: teacher.teacher_status,
+      });
+    }
+
+    return result;
+  },
+
+  getLastTeacherCode: async () => {
+    const teacherCode = await knex("teacher")
+      .select("teacher_code")
+      .orderBy("teacher_code", "desc")
+      .limit(1);
+
+    if (!teacherCode) {
+      return null;
+    }
+
+    return teacherCode[0];
+  },
+
+  addNewTeacher: async (teacher) => {
+    const inserted = [];
+    console.log(teacher.teacher_date_of_birth);
+    const newTeacher = await knex("teacher").insert({
+      teacher_code: teacher.teacher_code,
+      teacher_name: teacher.teacher_name,
+      teacher_date_of_birth: teacher.teacher_date_of_birth,
+      teacher_gender: teacher.teacher_gender,
+      teacher_address: teacher.teacher_address,
+      teacher_email: teacher.teacher_email,
+      teacher_phone: teacher.teacher_phone,
+    });
+
+    if (newTeacher) {
+      inserted.push({
+        teacher_code: teacher.teacher_code,
+        teacher_name: teacher.teacher_name,
+        teacher_date_of_birth: teacher.teacher_date_of_birth,
+        teacher_gender: teacher.teacher_gender,
+        teacher_address: teacher.teacher_address,
+        teacher_email: teacher.teacher_email,
+        teacher_phone: teacher.teacher_phone,
+      });
+      return inserted[0];
+    }
+
+    return null;
+  },
+
+  updateTeacherInfor: async (teacher) => {
+    let updateCount = 0;
+    if (teacher.teacher_date_of_birth) {
+      updateCount = await knex("teacher")
+        .where({ teacher_code: teacher.teacher_code })
+        .update({
+          teacher_name: teacher.teacher_name,
+          teacher_date_of_birth: teacher.teacher_date_of_birth,
+          teacher_gender: teacher.teacher_gender,
+          teacher_address: teacher.teacher_address,
+          teacher_email: teacher.teacher_email,
+          teacher_phone: teacher.teacher_phone,
+        });
+    } else {
+      updateCount = await knex("teacher")
+        .where({ teacher_code: teacher.teacher_code })
+        .update({
+          teacher_name: teacher.teacher_name,
+          teacher_gender: teacher.teacher_gender,
+          teacher_address: teacher.teacher_address,
+          teacher_email: teacher.teacher_email,
+          teacher_phone: teacher.teacher_phone,
+        });
+    }
+
+    if (updateCount === 0) return null;
+
+    return { message: "Cập nhật thành công", updated: updateCount };
+  },
 };
 
 module.exports = admin;

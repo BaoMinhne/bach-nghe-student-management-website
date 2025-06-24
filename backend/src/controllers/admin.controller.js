@@ -273,6 +273,80 @@ async function updateStudentInfor(req, res, next) {
   }
 }
 
+async function getTeacherList(req, res, next) {
+  try {
+    const teachers = await adminService.getTeacherList();
+
+    if (!teachers) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(teachers));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getLastTeacherCode(req, res, next) {
+  try {
+    const teacherCode = await adminService.getLastTeacherCode();
+
+    if (!teacherCode) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(teacherCode));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function addNewTeacher(req, res, next) {
+  const teacher = req.body;
+
+  if (!teacher) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const newTeacher = await adminService.addNewTeacher(teacher);
+
+    if (!newTeacher) {
+      return next(new ApiError(404, "Insert fail"));
+    }
+
+    return res.status(200).json(JSend.success(newTeacher));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function updateTeacherInfor(req, res, next) {
+  const teacher = req.body;
+
+  if (!teacher) {
+    return next(new ApiError(404, "Don't have any data"));
+  }
+
+  try {
+    const teacherUpdate = await adminService.updateTeacherInfor(teacher);
+
+    if (!teacherUpdate) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(teacherUpdate));
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(JSend.error("Internal server error", error.message));
+  }
+}
+
 module.exports = {
   createStudentAccount,
   createTeacherAccount,
@@ -287,4 +361,8 @@ module.exports = {
   getLastStudentCode,
   addNewStudent,
   updateStudentInfor,
+  getTeacherList,
+  getLastTeacherCode,
+  addNewTeacher,
+  updateTeacherInfor,
 };

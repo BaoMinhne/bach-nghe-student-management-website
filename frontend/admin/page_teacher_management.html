@@ -94,17 +94,28 @@
         >
           <i class="bi bi-plus-circle me-1"></i> Thêm giảng viên
         </button>
+
+        <input
+          type="text"
+          id="searchInput"
+          class="form-control"
+          placeholder="Tìm kiếm theo tên, mã số..."
+          style="max-width: 300px"
+        />
       </div>
 
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th>STT</th>
+            <th>MÃ SỐ</th>
             <th>HỌ VÀ TÊN</th>
-            <th>CHUYÊN MÔN</th>
-            <th>SĐT</th>
-            <th>EMAIL</th>
+            <th>NGÀY SINH</th>
+            <th>GIỚI TÍNH</th>
             <th>ĐỊA CHỈ</th>
+            <th>EMAIL</th>
+            <th>SĐT</th>
+            <th>TRẠNG THÁI</th>
             <th>THAO TÁC</th>
           </tr>
         </thead>
@@ -112,7 +123,7 @@
           <tr>
             <td>1</td>
             <td>Trần Bích Phượng</td>
-            <td>Công nghệ phần mềm</td>
+            <td></td>
             <td>0987654321</td>
             <td>phuongtran@example.com</td>
             <td>456 Cái Răng, Cần Thơ</td>
@@ -131,6 +142,9 @@
           </tr>
         </tbody>
       </table>
+      <nav>
+        <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+      </nav>
     </div>
 
     <!-- MODAL THÊM GIẢNG VIÊN -->
@@ -157,38 +171,42 @@
             </div>
             <div class="modal-body">
               <div class="mb-3">
-                <label for="hoTen" class="form-label">Họ và tên</label>
-                <input type="text" class="form-control" id="hoTen" required />
+                <label for="maSo" class="form-label">Mã Số</label>
+                <input type="text" class="form-control" id="maSo" required />
               </div>
               <div class="mb-3">
-                <label for="chuyenMon" class="form-label">Chuyên môn</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="chuyenMon"
-                  required
-                />
-              </div>
-              <div class="mb-3">
+                <div class="mb-3">
+                  <label for="hoTen" class="form-label">Họ và tên</label>
+                  <input type="text" class="form-control" id="hoTen" required />
+                </div>
                 <label for="sdt" class="form-label">Số điện thoại</label>
                 <input type="text" class="form-control" id="sdt" required />
               </div>
+              <div class="mb-3">
+                <label for="gioiTinh" class="form-label">Giới Tính</label>
+                <select class="form-select" id="gioiTinh">
+                  <option disabled selected>-- Chọn Giới Tính --</option>
+                  <option value="male">Nam</option>
+                  <option value="female">Nữ</option>
+                  <option value="other">Khác</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="ngaySinh" class="form-label">Ngày sinh</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="ngaySinh"
+                  required
+                />
+              </div>
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <label for="email" class="form-label">Email</label>
                   <input
                     type="email"
                     class="form-control"
                     id="email"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label for="matKhau" class="form-label">Mật khẩu</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="matKhau"
                     required
                   />
                 </div>
@@ -226,7 +244,7 @@
           <form id="editTeacherForm">
             <div class="modal-header">
               <h5 class="modal-title" id="editTeacherModalLabel">
-                Sửa thông tin giảng viên
+                Chỉnh Sửa Thông Tin Giảng Viên
               </h5>
               <button
                 type="button"
@@ -236,7 +254,15 @@
               ></button>
             </div>
             <div class="modal-body">
-              <input type="hidden" id="editTeacherId" />
+              <div class="mb-3">
+                <label for="editMaSo" class="form-label">Mã Số</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editMaSo"
+                  required
+                />
+              </div>
               <div class="mb-3">
                 <label for="editHoTen" class="form-label">Họ và tên</label>
                 <input
@@ -246,38 +272,52 @@
                   required
                 />
               </div>
-              <div class="mb-3">
-                <label for="editChuyenMon" class="form-label">Chuyên môn</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="editChuyenMon"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="editSdt" class="form-label">Số điện thoại</label>
-                <input type="text" class="form-control" id="editSdt" required />
+              <div class="row">
+                <div class="mb-3 col-md-6">
+                  <label for="editSdt" class="form-label">Số điện thoại</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="editSdt"
+                    required
+                  />
+                </div>
+                <div class="mb-3 col-md-6">
+                  <label for="editGioiTinh" class="form-label">Giới Tính</label>
+                  <select class="form-select" id="editGioiTinh">
+                    <option disabled selected>-- Chọn Giới Tính --</option>
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
+                  </select>
+                </div>
               </div>
               <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="editEmail" class="form-label">Email</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="editEmail"
-                    required
-                  />
+                <div class="mb-3 col-md-6">
+                  <label for="editNgaySinh" class="form-label">Ngày sinh</label>
+                  <input type="date" class="form-control" id="editNgaySinh" />
                 </div>
-                <div class="col-md-6">
-                  <label for="editMatKhau" class="form-label">Mật khẩu</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="editMatKhau"
-                    required
-                  />
+
+                <div class="mb-3 col-md-6">
+                  <label for="editTrangThai" class="form-label"
+                    >Trạng thái</label
+                  >
+                  <select class="form-select" id="editTrangThai">
+                    <option value="teaching">Đang Dạy</option>
+                    <option value="on_leave">Nghỉ Phép</option>
+                    <option value="resigned">Nghỉ Việc</option>
+                    <option value="retired">Nghỉ Hưu</option>
+                  </select>
                 </div>
+              </div>
+              <div class="mb-3">
+                <label for="editEmail" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="editEmail"
+                  required
+                />
               </div>
               <div class="mb-3">
                 <label for="editDiaChi" class="form-label">Địa chỉ</label>
@@ -297,9 +337,7 @@
               >
                 Hủy
               </button>
-              <button type="submit" class="btn btn-primary">
-                Lưu thay đổi
-              </button>
+              <button type="submit" class="btn btn-primary">Lưu</button>
             </div>
           </form>
         </div>
@@ -311,6 +349,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
-    <script src="../js/Administrator/teacher_management.js"></script>
+    <script src="../js/Administrator/manage_teacher/admin_display_teacher.js"></script>
+    <script src="../js/Administrator/manage_teacher/admin_add_teacher.js"></script>
+    <script src="../js/Administrator/manage_teacher/admin_update_teacher.js"></script>
   </body>
 </html>
