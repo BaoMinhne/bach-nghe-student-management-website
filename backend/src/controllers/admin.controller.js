@@ -76,13 +76,26 @@ async function getStudentAccount(req, res, next) {
   }
 }
 
+async function getAccountList(req, res, next) {
+  try {
+    const users = await adminService.getAccountList();
+    if (!users) {
+      return next(new ApiError(404, "No user accounts found"));
+    }
+    return res.status(200).json(JSend.success(users));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(JSend.error("Internal server error", err));
+  }
+}
+
 async function getTeacherAccount(req, res, next) {
   try {
-    const students = await adminService.getTeacherAccount();
-    if (!students) {
-      return next(new ApiError(404, "No student accounts found"));
+    const users = await adminService.getTeacherAccount();
+    if (!users) {
+      return next(new ApiError(404, "No user accounts found"));
     }
-    return res.status(200).json(JSend.success(students));
+    return res.status(200).json(JSend.success(users));
   } catch (err) {
     console.error(err);
     return res.status(500).json(JSend.error("Internal server error", err));
@@ -139,6 +152,201 @@ async function addStudentsToClass(req, res, next) {
     return next(new ApiError(500, "Internal server error"));
   }
 }
+
+async function updateAccount(req, res, next) {
+  const { currentCode, newPassword, newStatus } = req.body;
+
+  if (!currentCode || newPassword === undefined || isNaN(newStatus)) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const updatedUser = await adminService.updateAccount({
+      currentCode,
+      newPassword,
+      newStatus,
+    });
+
+    if (!updatedUser) {
+      return next(new ApiError(404, "Account not found"));
+    }
+
+    return res.status(200).json(JSend.success(updatedUser));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(JSend.error("Internal server error", err));
+  }
+}
+
+async function getStudentList(req, res, next) {
+  try {
+    const students = await adminService.getStudentList();
+
+    if (!students) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(students));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function importStudentList(req, res, next) {
+  const payload = req.body;
+
+  if (!payload || !Array.isArray(payload)) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const studentList = await adminService.importStudentList(payload);
+
+    if (!studentList) {
+      return next(new ApiError(404, "Insert fail"));
+    }
+
+    return res.status(200).json(JSend.success(studentList));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function addNewStudent(req, res, next) {
+  const student = req.body;
+
+  if (!student) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const newStudent = await adminService.addNewStudent(student);
+
+    if (!newStudent) {
+      return next(new ApiError(404, "Insert fail"));
+    }
+
+    return res.status(200).json(JSend.success(newStudent));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getLastStudentCode(req, res, next) {
+  try {
+    const studentCode = await adminService.getLastStudentCode();
+
+    if (!studentCode) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(studentCode));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function updateStudentInfor(req, res, next) {
+  const student = req.body;
+
+  if (!student) {
+    return next(new ApiError(404, "Don't have any data"));
+  }
+
+  try {
+    const studentUpdate = await adminService.updateStudentInfor(student);
+
+    if (!studentUpdate) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(studentUpdate));
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(JSend.error("Internal server error", error.message));
+  }
+}
+
+async function getTeacherList(req, res, next) {
+  try {
+    const teachers = await adminService.getTeacherList();
+
+    if (!teachers) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(teachers));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getLastTeacherCode(req, res, next) {
+  try {
+    const teacherCode = await adminService.getLastTeacherCode();
+
+    if (!teacherCode) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(teacherCode));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function addNewTeacher(req, res, next) {
+  const teacher = req.body;
+
+  if (!teacher) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const newTeacher = await adminService.addNewTeacher(teacher);
+
+    if (!newTeacher) {
+      return next(new ApiError(404, "Insert fail"));
+    }
+
+    return res.status(200).json(JSend.success(newTeacher));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function updateTeacherInfor(req, res, next) {
+  const teacher = req.body;
+
+  if (!teacher) {
+    return next(new ApiError(404, "Don't have any data"));
+  }
+
+  try {
+    const teacherUpdate = await adminService.updateTeacherInfor(teacher);
+
+    if (!teacherUpdate) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(teacherUpdate));
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(JSend.error("Internal server error", error.message));
+  }
+}
+
 module.exports = {
   createStudentAccount,
   createTeacherAccount,
@@ -146,4 +354,15 @@ module.exports = {
   getTeacherAccount,
   createClassWithTeacher,
   addStudentsToClass,
+  getAccountList,
+  updateAccount,
+  getStudentList,
+  importStudentList,
+  getLastStudentCode,
+  addNewStudent,
+  updateStudentInfor,
+  getTeacherList,
+  getLastTeacherCode,
+  addNewTeacher,
+  updateTeacherInfor,
 };

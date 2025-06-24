@@ -16,6 +16,28 @@ router.post("/createClass", adminController.createClassWithTeacher);
 router.all("/createClass", methodNotAllowed);
 router.post("/addStudentsToClass", adminController.addStudentsToClass);
 router.all("/addStudentsToClass", methodNotAllowed);
+router.get("/getAccountList", adminController.getAccountList);
+router.all("/getAccountList", methodNotAllowed);
+router.put("/updateAccount", adminController.updateAccount);
+router.all("/updateAccount", methodNotAllowed);
+router.get("/getStudentList", adminController.getStudentList);
+router.all("/getStudentList", methodNotAllowed);
+router.post("/importStudentList", adminController.importStudentList);
+router.all("/importStudentList", methodNotAllowed);
+router.get("/getLastStudentCode", adminController.getLastStudentCode);
+router.all("/getLastStudentCode", methodNotAllowed);
+router.post("/addNewStudent", adminController.addNewStudent);
+router.all("/addNewStudent", methodNotAllowed);
+router.put("/updateStudentInfor", adminController.updateStudentInfor);
+router.all("/updateStudentInfor", methodNotAllowed);
+router.get("/getTeacherList", adminController.getTeacherList);
+router.all("/getTeacherList", methodNotAllowed);
+router.get("/getLastTeacherCode", adminController.getLastTeacherCode);
+router.all("/getLastTeacherCode", methodNotAllowed);
+router.post("/addNewTeacher", adminController.addNewTeacher);
+router.all("/addNewTeacher", methodNotAllowed);
+router.put("/updateTeacherInfor", adminController.updateTeacherInfor);
+router.all("/updateTeacherInfor", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 
