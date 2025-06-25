@@ -223,6 +223,75 @@ const admin = {
     }
   },
 
+  updateClass: async (payload) => {
+    if (!payload.classSubjectID) {
+      throw new Error("Thiếu class_subject_id");
+    }
+
+    const trx = await knex.transaction();
+    try {
+      const updateStatus = await trx("class_subject")
+        .where({ class_subject_id: payload.classSubjectID })
+        .update({
+          semester_id: payload.semesterID,
+          class_status: payload.classStatus,
+        });
+
+      const exist = await trx("teacher_subject_class")
+        .select("*")
+        .where({ class_subject_id: payload.classSubjectID });
+
+      if (exist.length === 0) {
+        await trx("teacher_subject_class").insert({
+          teacher_code: payload.teacherCode,
+          class_subject_id: payload.classSubjectID,
+        });
+      } else {
+        await trx("teacher_subject_class")
+          .update({ teacher_code: payload.teacherCode })
+          .where({ class_subject_id: payload.classSubjectID });
+      }
+
+      await trx.commit();
+
+      return {
+        class_subject_updated: updateStatus,
+        teacher_updated: payload.teacherCode,
+      };
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error updating class_subject:", error.message);
+      throw error;
+    }
+  },
+
+  getClassCodeAndSemester: async () => {
+    const classes = await knex("class").select("*");
+    const result = [];
+
+    if (classes && classes.length > 0) {
+      for (const classItem of classes) {
+        const semester = await knex("semester")
+          .select("*")
+          .where({ class_id: classItem.class_id });
+
+        result.push({ class: classItem, semesters: semester });
+      }
+    }
+
+    return result;
+  },
+
+  getModuleCode: async () => {
+    const module = await knex("module").select("*");
+
+    if (!module) {
+      return null;
+    }
+
+    return module;
+  },
+
   addStudentsToClass: async ({ class_subject_id, student_codes }) => {
     const trx = await knex.transaction();
     try {
@@ -271,6 +340,39 @@ const admin = {
       console.error("Error adding students to class subject:", error.message);
       throw error;
     }
+  },
+
+  getModuleList: async () => {
+    const result = await knex("class_subject as cs")
+      .join("class as c", "cs.class_id", "c.class_id")
+      .join("module as m", "cs.module_id", "m.module_id")
+      .join("semester as s", "cs.semester_id", "s.semester_id")
+      .leftJoin(
+        "teacher_subject_class as tsc",
+        "cs.class_subject_id",
+        "tsc.class_subject_id"
+      )
+      .leftJoin("teacher as t", "tsc.teacher_code", "t.teacher_code")
+      .select(
+        "cs.class_subject_id",
+        "c.class_id",
+        "c.class_code",
+        "c.class_name",
+        "m.module_code",
+        "m.module_name",
+        "s.semester_number",
+        "cs.class_status",
+        "s.semester_id",
+        "s.semester_start_date",
+        "s.semester_end_date",
+        "tsc.teacher_code",
+        "t.teacher_name"
+      )
+      .orderBy("s.semester_number", "asc");
+
+    if (!result) return null;
+
+    return result;
   },
 
   updateAccount: async ({ currentCode, newPassword, newStatus }) => {
@@ -554,6 +656,99 @@ const admin = {
     if (updateCount === 0) return null;
 
     return { message: "Cập nhật thành công", updated: updateCount };
+  },
+
+  getListStudentCode: async () => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereNotIn("student_code", function () {
+        this.select("user_username").from("system_user");
+      });
+
+    if (result.length == 0) {
+      return null;
+    }
+
+    return result;
+  },
+
+  getStudentNotInClass: async (class_subject_id) => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereNotIn("student_code", function () {
+        this.select("student_code")
+          .from("class_student")
+          .where({ class_subject_id: class_subject_id });
+      });
+
+    if (result.length == 0) return null;
+
+    return result;
+  },
+
+  getStudentInClass: async (class_subject_id) => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereIn("student_code", function () {
+        this.select("student_code")
+          .from("class_student")
+          .where({ class_subject_id: class_subject_id });
+      });
+
+    if (result.length == 0) return null;
+
+    return result;
+  },
+
+  getListTeacherCode: async () => {
+    const result = await knex("teacher")
+      .select("teacher_code", "teacher_name")
+      .whereNotIn("teacher_code", function () {
+        this.select("user_username").from("system_user");
+      });
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
+  },
+
+  getModuleFilter: async () => {
+    const modules = await knex("module")
+      .distinct()
+      .whereIn("module_id", function () {
+        this.select("module_id").from("class_subject");
+      });
+
+    return modules || [];
+  },
+
+  addNewAccount: async (datas) => {
+    const inserted = [];
+
+    for (const data of datas) {
+      try {
+        const newAccount = await knex("system_user").insert({
+          user_username: data.username,
+          user_pass: data.pass,
+          user_role: data.role,
+        });
+
+        if (newAccount) {
+          inserted.push({
+            user_username: data.username,
+            user_pass: data.pass,
+            user_role: data.role,
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi khi thêm tài khoản:", data.username, err);
+        // Bạn có thể bỏ qua hoặc xử lý thêm ở đây
+      }
+    }
+
+    return inserted.length > 0 ? inserted : null;
   },
 };
 
