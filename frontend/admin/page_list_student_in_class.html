@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tạo Tài Khoản</title>
+    <title>Thêm Tài Khoản</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -13,7 +13,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     />
     <link rel="stylesheet" href="../css/admin.css" />
-    <link rel="stylesheet" href="../css/admin_create_account.css" />
+    <link rel="stylesheet" href="../css/addmin_add_student.css" />
   </head>
   <body>
     <!-- TOPBAR -->
@@ -88,51 +88,47 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <h3 class="mb-4">Tạo tài khoản mới</h3>
-            <div class="filter">
-              <div class="col-md-4">
-                <label for="role" class="form-label">Vai trò: </label>
-                <select class="form-select" id="role" name="role" required>
-                  <option value="1" selected>Sinh viên</option>
-                  <option value="2">Giảng viên</option>
-                </select>
+            <div
+              class="row d-flex justify-content-between align-items-center flex-wrap"
+            >
+              <h3 class="mb-4 text-uppercase">Danh sách học sinh</h3>
+            </div>
+            <div
+              class="filter d-flex justify-content-between align-items-center flex-wrap"
+            >
+              <div class="class_info mb-2 mb-md-0">
+                <label class="class_label">Lớp: </label>
+                <span class="class_name"></span>
+                -
+                <label class="module_label">Môn: </label>
+                <span class="module_name"></span>
               </div>
+
+              <input
+                type="text"
+                id="searchInput"
+                class="form-control"
+                placeholder="Tìm kiếm theo tên, mã số..."
+              />
             </div>
           </div>
         </div>
         <div class="row">
           <div class="col-md-12">
-            <form
-              action="#"
-              method="POST"
-              class="row g-3"
-              id="addNewAccountForm"
-            >
+            <form action="#" method="POST" class="row g-3" id="addStudentForm">
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Password</th>
+                    <th scope="col">STT</th>
+                    <th scope="col">Mã Số</th>
+                    <th scope="col">Tên</th>
                   </tr>
                 </thead>
                 <tbody id="form-list">
                   <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox" id="" />
-                    </td>
-                    <td>0092/24-THUD</td>
-                    <td>Đỗ Thanh Dũ</td>
-                    <td>
-                      <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        name="password"
-                        required
-                      />
-                    </td>
+                    <td>#</td>
+                    <td>chưa có dữ liệu</td>
+                    <td>chưa có dữ liệu</td>
                   </tr>
                 </tbody>
               </table>
@@ -142,11 +138,6 @@
                   id="pagination"
                 ></ul>
               </nav>
-              <div class="col-12">
-                <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-plus-circle me-2"></i>Tạo tài khoản
-                </button>
-              </div>
             </form>
           </div>
         </div>
@@ -157,7 +148,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
-    <script src="../js/Administrator/manage_account/admin_display_account_list.js"></script>
-    <script src="../js/Administrator/manage_account/admin_add_account_list.js"></script>
+    <script src="../js/Administrator/manage_class/admin_student_in_class.js"></script>
   </body>
 </html>

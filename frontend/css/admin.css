@@ -169,3 +169,13 @@ table thead {
     transform: translateX(-100%);
   }
 }
+
+.detail_class:hover {
+  color: #0059ff !important;
+  opacity: 0.9;
+}
+
+.btn_close:hover {
+  color: #ffffffe7 !important;
+  background-color: #f72e2e;
+}
