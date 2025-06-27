@@ -2,6 +2,7 @@ const adminService = require("../models/admin.model");
 const JSend = require("../jsend");
 const ApiError = require("../api-error");
 
+// Account Management
 async function createStudentAccount(req, res, next) {
   const { username, password } = req.body;
 
@@ -101,57 +102,6 @@ async function getTeacherAccount(req, res, next) {
   }
 }
 
-async function createClassWithTeacher(req, res, next) {
-  const { classID, moduleID, semesterID, teacherCode } = req.body;
-
-  if (!classID || !moduleID || !semesterID || !teacherCode) {
-    return res.status(400).json(JSend.fail("All fields are required"));
-  }
-
-  try {
-    const newClass = await adminService.createClassWithTeacher({
-      classID,
-      moduleID,
-      semesterID,
-      teacherCode,
-    });
-
-    if (!newClass) {
-      return next(new ApiError(401, "Create class failed"));
-    }
-
-    return res.status(201).json(JSend.success(newClass));
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json(JSend.error("Internal server error", err));
-  }
-}
-
-async function addStudentsToClass(req, res, next) {
-  const { class_subject_id, student_codes } = req.body;
-
-  if (
-    typeof class_subject_id === "undefined" ||
-    class_subject_id === null ||
-    !Array.isArray(student_codes) ||
-    student_codes.length === 0
-  ) {
-    return res.status(400).json(JSend.fail("Missing or invalid data"));
-  }
-
-  try {
-    const result = await adminService.addStudentsToClass({
-      class_subject_id,
-      student_codes,
-    });
-
-    return res.status(201).json(JSend.success({ added: result }));
-  } catch (err) {
-    console.error(err);
-    return next(new ApiError(500, "Internal server error"));
-  }
-}
-
 async function updateAccount(req, res, next) {
   const { currentCode, newPassword, newStatus } = req.body;
 
@@ -177,6 +127,28 @@ async function updateAccount(req, res, next) {
   }
 }
 
+async function addNewAccount(req, res, next) {
+  const datas = req.body;
+
+  if (!datas || !Array.isArray(datas)) {
+    return res.status(400).json(JSend.fail("Invalid input"));
+  }
+
+  try {
+    const listAccount = await adminService.addNewAccount(datas);
+
+    if (!listAccount) {
+      return next(new ApiError(404, "Insert fail"));
+    }
+
+    return res.status(200).json(JSend.success(listAccount));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+// Student Management
 async function getStudentList(req, res, next) {
   try {
     const students = await adminService.getStudentList();
@@ -213,6 +185,21 @@ async function importStudentList(req, res, next) {
   }
 }
 
+async function getLastStudentCode(req, res, next) {
+  try {
+    const studentCode = await adminService.getLastStudentCode();
+
+    if (!studentCode) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(studentCode));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
 async function addNewStudent(req, res, next) {
   const student = req.body;
 
@@ -228,21 +215,6 @@ async function addNewStudent(req, res, next) {
     }
 
     return res.status(200).json(JSend.success(newStudent));
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json(JSend.error("Internal server error", error));
-  }
-}
-
-async function getLastStudentCode(req, res, next) {
-  try {
-    const studentCode = await adminService.getLastStudentCode();
-
-    if (!studentCode) {
-      return next(new ApiError(404, "Don't have any data"));
-    }
-
-    return res.status(200).json(JSend.success(studentCode));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
@@ -271,6 +243,57 @@ async function updateStudentInfor(req, res, next) {
       .json(JSend.error("Internal server error", error.message));
   }
 }
+
+async function getListStudentCode(req, res, next) {
+  try {
+    const studentCode = await adminService.getListStudentCode();
+
+    if (!studentCode) {
+      return next(new ApiError(404, "Don't have any data"));
+    }
+
+    return res.status(200).json(JSend.success(studentCode));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getStudentNotInClass(req, res, next) {
+  const class_subject_id = req.query.class_subject_id;
+  try {
+    const listStudent = await adminService.getStudentNotInClass(
+      class_subject_id
+    );
+
+    if (!listStudent) {
+      return next(new ApiError(404, "update fail"));
+    }
+
+    return res.status(200).json(JSend.success(listStudent));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getStudentInClass(req, res, next) {
+  const class_subject_id = req.query.class_subject_id;
+  try {
+    const listStudent = await adminService.getStudentInClass(class_subject_id);
+
+    if (!listStudent) {
+      return next(new ApiError(404, "update fail"));
+    }
+
+    return res.status(200).json(JSend.success(listStudent));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+// Teacher Management
 
 async function getTeacherList(req, res, next) {
   try {
@@ -346,21 +369,6 @@ async function updateTeacherInfor(req, res, next) {
   }
 }
 
-async function getListStudentCode(req, res, next) {
-  try {
-    const studentCode = await adminService.getListStudentCode();
-
-    if (!studentCode) {
-      return next(new ApiError(404, "Don't have any data"));
-    }
-
-    return res.status(200).json(JSend.success(studentCode));
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json(JSend.error("Internal server error", error));
-  }
-}
-
 async function getListTeacherCode(req, res, next) {
   try {
     const teacherCode = await adminService.getListTeacherCode();
@@ -376,36 +384,74 @@ async function getListTeacherCode(req, res, next) {
   }
 }
 
-async function addNewAccount(req, res, next) {
-  const datas = req.body;
+// Class & Enrollment
 
-  if (!datas || !Array.isArray(datas)) {
+async function createClassWithTeacher(req, res, next) {
+  const { classID, moduleID, semesterID, teacherCode } = req.body;
+
+  if (!classID || !moduleID || !semesterID || !teacherCode) {
+    return res.status(400).json(JSend.fail("All fields are required"));
+  }
+
+  try {
+    const newClass = await adminService.createClassWithTeacher({
+      classID,
+      moduleID,
+      semesterID,
+      teacherCode,
+    });
+
+    if (!newClass) {
+      return next(new ApiError(401, "Create class failed"));
+    }
+
+    return res.status(201).json(JSend.success(newClass));
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json(JSend.error("Internal server error", err));
+  }
+}
+
+async function addStudentsToClass(req, res, next) {
+  const { class_subject_id, student_codes } = req.body;
+
+  if (
+    typeof class_subject_id === "undefined" ||
+    class_subject_id === null ||
+    !Array.isArray(student_codes) ||
+    student_codes.length === 0
+  ) {
+    return res.status(400).json(JSend.fail("Missing or invalid data"));
+  }
+
+  try {
+    const result = await adminService.addStudentsToClass({
+      class_subject_id,
+      student_codes,
+    });
+
+    return res.status(201).json(JSend.success({ added: result }));
+  } catch (err) {
+    console.error(err);
+    return next(new ApiError(500, "Internal server error"));
+  }
+}
+
+async function updateClass(req, res, next) {
+  const payload = req.body;
+
+  if (!payload) {
     return res.status(400).json(JSend.fail("Invalid input"));
   }
 
   try {
-    const listAccount = await adminService.addNewAccount(datas);
+    const updateData = await adminService.updateClass(payload);
 
-    if (!listAccount) {
-      return next(new ApiError(404, "Insert fail"));
+    if (!updateData) {
+      return next(new ApiError(404, "update fail"));
     }
 
-    return res.status(200).json(JSend.success(listAccount));
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json(JSend.error("Internal server error", error));
-  }
-}
-
-async function getModuleList(req, res, next) {
-  try {
-    const listModule = await adminService.getModuleList();
-
-    if (!listModule) {
-      return next(new ApiError(404, "Insert fail"));
-    }
-
-    return res.status(200).json(JSend.success(listModule));
+    return res.status(200).json(JSend.success(updateData));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
@@ -421,6 +467,23 @@ async function getClassCodeAndSemester(req, res, next) {
     }
 
     return res.status(200).json(JSend.success(listClassWithSemester));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+// Module Management
+
+async function getModuleList(req, res, next) {
+  try {
+    const listModule = await adminService.getModuleList();
+
+    if (!listModule) {
+      return next(new ApiError(404, "Insert fail"));
+    }
+
+    return res.status(200).json(JSend.success(listModule));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
@@ -457,86 +520,97 @@ async function getModuleFilter(req, res, next) {
   }
 }
 
-async function updateClass(req, res, next) {
-  const payload = req.body;
-
-  if (!payload) {
-    return res.status(400).json(JSend.fail("Invalid input"));
-  }
-
+// Certificate Management
+async function getCertificates(req, res, next) {
   try {
-    const updateData = await adminService.updateClass(payload);
+    const listCertificate = await adminService.getCertificates();
 
-    if (!updateData) {
-      return next(new ApiError(404, "update fail"));
+    if (!listCertificate) {
+      return next(new ApiError(404, "Get fail"));
     }
 
-    return res.status(200).json(JSend.success(updateData));
+    return res.status(200).json(JSend.success(listCertificate));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
   }
 }
 
-async function getStudentNotInClass(req, res, next) {
-  const class_subject_id = req.query.class_subject_id;
+async function getStudentEligible(req, res, next) {
   try {
-    const listStudent = await adminService.getStudentNotInClass(
-      class_subject_id
-    );
+    const studentList = await adminService.getStudentEligible();
 
-    if (!listStudent) {
-      return next(new ApiError(404, "update fail"));
+    if (!studentList) {
+      return next(new ApiError(404, "Get fail"));
     }
 
-    return res.status(200).json(JSend.success(listStudent));
+    return res.status(200).json(JSend.success(studentList));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
   }
 }
 
-async function getStudentInClass(req, res, next) {
-  const class_subject_id = req.query.class_subject_id;
-  try {
-    const listStudent = await adminService.getStudentInClass(class_subject_id);
+async function addCertificates(req, res, next) {
+  const { class_subject_id, student_codes } = req.body;
 
-    if (!listStudent) {
-      return next(new ApiError(404, "update fail"));
+  try {
+    const addCert = await adminService.addCertificates({
+      class_subject_id,
+      student_codes,
+    });
+
+    if (!addCert) {
+      return next(new ApiError(404, "Add fail"));
     }
 
-    return res.status(200).json(JSend.success(listStudent));
+    return res.status(200).json(JSend.success(addCert));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
   }
 }
+
 module.exports = {
+  // Account Management
   createStudentAccount,
   createTeacherAccount,
-  getStudentAccount,
-  getTeacherAccount,
-  createClassWithTeacher,
-  addStudentsToClass,
+  addNewAccount,
   getAccountList,
   updateAccount,
+  getTeacherAccount,
+  getStudentAccount,
+
+  // Student Management
   getStudentList,
-  importStudentList,
   getLastStudentCode,
   addNewStudent,
   updateStudentInfor,
+  importStudentList,
+  getListStudentCode,
+  getStudentInClass,
+  getStudentNotInClass,
+
+  // Teacher Management
   getTeacherList,
   getLastTeacherCode,
   addNewTeacher,
   updateTeacherInfor,
-  getListStudentCode,
   getListTeacherCode,
-  addNewAccount,
-  getModuleList,
+
+  // Class & Enrollment
+  createClassWithTeacher,
+  updateClass,
+  addStudentsToClass,
   getClassCodeAndSemester,
+
+  // Module Management
+  getModuleList,
   getModuleCode,
   getModuleFilter,
-  updateClass,
-  getStudentNotInClass,
-  getStudentInClass,
+
+  // Certificate Management
+  getCertificates,
+  getStudentEligible,
+  addCertificates,
 };

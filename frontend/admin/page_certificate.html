@@ -94,14 +94,70 @@
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
-      <h3>Chào mừng đến với trang quản trị</h3>
-      <p>Đây là khu vực nội dung chính.</p>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h3 class="mb-4 text-uppercase">danh sách chứng chỉ</h3>
+            <div class="filter">
+              <div class="col-md-4">
+                <label for="role" class="form-label">Vai trò: </label>
+                <select class="form-select" id="role" name="role" required>
+                  <option value="1" selected>Sinh viên</option>
+                  <option value="2">Giảng viên</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <table class="table table-hover table-borderless">
+              <thead>
+                <tr>
+                  <th scope="col">STT</th>
+                  <th scope="col">Mã Số</th>
+                  <th scope="col">Tên</th>
+                  <th scope="col">CCCD</th>
+                  <th scope="col">Địa Chỉ</th>
+                  <th scope="col">Số Hiệu</th>
+                  <th scope="col">Ngày Cấp</th>
+                  <th scope="col">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="form-list">
+                <tr>
+                  <td>1</td>
+                  <td>026/TX.2024</td>
+                  <td>0092/24-THUD</td>
+                  <td>Võ Đình Nguyên</td>
+                  <td>082287007656</td>
+                  <td>Mỹ Thuận Bình Tân Vĩnh Long Cần Thơ</td>
+                  <td>026/VHXN</td>
+                  <td>26/6/2025</td>
+                  <td>
+                    <button class="btn btn-primary">
+                      <i class="bi bi-list-ul"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <nav>
+              <ul
+                class="pagination justify-content-center"
+                id="pagination"
+              ></ul>
+            </nav>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
+    <script src="../js/Administrator/manage_certificate/admin_display_certificate.js"></script>
   </body>
 </html>
