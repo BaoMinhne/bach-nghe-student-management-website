@@ -105,7 +105,7 @@ function displayStudentListPage(page) {
         student.student_phone
       )}</span></td>
       <td class="marquee-hover"><span>${transferValue(student.student_status)}</span></td>
-      <td>
+      <td >
         <button
       data-bs-toggle="modal"
       data-bs-target="#editModal"
@@ -114,7 +114,7 @@ function displayStudentListPage(page) {
       data-name="${student.student_name}"
       data-status="${student.student_status}"
       class="btn btn-sm btn-warning me-1 btn-edit">
-      <i class="bi bi-pencil-square me-2"></i>Sửa
+      <i class="bi bi-pencil-square me-1"></i>Sửa
     </button>
       </td>
     `;

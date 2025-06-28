@@ -83,8 +83,8 @@
           >
         </li>
         <li>
-          <a href="page_admin_statistics.html"
-            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
+          <a href="page_list_certificate_class.html"
+            ><i class="bi bi-patch-check"></i> Danh Sách Chứng chỉ</a
           >
         </li>
         <li>
@@ -97,13 +97,13 @@
 
     <!-- MAIN CONTENT -->
     <div class="main-content p-4">
-      <h4 style="text-align: center; font-size: 30px">Danh sách tài khoản</h4>
+      <h4 class="text-uppercase text-center" style="font-size: 30px">Danh sách tài khoản</h4>
       <!-- Bộ lọc -->
-      <div class="filters mb-4 d-flex flex-wrap gap-3 align-items-end mt-3">
+      <div class="filters mb-4 d-flex justify-content-between flex-wrap gap-3 align-items-center mt-3">
         <div style="display: flex">
           <div class="form-group">
             <label style="width: 150px" for="class">Phân Quyền: </label>
-            <select class="form-select" id="role_filter">
+            <select class="form-select me-2" id="role_filter">
               <option value="" selected disabled>-- Chọn phân quyền --</option>
               <option value="all">Tất cả</option>
               <option value="1">Học viên</option>
@@ -131,13 +131,13 @@
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
-            <th>STT</th>
-            <th>MÃ SỐ</th>
-            <th>MẬT KHẨU</th>
-            <th>TÊN</th>
-            <th>QUYỀN HẠN</th>
-            <th>TRẠNG THÁI</th>
-            <th>GHI CHÚ</th>
+            <th style="width: 50px">STT</th>
+            <th style="width: 120px">MÃ SỐ</th>
+            <th style="width: 80px">MẬT KHẨU</th>
+            <th style="width: 150px">TÊN</th>
+            <th style="width: 120px">QUYỀN HẠN</th>
+            <th style="width: 120px">TRẠNG THÁI</th>
+            <th style="width: 120px">GHI CHÚ</th>
           </tr>
         </thead>
         <tbody id="account-list">

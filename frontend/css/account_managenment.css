@@ -85,13 +85,10 @@ body {
   margin-top: 60px;
   padding: 30px;
 }
-.main-content .filters{
-  justify-content: space-between;
-}
+
 .main-content .form-group{
   display: flex;
   align-items: center;
-  margin-right: 15px;
 }
 
 table {
@@ -133,6 +130,22 @@ table thead {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+table thead {
+  background-color: #f8f9fa;
+}
+
+table th {
+  font-size: 1rem;
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 1;
+}
+
+table td {
+  font-size: 0.9rem;
 }
 
 .marquee-hover {

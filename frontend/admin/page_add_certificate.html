@@ -80,8 +80,8 @@
           >
         </li>
         <li>
-          <a href="page_admin_statistics.html"
-            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
+          <a href="page_list_certificate_class.html"
+            ><i class="bi bi-patch-check"></i> Danh Sách Chứng chỉ</a
           >
         </li>
         <li>
@@ -97,26 +97,31 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <h3 class="mb-4 text-uppercase">danh sách chứng chỉ</h3>
-            <div class="filter">
-              <div class="col-md-4">
-                <label for="role" class="form-label">Vai trò: </label>
-                <select class="form-select" id="role" name="role" required>
+            <h3 class="text-uppercase d-flex justify-content-center">danh sách chứng chỉ</h3>
+            <!-- Dòng filter + nút thêm chứng chỉ -->
+            <div class="d-flex justify-content-between align-items-end">
+              <div class="col-md-4 d-flex align-items-center">
+                <label class="me-2" for="role" class="form-label">Vai trò: </label>
+                <select class="form-select" style="max-width: 200px;" id="role" name="role" required>
                   <option value="1" selected>Sinh viên</option>
                   <option value="2">Giảng viên</option>
                 </select>
               </div>
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-patch-check"></i> Thêm Chứng Chỉ
+              </button>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-12">
+
+        <div class="row align-items-center">
+          <div class="col-md-12 ali">
             <form action="" id="addNewCert">
-              <table class="table table-hover table-borderless">
+              <table class="table table-hover table-bordered">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Mã só</th>
+                    <th scope="col">Mã số</th>
                     <th scope="col">Tên học viên</th>
                     <th scope="col">Môn học</th>
                     <th scope="col">Lớp</th>
@@ -140,6 +145,7 @@
                       </button>
                     </td>
                   </tr>
+                  
                 </tbody>
               </table>
               <nav>
@@ -148,9 +154,7 @@
                   id="pagination"
                 ></ul>
               </nav>
-              <button type="submit" class="btn btn-success">
-                <i class="bi bi-patch-check"></i> Thêm Chứng Chỉ
-              </button>
+              <!-- ĐÃ XOÁ nút thêm ở cuối -->
             </form>
           </div>
         </div>

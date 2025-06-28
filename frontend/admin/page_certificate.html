@@ -80,8 +80,8 @@
           >
         </li>
         <li>
-          <a href="page_admin_statistics.html"
-            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
+          <a href="page_list_certificate_class.html"
+            ><i class="bi bi-patch-check"></i> Danh Sách Chứng chỉ</a
           >
         </li>
         <li>
@@ -91,36 +91,35 @@
         </li>
       </ul>
     </div>
-
     <!-- MAIN CONTENT -->
     <div class="main-content">
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <h3 class="mb-4 text-uppercase">danh sách chứng chỉ</h3>
-            <div class="filter">
-              <div class="col-md-4">
-                <label for="role" class="form-label">Vai trò: </label>
-                <select class="form-select" id="role" name="role" required>
-                  <option value="1" selected>Sinh viên</option>
-                  <option value="2">Giảng viên</option>
-                </select>
-              </div>
+            <h3 class="mb-4 text-uppercase text-center">danh sách chứng chỉ</h3>
+            <div class="filter d-flex align-items-center mb-3"style="max-width: 200px;">
+              <label style="width: 80px;" for="role" class="form-label mb-0 me-2">Vai trò:</label>
+              <select class="form-select" id="role" name="role" required>
+                <option value="1" selected>Sinh viên</option>
+                <option value="2">Giảng viên</option>
+              </select>
+            </div>
             </div>
           </div>
         </div>
         <div class="row">
           <div class="col-md-12">
-            <table class="table table-hover table-borderless">
+            <table class="table table-hover table-bordered">
               <thead>
                 <tr>
                   <th scope="col">STT</th>
+                  <th scope="col">Số Vào Sổ</th>
                   <th scope="col">Mã Số</th>
                   <th scope="col">Tên</th>
                   <th scope="col">CCCD</th>
                   <th scope="col">Địa Chỉ</th>
                   <th scope="col">Số Hiệu</th>
-                  <th scope="col">Ngày Cấp</th>
+                  <th scope="col">Ngày Cấp</th>             
                   <th scope="col">Thao Tác</th>
                 </tr>
               </thead>
