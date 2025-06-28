@@ -94,14 +94,75 @@
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
-      <h3>Chào mừng đến với trang quản trị</h3>
-      <p>Đây là khu vực nội dung chính.</p>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h3 class="mb-4 text-uppercase">danh sách chứng chỉ</h3>
+            <div class="filter">
+              <div class="col-md-4">
+                <label for="role" class="form-label">Vai trò: </label>
+                <select class="form-select" id="role" name="role" required>
+                  <option value="1" selected>Sinh viên</option>
+                  <option value="2">Giảng viên</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <form action="" id="addNewCert">
+              <table class="table table-hover table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Mã só</th>
+                    <th scope="col">Tên học viên</th>
+                    <th scope="col">Môn học</th>
+                    <th scope="col">Lớp</th>
+                    <th scope="col">Điểm</th>
+                    <th scope="col">Ngày cấp gợi ý</th>
+                    <th scope="col">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody id="form-list">
+                  <tr>
+                    <td><input type="checkbox" class="checkbox-input" /></td>
+                    <td>0092/24-THUD</td>
+                    <td>Dương T.T. Linh</td>
+                    <td>Tin học</td>
+                    <td>THUD Tam Bình</td>
+                    <td>8.5</td>
+                    <td>2025-03-10</td>
+                    <td>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-patch-check"></i> Cấp Chứng Chỉ
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <nav>
+                <ul
+                  class="pagination justify-content-center"
+                  id="pagination"
+                ></ul>
+              </nav>
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-patch-check"></i> Thêm Chứng Chỉ
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
+    <script src="../js/Administrator/manage_certificate/admin_get_student.js"></script>
+    <script src="../js/Administrator/manage_certificate/admin_add_certificate.js"></script>
   </body>
 </html>

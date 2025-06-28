@@ -45,13 +45,13 @@
     <div class="sidebar">
       <ul class="menu">
         <li>
-          <a href="page_create_account.html"
-            ><i class="bi bi-person-plus me-2"></i> Tạo tài khoản</a
+          <a href="page_account_management.html"
+            ><i class="bi bi-person-gear"></i> Tài Khoản</a
           >
         </li>
         <li>
-          <a href="page_student_management.html"
-            ><i class="bi bi-people me-2"></i> Học Viên</a
+          <a href="page_create_account.html"
+            ><i class="bi bi-person-plus me-2"></i> Tạo tài khoản</a
           >
         </li>
         <li>
@@ -60,18 +60,28 @@
           >
         </li>
         <li>
+          <a href="page_student_management.html"
+            ><i class="bi bi-people me-2"></i> Học Viên</a
+          >
+        </li>
+        <li>
           <a href="page_teacher_management.html"
             ><i class="bi bi-person-workspace me-2"></i> Giảng viên</a
           >
         </li>
         <li>
-          <a href="page_admin_statistics.html"
-            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
+          <a href="page_add_certificate.html"
+            ><i class="bi bi-patch-plus"></i>Cấp chứng chỉ</a
           >
         </li>
         <li>
-          <a href="page_account_management.html"
-            ><i class="bi bi-person-gear"></i> Tài Khoản</a
+          <a href="page_certificate.html"
+            ><i class="bi bi-patch-check"></i> Chứng chỉ</a
+          >
+        </li>
+        <li>
+          <a href="page_admin_statistics.html"
+            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
           >
         </li>
         <li>
@@ -83,15 +93,17 @@
     </div>
 
     <!-- MAIN CONTENT -->
-  <div class="main-content">
-       <h4 style="text-align: center; font-size: 30px;">Danh sách lớp học</h4>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="filters mb-4 d-flex flex-wrap gap-3">
-        <div class="form-group">
-          <label class="mb-1" for="courseFilter">Chọn Môn học: </label>
-          <select class="form-select" id="courseFilter"></select>
+    <div class="main-content">
+      <h4 class="text-uppercase" style="text-align: center; font-size: 30px">
+        Danh sách lớp học
+      </h4>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="filters mb-4 d-flex flex-wrap gap-3">
+          <div class="form-group">
+            <label class="mb-1" for="courseFilter">Chọn Môn học: </label>
+            <select class="form-select" id="courseFilter"></select>
+          </div>
         </div>
-      </div>
         <button
           class="btn btn-success"
           data-bs-toggle="modal"
@@ -317,7 +329,7 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title" id="viewClassModalLabel">
+            <h5 class="modal-title text-uppercase" id="viewClassModalLabel">
               Chi tiết lớp học phần
             </h5>
             <button

@@ -138,7 +138,7 @@ function createPageItem(label, pageNum) {
   a.addEventListener("click", (e) => {
     e.preventDefault();
     currentPage = pageNum;
-    displayStudentListPage(currentPage);
+    displayListAccount(currentPage);
     renderPagination();
   });
   li.appendChild(a);

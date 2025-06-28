@@ -750,6 +750,108 @@ const admin = {
 
     return inserted.length > 0 ? inserted : null;
   },
+
+  getCertificates: async () => {
+    const certificates = await knex("certificate as cert")
+      .select(
+        "cert.certificate_id",
+        "cert.student_code",
+        "s.student_middle_name",
+        "s.student_name",
+        "s.student_IDCard",
+        "s.student_address",
+        "s.student_date_of_birth",
+        "s.student_gender",
+        "m.module_name",
+        "c.class_name",
+        "cert.cert_number",
+        "cert.issued_date",
+        "cert.note"
+      )
+      .join("student as s", "s.student_code", "cert.student_code")
+      .join(
+        "class_subject as cs",
+        "cs.class_subject_id",
+        "cert.class_subject_id"
+      )
+      .join("class as c", "c.class_id", "cs.class_id")
+      .join("module as m", "m.module_id", "cs.module_id")
+      .orderBy("cert.certificate_id", "desc");
+
+    if (certificates.length == 0) {
+      return null;
+    }
+
+    return certificates;
+  },
+
+  getStudentEligible: async () => {
+    const lists = knex("score as sc")
+      .select(
+        "s.student_code",
+        "s.student_middle_name",
+        "s.student_name",
+        "cs.class_subject_id",
+        "m.module_name",
+        "sc.score",
+        "c.class_name",
+        "sem.semester_end_date as issued_date"
+      )
+      .join("student as s", "s.student_code", "sc.student_code")
+      .join("class_subject as cs", "cs.class_subject_id", "sc.class_subject_id")
+      .join("class as c", "cs.class_id", "c.class_id")
+      .join("module as m", "cs.module_id", "m.module_id")
+      .join("semester as sem", "sem.semester_id", "cs.semester_id")
+      .where("sc.score", ">=", 5)
+      .whereNotExists(function () {
+        this.select(knex.raw(1))
+          .from("certificate as c")
+          .whereRaw("c.student_code = s.student_code")
+          .andWhereRaw("c.class_subject_id = cs.class_subject_id");
+      });
+
+    if (lists.length == 0) return null;
+
+    return lists;
+  },
+
+  addCertificates: async ({ class_subject_id, student_codes }) => {
+    const inserted = [];
+
+    for (let student_code of student_codes) {
+      // Kiểm tra trùng chứng chỉ
+      const exists = await knex("certificate")
+        .where({ student_code, class_subject_id })
+        .first();
+
+      if (exists) continue;
+
+      // Lấy module_code từ class_subject_id
+      const classInfo = await knex("class_subject as cs")
+        .join("module as m", "m.module_id", "cs.module_id")
+        .join("semester as sem", "sem.semester_id", "cs.semester_id")
+        .where("cs.class_subject_id", class_subject_id)
+        .select("m.module_code", "sem.semester_end_date")
+        .first();
+
+      if (!classInfo) continue;
+
+      const cert_number = `${classInfo.module_code}-${student_code}`;
+      const issued_date = classInfo.semester_end_date || new Date();
+
+      // Thêm vào bảng certificate
+      const [cert_id] = await knex("certificate").insert({
+        student_code,
+        class_subject_id,
+        cert_number,
+        issued_date,
+      });
+
+      inserted.push({ student_code, cert_number });
+    }
+
+    return inserted;
+  },
 };
 
 module.exports = admin;

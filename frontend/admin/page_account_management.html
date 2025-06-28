@@ -19,7 +19,10 @@
     <div class="topbar">
       <div class="logo-wrapper">
         <a href="page_admin.html">
-          <img src="../images/logo_Truong_Bach_Nghe.png" alt="Logo Trường Trung Cấp Bách Nghệ" />
+          <img
+            src="../images/logo_Truong_Bach_Nghe.png"
+            alt="Logo Trường Trung Cấp Bách Nghệ"
+          />
           <span>Trường Trung Cấp Bách Nghệ</span>
         </a>
       </div>
@@ -45,13 +48,13 @@
     <div class="sidebar">
       <ul class="menu">
         <li>
-          <a href="page_create_account.html"
-            ><i class="bi bi-person-plus me-2"></i> Tạo tài khoản</a
+          <a href="page_account_management.html"
+            ><i class="bi bi-person-gear"></i> Tài Khoản</a
           >
         </li>
         <li>
-          <a href="page_student_management.html"
-            ><i class="bi bi-people me-2"></i> Học Viên</a
+          <a href="page_create_account.html"
+            ><i class="bi bi-person-plus me-2"></i> Tạo tài khoản</a
           >
         </li>
         <li>
@@ -60,18 +63,28 @@
           >
         </li>
         <li>
+          <a href="page_student_management.html"
+            ><i class="bi bi-people me-2"></i> Học Viên</a
+          >
+        </li>
+        <li>
           <a href="page_teacher_management.html"
             ><i class="bi bi-person-workspace me-2"></i> Giảng viên</a
           >
         </li>
         <li>
-          <a href="page_admin_statistics.html"
-            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
+          <a href="page_add_certificate.html"
+            ><i class="bi bi-patch-plus"></i>Cấp chứng chỉ</a
           >
         </li>
         <li>
-          <a href="page_account_management.html"
-            ><i class="bi bi-person-gear"></i> Tài Khoản</a
+          <a href="page_certificate.html"
+            ><i class="bi bi-patch-check"></i> Chứng chỉ</a
+          >
+        </li>
+        <li>
+          <a href="page_admin_statistics.html"
+            ><i class="bi bi-bar-chart-line me-2"></i> Thống kê</a
           >
         </li>
         <li>
@@ -84,26 +97,26 @@
 
     <!-- MAIN CONTENT -->
     <div class="main-content p-4">
-      <h4 style="text-align: center; font-size: 30px;">Danh sách tài khoản</h4>
+      <h4 style="text-align: center; font-size: 30px">Danh sách tài khoản</h4>
       <!-- Bộ lọc -->
       <div class="filters mb-4 d-flex flex-wrap gap-3 align-items-end mt-3">
-                <div style="display: flex;">
+        <div style="display: flex">
           <div class="form-group">
-          <label style="width: 150px;" for="class">Phân Quyền: </label>
-          <select class="form-select" id="role_filter">
-            <option value="" selected disabled>-- Chọn phân quyền --</option>
-            <option value="all">Tất cả</option>
-            <option value="1">Học viên</option>
-            <option value="2">Giảng viên</option>
-          </select>
+            <label style="width: 150px" for="class">Phân Quyền: </label>
+            <select class="form-select" id="role_filter">
+              <option value="" selected disabled>-- Chọn phân quyền --</option>
+              <option value="all">Tất cả</option>
+              <option value="1">Học viên</option>
+              <option value="2">Giảng viên</option>
+            </select>
+          </div>
+          <div class="align-self-end">
+            <button class="btn btn-primary" onclick="filterAccounts()">
+              Lọc
+            </button>
+          </div>
         </div>
-        <div class="align-self-end">
-          <button class="btn btn-primary" onclick="filterAccounts()">
-            Lọc
-          </button>
-        </div>
-        </div>
-        
+
         <div class="form-group">
           <input
             type="text"
