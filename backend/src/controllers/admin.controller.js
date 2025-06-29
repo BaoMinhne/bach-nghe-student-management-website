@@ -522,8 +522,12 @@ async function getModuleFilter(req, res, next) {
 
 // Certificate Management
 async function getCertificates(req, res, next) {
+  class_subject_id = req.query.class_subject_id;
+
   try {
-    const listCertificate = await adminService.getCertificates();
+    const listCertificate = await adminService.getCertificates(
+      class_subject_id
+    );
 
     if (!listCertificate) {
       return next(new ApiError(404, "Get fail"));
@@ -565,6 +569,21 @@ async function addCertificates(req, res, next) {
     }
 
     return res.status(200).json(JSend.success(addCert));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getClassCert(req, res, next) {
+  try {
+    const listCertClass = await adminService.getClassCert();
+
+    if (!listCertClass) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(listCertClass));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
@@ -613,4 +632,5 @@ module.exports = {
   getCertificates,
   getStudentEligible,
   addCertificates,
+  getClassCert,
 };

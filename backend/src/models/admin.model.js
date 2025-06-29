@@ -751,8 +751,14 @@ const admin = {
     return inserted.length > 0 ? inserted : null;
   },
 
-  getCertificates: async () => {
+  getCertificates: async (class_subject_id) => {
+    if (!class_subject_id) {
+      return;
+    }
     const certificates = await knex("certificate as cert")
+      .where({
+        "cert.class_subject_id": class_subject_id,
+      })
       .select(
         "cert.certificate_id",
         "cert.student_code",
@@ -792,6 +798,7 @@ const admin = {
         "s.student_middle_name",
         "s.student_name",
         "cs.class_subject_id",
+        "m.module_code",
         "m.module_name",
         "sc.score",
         "c.class_name",
@@ -851,6 +858,34 @@ const admin = {
     }
 
     return inserted;
+  },
+
+  getClassCert: async () => {
+    const classes = await knex("certificate as cert")
+      .join(
+        "class_subject as cs",
+        "cs.class_subject_id",
+        "cert.class_subject_id"
+      )
+      .join("class as c", "c.class_id", "cs.class_id")
+      .join("module as m", "m.module_id", "cs.module_id")
+      .join(
+        "teacher_subject_class as tsc",
+        "tsc.class_subject_id",
+        "cert.class_subject_id"
+      )
+      .join("teacher as t", "t.teacher_code", "tsc.teacher_code")
+      .distinct(
+        "m.module_code",
+        "cert.class_subject_id",
+        "c.class_name",
+        "m.module_name",
+        "t.teacher_name"
+      );
+
+    if (classes.length == 0) return null;
+
+    return classes;
   },
 };
 

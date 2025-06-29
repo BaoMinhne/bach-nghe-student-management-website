@@ -1,14 +1,25 @@
+const urlParams = new URLSearchParams(window.location.search);
+let class_subject_id = urlParams.get("class_subject"); // có thể gán trực tiếp
+
+let className = urlParams.get("class_name");
+let moduleName = urlParams.get("module_name");
+
 document.addEventListener("DOMContentLoaded", async () => {
-  getCertificates();
+  await getCertificates();
+  renderModuleName();
 });
-/**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
- */
+
+function renderModuleName() {
+  document.querySelector(".module_name").textContent = moduleName;
+  document.querySelector(".class_name").textContent = className;
+}
+
 async function getCertificates() {
   const API_BASE = "http://localhost:3000";
   try {
-    const res = await fetch(`${API_BASE}/api/v1/admin/getCertificates`);
+    const res = await fetch(
+      `${API_BASE}/api/v1/admin/getCertificates?class_subject_id=${class_subject_id}`
+    );
     const result = await res.json();
 
     if (result.status === "success" && Array.isArray(result.data)) {

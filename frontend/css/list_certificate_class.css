@@ -152,3 +152,38 @@ body {
     transform: translateX(-100%);
   }
 }
+
+.text-header {
+  font-weight: 700;
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.main-content .btn {
+  width: 80%;
+  font-weight: 600;
+  border-radius: 12px;
+  background: #0d6efd;
+  transition: all 0.2s ease;
+}
+
+.main-content .btn:hover {
+  background-color: #0b5ed7;
+  transform: scale(1.03);
+}
+.main-content .card-body {
+  /* padding: 1rem; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-title,
+.card_teacher_name,
+.card_class_name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1e293b;
+  text-transform: capitalize;
+}
