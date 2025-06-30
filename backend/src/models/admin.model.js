@@ -2,6 +2,14 @@ const knex = require("../database/knex");
 const moment = require("moment");
 
 const admin = {
+  // Account Management
+  /**
+   * Tạo tài khoản học viên mới.
+   * @param {Object} param0 - Thông tin tài khoản.
+   * @param {string} param0.username - Tên đăng nhập.
+   * @param {string} param0.password - Mật khẩu.
+   * @returns {Promise<Object|null>} Tài khoản vừa tạo hoặc null nếu thất bại.
+   */
   createStudentAccount: async ({ username, password }) => {
     const student = await knex("system_user").insert({
       user_username: username,
@@ -19,6 +27,13 @@ const admin = {
     return null;
   },
 
+  /**
+   * Tạo tài khoản giảng viên mới.
+   * @param {Object} param0 - Thông tin tài khoản.
+   * @param {string} param0.username - Tên đăng nhập.
+   * @param {string} param0.password - Mật khẩu.
+   * @returns {Promise<Object|null>} Tài khoản vừa tạo hoặc null nếu thất bại.
+   */
   createTeacherAccount: async ({ username, password }) => {
     const teacher = await knex("system_user").insert({
       user_username: username,
@@ -37,6 +52,44 @@ const admin = {
     return null;
   },
 
+  /**
+   * Thêm nhiều tài khoản hệ thống.
+   * @param {Array<Object>} datas - Danh sách tài khoản.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản đã thêm.
+   */
+
+  addNewAccount: async (datas) => {
+    const inserted = [];
+
+    for (const data of datas) {
+      try {
+        const newAccount = await knex("system_user").insert({
+          user_username: data.username,
+          user_pass: data.pass,
+          user_role: data.role,
+        });
+
+        if (newAccount) {
+          inserted.push({
+            user_username: data.username,
+            user_pass: data.pass,
+            user_role: data.role,
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi khi thêm tài khoản:", data.username, err);
+        // Bạn có thể bỏ qua hoặc xử lý thêm ở đây
+      }
+    }
+
+    return inserted.length > 0 ? inserted : null;
+  },
+
+  /**
+   * Kiểm tra tài khoản theo username.
+   * @param {string} username - Tên đăng nhập.
+   * @returns {Promise<Object|null>} Thông tin tài khoản nếu tồn tại.
+   */
   checkUserAccount: async (username) => {
     const user = await knex("system_user")
       .where({ user_username: username })
@@ -49,6 +102,10 @@ const admin = {
     return null;
   },
 
+  /**
+   * Lấy danh sách tài khoản không phải admin.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản người dùng.
+   */
   getAccountList: async () => {
     const users = await knex("system_user")
       .select("*")
@@ -96,6 +153,10 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy danh sách tài khoản học viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản học viên.
+   */
   getStudentAccount: async () => {
     const users = await knex("system_user").select("*").where({
       user_role: 1, // Assuming 1 is the role for students
@@ -134,6 +195,10 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy danh sách tài khoản giảng viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản giảng viên.
+   */
   getTeacherAccount: async () => {
     const users = await knex("system_user").select("*").where({
       user_role: 2, // Assuming 2 is the role for teachers
@@ -167,214 +232,14 @@ const admin = {
     return result;
   },
 
-  createClassWithTeacher: async ({
-    classID,
-    moduleID,
-    semesterID,
-    teacherCode,
-  }) => {
-    const trx = await knex.transaction();
-    try {
-      const [clsId] = await trx("class_subject").insert({
-        class_id: classID,
-        module_id: moduleID,
-        semester_id: semesterID,
-      });
-
-      if (!clsId) {
-        throw new Error("Failed to insert class_subject");
-      }
-
-      await trx("teacher_subject_class").insert({
-        teacher_code: teacherCode,
-        class_subject_id: clsId,
-      });
-
-      await trx.commit();
-      const newClass = await knex("class_subject")
-        .where("class_subject.class_subject_id", clsId)
-        .join("class", "class_subject.class_id", "class.class_id")
-        .join("module", "class_subject.module_id", "module.module_id")
-        .join("semester", "class_subject.semester_id", "semester.semester_id")
-        .join(
-          "teacher_subject_class",
-          "class_subject.class_subject_id",
-          "teacher_subject_class.class_subject_id"
-        )
-        .join(
-          "teacher",
-          "teacher_subject_class.teacher_code",
-          "teacher.teacher_code"
-        )
-        .select(
-          "class_subject.class_subject_id",
-          "module.module_name",
-          "class.class_name",
-          "semester.semester_number",
-          "teacher.teacher_name"
-        )
-        .first();
-
-      return newClass;
-    } catch (error) {
-      await trx.rollback();
-      console.error("Error creating class_subject:", error.message);
-      throw error;
-    }
-  },
-
-  updateClass: async (payload) => {
-    if (!payload.classSubjectID) {
-      throw new Error("Thiếu class_subject_id");
-    }
-
-    const trx = await knex.transaction();
-    try {
-      const updateStatus = await trx("class_subject")
-        .where({ class_subject_id: payload.classSubjectID })
-        .update({
-          semester_id: payload.semesterID,
-          class_status: payload.classStatus,
-        });
-
-      const exist = await trx("teacher_subject_class")
-        .select("*")
-        .where({ class_subject_id: payload.classSubjectID });
-
-      if (exist.length === 0) {
-        await trx("teacher_subject_class").insert({
-          teacher_code: payload.teacherCode,
-          class_subject_id: payload.classSubjectID,
-        });
-      } else {
-        await trx("teacher_subject_class")
-          .update({ teacher_code: payload.teacherCode })
-          .where({ class_subject_id: payload.classSubjectID });
-      }
-
-      await trx.commit();
-
-      return {
-        class_subject_updated: updateStatus,
-        teacher_updated: payload.teacherCode,
-      };
-    } catch (error) {
-      await trx.rollback();
-      console.error("Error updating class_subject:", error.message);
-      throw error;
-    }
-  },
-
-  getClassCodeAndSemester: async () => {
-    const classes = await knex("class").select("*");
-    const result = [];
-
-    if (classes && classes.length > 0) {
-      for (const classItem of classes) {
-        const semester = await knex("semester")
-          .select("*")
-          .where({ class_id: classItem.class_id });
-
-        result.push({ class: classItem, semesters: semester });
-      }
-    }
-
-    return result;
-  },
-
-  getModuleCode: async () => {
-    const module = await knex("module").select("*");
-
-    if (!module) {
-      return null;
-    }
-
-    return module;
-  },
-
-  addStudentsToClass: async ({ class_subject_id, student_codes }) => {
-    const trx = await knex.transaction();
-    try {
-      // Kiểm tra class_subject_id có tồn tại không
-      const classSubject = await trx("class_subject")
-        .where({ class_subject_id })
-        .first();
-
-      if (!classSubject) {
-        throw new Error("Class subject not found");
-      }
-
-      const students = [];
-
-      for (const studentCode of student_codes) {
-        try {
-          // Thêm vào class_student
-          await trx("class_student").insert({
-            class_subject_id,
-            student_code: studentCode,
-          });
-
-          // Thêm vào score (với điểm NULL ban đầu)
-          await trx("score").insert({
-            class_subject_id,
-            student_code: studentCode,
-            score: null, // optional vì mặc định đã là null
-          });
-
-          students.push(studentCode);
-        } catch (err) {
-          // Nếu bị duplicate (đã tồn tại trong class_student hoặc score), ghi log và bỏ qua
-          console.error("Lỗi khi thêm sinh viên:", err.message);
-
-          // Nếu lỗi không phải duplicate thì rollback
-          if (!err.message.includes("duplicate")) {
-            throw err;
-          }
-        }
-      }
-
-      await trx.commit();
-      return students;
-    } catch (error) {
-      await trx.rollback();
-      console.error("Error adding students to class subject:", error.message);
-      throw error;
-    }
-  },
-
-  getModuleList: async () => {
-    const result = await knex("class_subject as cs")
-      .join("class as c", "cs.class_id", "c.class_id")
-      .join("module as m", "cs.module_id", "m.module_id")
-      .join("semester as s", "cs.semester_id", "s.semester_id")
-      .leftJoin(
-        "teacher_subject_class as tsc",
-        "cs.class_subject_id",
-        "tsc.class_subject_id"
-      )
-      .leftJoin("teacher as t", "tsc.teacher_code", "t.teacher_code")
-      .select(
-        "cs.class_subject_id",
-        "c.class_id",
-        "c.class_code",
-        "c.class_name",
-        "m.module_code",
-        "m.module_name",
-        "s.semester_number",
-        "cs.class_status",
-        "s.semester_id",
-        "s.semester_start_date",
-        "s.semester_end_date",
-        "tsc.teacher_code",
-        "t.teacher_name"
-      )
-      .orderBy("s.semester_number", "asc");
-
-    if (!result) return null;
-
-    return result;
-  },
-
+  /**
+   * Cập nhật mật khẩu hoặc trạng thái tài khoản.
+   * @param {Object} param0 - Dữ liệu cập nhật.
+   * @param {string} param0.currentCode - Username cần cập nhật.
+   * @param {string} [param0.newPassword] - Mật khẩu mới.
+   * @param {number} [param0.newStatus] - Trạng thái tài khoản mới.
+   * @returns {Promise<number>} Số bản ghi được cập nhật.
+   */
   updateAccount: async ({ currentCode, newPassword, newStatus }) => {
     const updates = {};
 
@@ -399,6 +264,11 @@ const admin = {
     return updatedRows;
   },
 
+  // Student Management
+  /**
+   * Lấy danh sách học viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
   getStudentList: async () => {
     const students = await knex("student").select("*");
 
@@ -432,6 +302,81 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy mã học viên cuối cùng.
+   * @returns {Promise<Object|null>} Mã học viên mới nhất.
+   */
+  getLastStudentCode: async () => {
+    const stCode = await knex("student")
+      .select("student_code")
+      .orderBy("student_code", "desc")
+      .limit(1);
+
+    if (!stCode) {
+      return null;
+    }
+
+    return stCode[0];
+  },
+
+  /**
+   * Thêm một học viên mới.
+   * @param {Object} student - Dữ liệu học viên.
+   * @returns {Promise<Object|null>} Thông tin học viên đã thêm.
+   */
+  addNewStudent: async (student) => {
+    let formatted = 0;
+    const inserted = [];
+    if (student.student_date_of_birth) {
+      formatted = moment(student.student_date_of_birth, "DD/MM/YYYY").format(
+        "YYYY-MM-DD"
+      );
+    }
+    const newStudent = await knex("student").insert({
+      student_code: student.student_code,
+      student_middle_name: student.student_middle_name,
+      student_name: student.student_name,
+      student_phone: student.student_phone,
+    });
+
+    if (newStudent) {
+      inserted.push({
+        student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_phone: student.student_phone,
+      });
+      return inserted[0];
+    }
+
+    return null;
+  },
+
+  /**
+   * Cập nhật thông tin học viên.
+   * @param {Object} student - Dữ liệu học viên cần cập nhật.
+   * @returns {Promise<Object|null>} Thông tin cập nhật.
+   */
+  updateStudentInfor: async (student) => {
+    const updateCount = await knex("student")
+      .where({ student_code: student.student_code })
+      .update({
+        // student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_status: student.student_status,
+      });
+
+    if (updateCount === 0) return null;
+
+    return { message: "Cập nhật thành công", updated: updateCount };
+  },
+
+  /**
+   * Nhập danh sách học viên từ tệp.
+   * @param {Array<Object>} students - Danh sách học viên.
+   * @returns {Promise<Object>} Kết quả chèn và danh sách bỏ qua.
+   */
   importStudentList: async (students) => {
     const inserted = [];
     const skipped = [];
@@ -500,62 +445,67 @@ const admin = {
     };
   },
 
-  getLastStudentCode: async () => {
-    const stCode = await knex("student")
-      .select("student_code")
-      .orderBy("student_code", "desc")
-      .limit(1);
+  /**
+   * Lấy danh sách học viên chưa có tài khoản hệ thống.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
+  getListStudentCode: async () => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereNotIn("student_code", function () {
+        this.select("user_username").from("system_user");
+      });
 
-    if (!stCode) {
+    if (result.length == 0) {
       return null;
     }
 
-    return stCode[0];
+    return result;
   },
 
-  addNewStudent: async (student) => {
-    let formatted = 0;
-    const inserted = [];
-    if (student.student_date_of_birth) {
-      formatted = moment(student.student_date_of_birth, "DD/MM/YYYY").format(
-        "YYYY-MM-DD"
-      );
-    }
-    const newStudent = await knex("student").insert({
-      student_code: student.student_code,
-      student_middle_name: student.student_middle_name,
-      student_name: student.student_name,
-      student_phone: student.student_phone,
-    });
-
-    if (newStudent) {
-      inserted.push({
-        student_code: student.student_code,
-        student_middle_name: student.student_middle_name,
-        student_name: student.student_name,
-        student_phone: student.student_phone,
-      });
-      return inserted[0];
-    }
-
-    return null;
-  },
-
-  updateStudentInfor: async (student) => {
-    const updateCount = await knex("student")
-      .where({ student_code: student.student_code })
-      .update({
-        // student_code: student.student_code,
-        student_middle_name: student.student_middle_name,
-        student_name: student.student_name,
-        student_status: student.student_status,
+  /**
+   * Lấy danh sách học viên đã đăng ký vào lớp.
+   * @param {number} class_subject_id - ID lớp môn học.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
+  getStudentInClass: async (class_subject_id) => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereIn("student_code", function () {
+        this.select("student_code")
+          .from("class_student")
+          .where({ class_subject_id: class_subject_id });
       });
 
-    if (updateCount === 0) return null;
+    if (result.length == 0) return null;
 
-    return { message: "Cập nhật thành công", updated: updateCount };
+    return result;
   },
 
+  /**
+   * Lấy danh sách học viên chưa đăng ký lớp.
+   * @param {number} class_subject_id - ID lớp môn học.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
+  getStudentNotInClass: async (class_subject_id) => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereNotIn("student_code", function () {
+        this.select("student_code")
+          .from("class_student")
+          .where({ class_subject_id: class_subject_id });
+      });
+
+    if (result.length == 0) return null;
+
+    return result;
+  },
+
+  // Teacher Management
+  /**
+   * Lấy danh sách giảng viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách giảng viên.
+   */
   getTeacherList: async () => {
     const teachers = await knex("teacher").select("*");
 
@@ -586,6 +536,10 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy mã giảng viên cuối cùng.
+   * @returns {Promise<Object|null>} Mã giảng viên cuối.
+   */
   getLastTeacherCode: async () => {
     const teacherCode = await knex("teacher")
       .select("teacher_code")
@@ -599,6 +553,11 @@ const admin = {
     return teacherCode[0];
   },
 
+  /**
+   * Thêm giảng viên mới.
+   * @param {Object} teacher - Dữ liệu giảng viên.
+   * @returns {Promise<Object|null>} Thông tin giảng viên.
+   */
   addNewTeacher: async (teacher) => {
     const inserted = [];
     console.log(teacher.teacher_date_of_birth);
@@ -628,6 +587,11 @@ const admin = {
     return null;
   },
 
+  /**
+   * Cập nhật thông tin giảng viên.
+   * @param {Object} teacher - Dữ liệu giảng viên cần cập nhật.
+   * @returns {Promise<Object|null>} Thông tin cập nhật.
+   */
   updateTeacherInfor: async (teacher) => {
     let updateCount = 0;
     if (teacher.teacher_date_of_birth) {
@@ -660,48 +624,10 @@ const admin = {
     return { message: "Cập nhật thành công", updated: updateCount };
   },
 
-  getListStudentCode: async () => {
-    const result = await knex("student")
-      .select("student_code", "student_middle_name", "student_name")
-      .whereNotIn("student_code", function () {
-        this.select("user_username").from("system_user");
-      });
-
-    if (result.length == 0) {
-      return null;
-    }
-
-    return result;
-  },
-
-  getStudentNotInClass: async (class_subject_id) => {
-    const result = await knex("student")
-      .select("student_code", "student_middle_name", "student_name")
-      .whereNotIn("student_code", function () {
-        this.select("student_code")
-          .from("class_student")
-          .where({ class_subject_id: class_subject_id });
-      });
-
-    if (result.length == 0) return null;
-
-    return result;
-  },
-
-  getStudentInClass: async (class_subject_id) => {
-    const result = await knex("student")
-      .select("student_code", "student_middle_name", "student_name")
-      .whereIn("student_code", function () {
-        this.select("student_code")
-          .from("class_student")
-          .where({ class_subject_id: class_subject_id });
-      });
-
-    if (result.length == 0) return null;
-
-    return result;
-  },
-
+  /**
+   * Lấy danh sách giảng viên chưa có tài khoản hệ thống.
+   * @returns {Promise<Array<Object>|null>} Danh sách giảng viên.
+   */
   getListTeacherCode: async () => {
     const result = await knex("teacher")
       .select("teacher_code", "teacher_name")
@@ -716,6 +642,247 @@ const admin = {
     return result;
   },
 
+  // Class & Enrollment
+  /**
+   * Tạo lớp học với giảng viên.
+   * @param {Object} data - Dữ liệu lớp học.
+   * @returns {Promise<Object>} Lớp học vừa tạo.
+   */
+  createClassWithTeacher: async ({
+    classID,
+    moduleID,
+    semesterID,
+    teacherCode,
+  }) => {
+    const trx = await knex.transaction();
+    try {
+      const [clsId] = await trx("class_subject").insert({
+        class_id: classID,
+        module_id: moduleID,
+        semester_id: semesterID,
+      });
+
+      if (!clsId) {
+        throw new Error("Failed to insert class_subject");
+      }
+
+      await trx("teacher_subject_class").insert({
+        teacher_code: teacherCode,
+        class_subject_id: clsId,
+      });
+
+      await trx.commit();
+      const newClass = await knex("class_subject")
+        .where("class_subject.class_subject_id", clsId)
+        .join("class", "class_subject.class_id", "class.class_id")
+        .join("module", "class_subject.module_id", "module.module_id")
+        .join("semester", "class_subject.semester_id", "semester.semester_id")
+        .join(
+          "teacher_subject_class",
+          "class_subject.class_subject_id",
+          "teacher_subject_class.class_subject_id"
+        )
+        .join(
+          "teacher",
+          "teacher_subject_class.teacher_code",
+          "teacher.teacher_code"
+        )
+        .select(
+          "class_subject.class_subject_id",
+          "module.module_name",
+          "class.class_name",
+          "semester.semester_number",
+          "teacher.teacher_name"
+        )
+        .first();
+
+      return newClass;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error creating class_subject:", error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Cập nhật lớp học.
+   * @param {Object} payload - Dữ liệu lớp học cần cập nhật.
+   * @returns {Promise<Object>} Kết quả cập nhật.
+   */
+  updateClass: async (payload) => {
+    if (!payload.classSubjectID) {
+      throw new Error("Thiếu class_subject_id");
+    }
+
+    const trx = await knex.transaction();
+    try {
+      const updateStatus = await trx("class_subject")
+        .where({ class_subject_id: payload.classSubjectID })
+        .update({
+          semester_id: payload.semesterID,
+          class_status: payload.classStatus,
+        });
+
+      const exist = await trx("teacher_subject_class")
+        .select("*")
+        .where({ class_subject_id: payload.classSubjectID });
+
+      if (exist.length === 0) {
+        await trx("teacher_subject_class").insert({
+          teacher_code: payload.teacherCode,
+          class_subject_id: payload.classSubjectID,
+        });
+      } else {
+        await trx("teacher_subject_class")
+          .update({ teacher_code: payload.teacherCode })
+          .where({ class_subject_id: payload.classSubjectID });
+      }
+
+      await trx.commit();
+
+      return {
+        class_subject_updated: updateStatus,
+        teacher_updated: payload.teacherCode,
+      };
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error updating class_subject:", error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Thêm học viên vào lớp học.
+   * @param {Object} data - Danh sách học viên.
+   * @returns {Promise<Array<string>>} Mã học viên đã thêm.
+   */
+  addStudentsToClass: async ({ class_subject_id, student_codes }) => {
+    const trx = await knex.transaction();
+    try {
+      // Kiểm tra class_subject_id có tồn tại không
+      const classSubject = await trx("class_subject")
+        .where({ class_subject_id })
+        .first();
+
+      if (!classSubject) {
+        throw new Error("Class subject not found");
+      }
+
+      const students = [];
+
+      for (const studentCode of student_codes) {
+        try {
+          // Thêm vào class_student
+          await trx("class_student").insert({
+            class_subject_id,
+            student_code: studentCode,
+          });
+
+          // Thêm vào score (với điểm NULL ban đầu)
+          await trx("score").insert({
+            class_subject_id,
+            student_code: studentCode,
+            score: null, // optional vì mặc định đã là null
+          });
+
+          students.push(studentCode);
+        } catch (err) {
+          // Nếu bị duplicate (đã tồn tại trong class_student hoặc score), ghi log và bỏ qua
+          console.error("Lỗi khi thêm sinh viên:", err.message);
+
+          // Nếu lỗi không phải duplicate thì rollback
+          if (!err.message.includes("duplicate")) {
+            throw err;
+          }
+        }
+      }
+
+      await trx.commit();
+      return students;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error adding students to class subject:", error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Lấy danh sách lớp và học kỳ.
+   * @returns {Promise<Array<Object>>} Danh sách lớp và học kỳ.
+   */
+  getClassCodeAndSemester: async () => {
+    const classes = await knex("class").select("*");
+    const result = [];
+
+    if (classes && classes.length > 0) {
+      for (const classItem of classes) {
+        const semester = await knex("semester")
+          .select("*")
+          .where({ class_id: classItem.class_id });
+
+        result.push({ class: classItem, semesters: semester });
+      }
+    }
+
+    return result;
+  },
+
+  // Module Management
+  /**
+   * Lấy danh sách tất cả module.
+   * @returns {Promise<Array<Object>|null>} Danh sách module.
+   */
+  getModuleCode: async () => {
+    const module = await knex("module").select("*");
+
+    if (!module) {
+      return null;
+    }
+
+    return module;
+  },
+
+  /**
+   * Lấy danh sách môn học đã phân lớp.
+   * @returns {Promise<Array<Object>|null>} Danh sách lớp môn học.
+   */
+  getModuleList: async () => {
+    const result = await knex("class_subject as cs")
+      .join("class as c", "cs.class_id", "c.class_id")
+      .join("module as m", "cs.module_id", "m.module_id")
+      .join("semester as s", "cs.semester_id", "s.semester_id")
+      .leftJoin(
+        "teacher_subject_class as tsc",
+        "cs.class_subject_id",
+        "tsc.class_subject_id"
+      )
+      .leftJoin("teacher as t", "tsc.teacher_code", "t.teacher_code")
+      .select(
+        "cs.class_subject_id",
+        "c.class_id",
+        "c.class_code",
+        "c.class_name",
+        "m.module_code",
+        "m.module_name",
+        "s.semester_number",
+        "cs.class_status",
+        "s.semester_id",
+        "s.semester_start_date",
+        "s.semester_end_date",
+        "tsc.teacher_code",
+        "t.teacher_name"
+      )
+      .orderBy("s.semester_number", "asc");
+
+    if (!result) return null;
+
+    return result;
+  },
+
+  /**
+   * Lấy danh sách module có phân lớp.
+   * @returns {Promise<Array<Object>>} Danh sách module.
+   */
   getModuleFilter: async () => {
     const modules = await knex("module")
       .distinct()
@@ -726,33 +893,12 @@ const admin = {
     return modules || [];
   },
 
-  addNewAccount: async (datas) => {
-    const inserted = [];
-
-    for (const data of datas) {
-      try {
-        const newAccount = await knex("system_user").insert({
-          user_username: data.username,
-          user_pass: data.pass,
-          user_role: data.role,
-        });
-
-        if (newAccount) {
-          inserted.push({
-            user_username: data.username,
-            user_pass: data.pass,
-            user_role: data.role,
-          });
-        }
-      } catch (err) {
-        console.error("Lỗi khi thêm tài khoản:", data.username, err);
-        // Bạn có thể bỏ qua hoặc xử lý thêm ở đây
-      }
-    }
-
-    return inserted.length > 0 ? inserted : null;
-  },
-
+  // Certificate Management
+  /**
+   * Lấy danh sách chứng chỉ theo lớp học phần.
+   * @param {number} class_subject_id - ID lớp học phần.
+   * @returns {Promise<Array<Object>|null>} Danh sách chứng chỉ.
+   */
   getCertificates: async (class_subject_id) => {
     if (!class_subject_id) {
       return;
@@ -793,6 +939,10 @@ const admin = {
     return certificates;
   },
 
+  /**
+   * Lấy danh sách học viên đủ điều kiện cấp chứng chỉ.
+   * @returns {Promise<Array<Object>>} Danh sách học viên đủ điều kiện.
+   */
   getStudentEligible: async () => {
     const lists = knex("score as sc")
       .select(
@@ -824,6 +974,11 @@ const admin = {
     return lists;
   },
 
+  /**
+   * Thêm chứng chỉ cho học viên theo lớp học phần.
+   * @param {Object} data - Dữ liệu chứng chỉ.
+   * @returns {Promise<Array<Object>>} Danh sách chứng chỉ đã thêm.
+   */
   addCertificates: async ({ class_subject_id, student_codes }) => {
     const inserted = [];
 
@@ -862,6 +1017,10 @@ const admin = {
     return inserted;
   },
 
+  /**
+   * Lấy danh sách lớp đã cấp chứng chỉ.
+   * @returns {Promise<Array<Object>|null>} Danh sách lớp và thông tin chứng chỉ.
+   */
   getClassCert: async () => {
     const classes = await knex("certificate as cert")
       .join(
@@ -890,6 +1049,11 @@ const admin = {
     return classes;
   },
 
+  // DashBoard Admin
+  /**
+   * Lấy thống kê tổng quan cho dashboard.
+   * @returns {Promise<Object>} Số lượng lớp, học viên, giảng viên và tài khoản.
+   */
   getDashboardStats: async () => {
     try {
       const [classResult] = await knex("class_subject").count(
@@ -917,6 +1081,10 @@ const admin = {
     }
   },
 
+  /**
+   * Lấy thống kê số lượng học viên theo lớp.
+   * @returns {Promise<Array<Object>|null>} Danh sách lớp và số học viên.
+   */
   getCountStudentInClass: async () => {
     try {
       const result = await knex("class as c")
@@ -939,6 +1107,10 @@ const admin = {
     }
   },
 
+  /**
+   * Lấy thống kê số chứng chỉ theo module.
+   * @returns {Promise<Array<Object>|null>} Danh sách module và số học viên có chứng chỉ.
+   */
   getModuleCertificateStats: async () => {
     const countCert = await knex("module as m")
       .select(

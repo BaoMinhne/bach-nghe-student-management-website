@@ -1,6 +1,11 @@
 const knex = require("../database/knex");
 
 const student = {
+  /**
+   * Lấy tất cả điểm của học viên theo mã học viên.
+   * @param {string} studentCode - Mã học viên.
+   * @returns {Promise<Array<Object>>} Danh sách điểm theo từng môn học và học kỳ.
+   */
   getAllSubjectScore: async (studentCode) => {
     const result = await knex("student as s")
       .join("class_student as cs", "s.student_code", "cs.student_code")
@@ -37,6 +42,12 @@ const student = {
     return result;
   },
 
+  /**
+   * Lọc điểm của học viên theo học kỳ.
+   * @param {string} studentCode - Mã học viên.
+   * @param {number|string} semester - Số thứ tự học kỳ (VD: 1, 2, 3...).
+   * @returns {Promise<Array<Object>>} Danh sách điểm lọc theo học kỳ.
+   */
   filterSubjectScoreBySemester: async (studentCode, semester) => {
     const result = await knex("student as s")
       .join("class_student as cs", "s.student_code", "cs.student_code")
@@ -74,6 +85,11 @@ const student = {
     return result;
   },
 
+  /**
+   * Lấy thông tin chi tiết của một học viên.
+   * @param {string} studentCode - Mã học viên.
+   * @returns {Promise<Object|null>} Thông tin học viên hoặc null nếu không tìm thấy.
+   */
   getStudentInfo: async (studentCode) => {
     const result = await knex("student").where("student_code", studentCode);
 
@@ -84,6 +100,19 @@ const student = {
     return result[0];
   },
 
+  /**
+   * Cập nhật thông tin của học viên.
+   * @param {string} studentCode - Mã học viên cần cập nhật.
+   * @param {Object} updateData - Dữ liệu cần cập nhật.
+   * @param {string} [updateData.student_date_of_birth]
+   * @param {string} updateData.student_address
+   * @param {string} updateData.student_email
+   * @param {string} updateData.student_phone
+   * @param {string} updateData.student_IDCard
+   * @param {string} updateData.student_country
+   * @param {string} updateData.student_gender
+   * @returns {Promise<number|null>} Số lượng bản ghi cập nhật hoặc null nếu không cập nhật.
+   */
   updateStudentInfo: async (studentCode, updateData) => {
     const result = await knex("student")
       .where("student_code", studentCode)
@@ -103,6 +132,11 @@ const student = {
     return result;
   },
 
+  /**
+   * Lấy danh sách chứng chỉ của học viên.
+   * @param {string} student_code - Mã học viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách chứng chỉ hoặc null nếu không có.
+   */
   getCertificatesOfStudent: async (student_code) => {
     const certs = await knex("certificate as c")
       .join("student as s", "c.student_code", "s.student_code")

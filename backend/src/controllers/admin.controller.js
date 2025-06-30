@@ -3,6 +3,13 @@ const JSend = require("../jsend");
 const ApiError = require("../api-error");
 
 // Account Management
+/**
+ * Tạo tài khoản học viên mới.
+ * @route POST /api/admin/account/student
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {Function} next - Express next middleware
+ */
 async function createStudentAccount(req, res, next) {
   const { username, password } = req.body;
 
@@ -33,6 +40,13 @@ async function createStudentAccount(req, res, next) {
   }
 }
 
+/**
+ * Tạo tài khoản giảng viên mới.
+ * @route POST /api/admin/account/teacher
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 async function createTeacherAccount(req, res, next) {
   const { username, password, role } = req.body;
 
@@ -63,6 +77,10 @@ async function createTeacherAccount(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tài khoản học viên.
+ * @route GET /api/admin/account/student
+ */
 async function getStudentAccount(req, res, next) {
   try {
     const students = await adminService.getStudentAccount();
@@ -76,6 +94,10 @@ async function getStudentAccount(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tất cả tài khoản người dùng (trừ admin).
+ * @route GET /api/admin/account
+ */
 async function getAccountList(req, res, next) {
   try {
     const users = await adminService.getAccountList();
@@ -89,6 +111,10 @@ async function getAccountList(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tài khoản giảng viên.
+ * @route GET /api/admin/account/teacher
+ */
 async function getTeacherAccount(req, res, next) {
   try {
     const users = await adminService.getTeacherAccount();
@@ -102,6 +128,10 @@ async function getTeacherAccount(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin tài khoản (mật khẩu hoặc trạng thái).
+ * @route PUT /api/admin/account
+ */
 async function updateAccount(req, res, next) {
   const { currentCode, newPassword, newStatus } = req.body;
 
@@ -127,6 +157,10 @@ async function updateAccount(req, res, next) {
   }
 }
 
+/**
+ * Thêm danh sách tài khoản người dùng.
+ * @route POST /api/admin/account/bulk
+ */
 async function addNewAccount(req, res, next) {
   const datas = req.body;
 
@@ -149,6 +183,10 @@ async function addNewAccount(req, res, next) {
 }
 
 // Student Management
+/**
+ * Lấy danh sách học viên.
+ * @route GET /api/admin/student
+ */
 async function getStudentList(req, res, next) {
   try {
     const students = await adminService.getStudentList();
@@ -164,6 +202,10 @@ async function getStudentList(req, res, next) {
   }
 }
 
+/**
+ * Nhập danh sách học viên.
+ * @route POST /api/admin/student/import
+ */
 async function importStudentList(req, res, next) {
   const payload = req.body;
 
@@ -185,6 +227,10 @@ async function importStudentList(req, res, next) {
   }
 }
 
+/**
+ * Lấy mã học viên cuối cùng.
+ * @route GET /api/admin/student/last-code
+ */
 async function getLastStudentCode(req, res, next) {
   try {
     const studentCode = await adminService.getLastStudentCode();
@@ -200,6 +246,10 @@ async function getLastStudentCode(req, res, next) {
   }
 }
 
+/**
+ * Thêm học viên mới.
+ * @route POST /api/admin/student
+ */
 async function addNewStudent(req, res, next) {
   const student = req.body;
 
@@ -221,6 +271,10 @@ async function addNewStudent(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin học viên.
+ * @route PUT /api/admin/student
+ */
 async function updateStudentInfor(req, res, next) {
   const student = req.body;
 
@@ -244,6 +298,10 @@ async function updateStudentInfor(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách mã học viên chưa có tài khoản.
+ * @route GET /api/admin/student/available-codes
+ */
 async function getListStudentCode(req, res, next) {
   try {
     const studentCode = await adminService.getListStudentCode();
@@ -259,6 +317,10 @@ async function getListStudentCode(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách học viên chưa trong lớp.
+ * @route GET /api/admin/student/not-in-class?class_subject_id=...
+ */
 async function getStudentNotInClass(req, res, next) {
   const class_subject_id = req.query.class_subject_id;
   try {
@@ -277,6 +339,10 @@ async function getStudentNotInClass(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách học viên đã trong lớp.
+ * @route GET /api/admin/student/in-class?class_subject_id=...
+ */
 async function getStudentInClass(req, res, next) {
   const class_subject_id = req.query.class_subject_id;
   try {
@@ -294,7 +360,10 @@ async function getStudentInClass(req, res, next) {
 }
 
 // Teacher Management
-
+/**
+ * Lấy danh sách giảng viên.
+ * @route GET /api/admin/teacher
+ */
 async function getTeacherList(req, res, next) {
   try {
     const teachers = await adminService.getTeacherList();
@@ -310,6 +379,10 @@ async function getTeacherList(req, res, next) {
   }
 }
 
+/**
+ * Lấy mã giảng viên cuối cùng.
+ * @route GET /api/admin/teacher/last-code
+ */
 async function getLastTeacherCode(req, res, next) {
   try {
     const teacherCode = await adminService.getLastTeacherCode();
@@ -325,6 +398,10 @@ async function getLastTeacherCode(req, res, next) {
   }
 }
 
+/**
+ * Thêm giảng viên mới.
+ * @route POST /api/admin/teacher
+ */
 async function addNewTeacher(req, res, next) {
   const teacher = req.body;
 
@@ -346,6 +423,10 @@ async function addNewTeacher(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin giảng viên.
+ * @route PUT /api/admin/teacher
+ */
 async function updateTeacherInfor(req, res, next) {
   const teacher = req.body;
 
@@ -369,6 +450,10 @@ async function updateTeacherInfor(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách mã giảng viên chưa có tài khoản.
+ * @route GET /api/admin/teacher/available-codes
+ */
 async function getListTeacherCode(req, res, next) {
   try {
     const teacherCode = await adminService.getListTeacherCode();
@@ -385,7 +470,10 @@ async function getListTeacherCode(req, res, next) {
 }
 
 // Class & Enrollment
-
+/**
+ * Tạo lớp học với giảng viên.
+ * @route POST /api/admin/class
+ */
 async function createClassWithTeacher(req, res, next) {
   const { classID, moduleID, semesterID, teacherCode } = req.body;
 
@@ -412,6 +500,10 @@ async function createClassWithTeacher(req, res, next) {
   }
 }
 
+/**
+ * Thêm học viên vào lớp học.
+ * @route POST /api/admin/class/add-students
+ */
 async function addStudentsToClass(req, res, next) {
   const { class_subject_id, student_codes } = req.body;
 
@@ -437,6 +529,10 @@ async function addStudentsToClass(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin lớp học.
+ * @route PUT /api/admin/class
+ */
 async function updateClass(req, res, next) {
   const payload = req.body;
 
@@ -458,6 +554,10 @@ async function updateClass(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách lớp và học kỳ tương ứng.
+ * @route GET /api/admin/class/with-semester
+ */
 async function getClassCodeAndSemester(req, res, next) {
   try {
     const listClassWithSemester = await adminService.getClassCodeAndSemester();
@@ -474,7 +574,10 @@ async function getClassCodeAndSemester(req, res, next) {
 }
 
 // Module Management
-
+/**
+ * Lấy danh sách lớp môn học.
+ * @route GET /api/admin/module/list
+ */
 async function getModuleList(req, res, next) {
   try {
     const listModule = await adminService.getModuleList();
@@ -490,6 +593,10 @@ async function getModuleList(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tất cả module.
+ * @route GET /api/admin/module/code
+ */
 async function getModuleCode(req, res, next) {
   try {
     const listModule = await adminService.getModuleCode();
@@ -505,6 +612,10 @@ async function getModuleCode(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách module có phân lớp.
+ * @route GET /api/admin/module/filter
+ */
 async function getModuleFilter(req, res, next) {
   try {
     const listModule = await adminService.getModuleFilter();
@@ -521,6 +632,10 @@ async function getModuleFilter(req, res, next) {
 }
 
 // Certificate Management
+/**
+ * Lấy danh sách chứng chỉ theo lớp môn học.
+ * @route GET /api/admin/certificate?class_subject_id=...
+ */
 async function getCertificates(req, res, next) {
   class_subject_id = req.query.class_subject_id;
 
@@ -540,6 +655,10 @@ async function getCertificates(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách học viên đủ điều kiện cấp chứng chỉ.
+ * @route GET /api/admin/certificate/eligible
+ */
 async function getStudentEligible(req, res, next) {
   try {
     const studentList = await adminService.getStudentEligible();
@@ -555,6 +674,10 @@ async function getStudentEligible(req, res, next) {
   }
 }
 
+/**
+ * Thêm chứng chỉ cho học viên.
+ * @route POST /api/admin/certificate
+ */
 async function addCertificates(req, res, next) {
   const { class_subject_id, student_codes } = req.body;
 
@@ -575,6 +698,10 @@ async function addCertificates(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách lớp đã có chứng chỉ.
+ * @route GET /api/admin/certificate/class-list
+ */
 async function getClassCert(req, res, next) {
   try {
     const listCertClass = await adminService.getClassCert();
@@ -591,6 +718,10 @@ async function getClassCert(req, res, next) {
 }
 
 // Dash Board Admin
+/**
+ * Lấy thống kê tổng quan cho dashboard admin.
+ * @route GET /api/admin/dashboard
+ */
 async function getDashboardStats(req, res, next) {
   try {
     const dashBoardStats = await adminService.getDashboardStats();
@@ -606,6 +737,10 @@ async function getDashboardStats(req, res, next) {
   }
 }
 
+/**
+ * Lấy thống kê số lượng học viên theo lớp.
+ * @route GET /api/admin/dashboard/student-in-class
+ */
 async function getCountStudentInClass(req, res, next) {
   try {
     const counts = await adminService.getCountStudentInClass();
@@ -621,6 +756,10 @@ async function getCountStudentInClass(req, res, next) {
   }
 }
 
+/**
+ * Lấy thống kê học viên có chứng chỉ theo module.
+ * @route GET /api/admin/dashboard/module-cert
+ */
 async function getModuleCertificateStats(req, res, next) {
   try {
     const counts = await adminService.getModuleCertificateStats();

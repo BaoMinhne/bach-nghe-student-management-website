@@ -2,6 +2,14 @@ const studentService = require("../models/student.model");
 const JSend = require("../jsend");
 const ApiError = require("../api-error");
 
+/**
+ * Lấy tất cả điểm của học viên theo mã học viên.
+ *
+ * @route GET /api/student/score
+ * @param {import('express').Request} req - Request chứa query `studentCode`.
+ * @param {import('express').Response} res - Response trả về điểm học viên.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getScore(req, res, next) {
   const studentCode = req.query.studentCode;
 
@@ -23,6 +31,14 @@ async function getScore(req, res, next) {
   }
 }
 
+/**
+ * Lấy điểm học viên theo học kỳ.
+ *
+ * @route GET /api/student/score/semester
+ * @param {import('express').Request} req - Query gồm `studentCode` và `semester`.
+ * @param {import('express').Response} res - Response trả về danh sách điểm theo học kỳ.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getScoreBySemester(req, res, next) {
   const { studentCode, semester } = req.query;
 
@@ -56,6 +72,14 @@ async function getScoreBySemester(req, res, next) {
   }
 }
 
+/**
+ * Lấy thông tin học viên theo mã học viên.
+ *
+ * @route GET /api/student/info
+ * @param {import('express').Request} req - Query chứa `studentCode`.
+ * @param {import('express').Response} res - Response trả về thông tin học viên.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getStudentInfo(req, res, next) {
   const studentCode = req.query.studentCode;
 
@@ -77,6 +101,14 @@ async function getStudentInfo(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin học viên.
+ *
+ * @route PUT /api/student/info
+ * @param {import('express').Request} req - Query gồm `studentCode`, body chứa các trường thông tin cần cập nhật.
+ * @param {import('express').Response} res - Response xác nhận cập nhật thành công.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function updateStudentInfo(req, res, next) {
   const studentCode = req.query.studentCode;
   if (!studentCode) {
@@ -135,6 +167,14 @@ async function updateStudentInfo(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách chứng chỉ của học viên.
+ *
+ * @route GET /api/student/certificates
+ * @param {import('express').Request} req - Query chứa `studentCode`.
+ * @param {import('express').Response} res - Response trả về danh sách chứng chỉ của học viên.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getCertificatesOfStudent(req, res, next) {
   const studentCode = req.query.studentCode;
 
