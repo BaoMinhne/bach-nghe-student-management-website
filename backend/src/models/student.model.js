@@ -102,6 +102,33 @@ const student = {
     }
     return result;
   },
+
+  getCertificatesOfStudent: async (student_code) => {
+    const certs = await knex("certificate as c")
+      .join("student as s", "c.student_code", "s.student_code")
+      .join(
+        "class_subject as csj",
+        "c.class_subject_id",
+        "csj.class_subject_id"
+      )
+      .join("class as cl", "csj.class_id", "cl.class_id")
+      .join("module as m", "csj.module_id", "m.module_id")
+      .where("c.student_code", student_code)
+      .select(
+        "c.cert_number as so_hieu",
+        "s.student_code as ma_so",
+        knex.raw("CONCAT(s.student_middle_name, ' ', s.student_name) as ten"),
+        "s.student_IDCard as so_CMND",
+        "cl.class_name as lop",
+        "m.module_code as ma_mon",
+        "m.module_name as ten_mon",
+        "c.issued_date as ngay_cap"
+      );
+
+    if (certs.length == 0) return null;
+
+    return certs;
+  },
 };
 
 module.exports = student;

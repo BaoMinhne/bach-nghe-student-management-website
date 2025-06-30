@@ -1,57 +1,59 @@
 /**
- * Khi tài liệu được tải xong:
- * - Gọi API để lấy danh sách học viên chưa thuộc lớp học phần.
- * - Hiển thị thông tin lớp học.
- * - Cập nhật link "Xem danh sách lớp" dựa theo tham số URL.
+ * Khởi chạy khi DOM đã tải xong.
+ * Gọi hàm lấy chứng chỉ và hiển thị tên sinh viên.
  */
 document.addEventListener("DOMContentLoaded", async () => {
-  getStudentNotInClass();
-  displayClass();
-
-  const { class_subject_id, class_name, module_name } = getParams();
-
-  // Gán giá trị vào href
-  const viewBtn = document.getElementById("viewClassListBtn");
-  viewBtn.href = `page_list_student_in_class.html?class_subject_id=${class_subject_id}&class_name=${class_name}&module_name=${module_name}`;
+  await getCertificatesOfStudent();
+  await displayStudentName();
 });
 
 /**
- * Trích xuất các tham số từ URL hiện tại.
- *
- * @returns {{ class_subject_id: string, class_name: string, module_name: string }}
+ * Hiển thị tên sinh viên hiện tại đang đăng nhập.
+ * Dựa vào thông tin người dùng được lưu trong localStorage.
  */
-function getParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return {
-    class_subject_id: urlParams.get("class_subject_id"),
-    class_name: urlParams.get("class_name"),
-    module_name: urlParams.get("module_name"),
-  };
+async function displayStudentName() {
+  const student = Storage.getUser();
+  if (!student || !student.username) {
+    Swal.fire("Lỗi", "Không xác định được sinh viên!", "error");
+    return;
+  }
+
+  try {
+    const API_BASE = "http://localhost:3000";
+    const res = await fetch(
+      `${API_BASE}/api/v1/student/getStudentInfo?studentCode=${student.username}`
+    );
+
+    const result = await res.json();
+
+    if (result.status === "success") {
+      document.querySelector(
+        ".studentFullName"
+      ).textContent = `${result.data.student_middle_name} ${result.data.student_name}`;
+    } else {
+      Swal.fire("Thông báo", "Không tìm thấy thông tin sinh viên!", "warning");
+    }
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Lỗi", "Không thể kết nối tới máy chủ!", "error");
+  }
 }
 
 /**
- * Gán tên lớp học và tên môn học từ URL vào các phần tử tương ứng trong giao diện.
+ * Gửi yêu cầu lấy danh sách chứng chỉ của sinh viên hiện tại.
+ * Nếu thành công thì hiển thị danh sách chứng chỉ kèm phân trang.
  */
-function displayClass() {
-  class_name = getParams();
-  module_name = getParams();
+async function getCertificatesOfStudent() {
+  const student = Storage.getUser();
+  if (!student || !student.username) {
+    Swal.fire("Lỗi", "Không xác định được sinh viên!", "error");
+    return;
+  }
 
-  document.querySelector(".class_name").textContent = class_name.class_name;
-  document.querySelector(".module_name").textContent = module_name.module_name;
-}
-
-/**
- * Gửi yêu cầu đến API để lấy danh sách học viên chưa được xếp vào lớp học phần.
- * Nếu thành công, hiển thị danh sách và phân trang.
- *
- * @returns {Promise<void>}
- */
-async function getStudentNotInClass() {
   const API_BASE = "http://localhost:3000";
-  const class_subject_id = getParams();
   try {
     const res = await fetch(
-      `${API_BASE}/api/v1/admin/getStudentNotInClass?class_subject_id=${class_subject_id.class_subject_id}`
+      `${API_BASE}/api/v1/student/getCertificatesOfStudent?studentCode=${student.username}`
     );
     const result = await res.json();
 
@@ -61,7 +63,8 @@ async function getStudentNotInClass() {
       filterDatas = [...studentDatas];
       renderStudentList(filterDatas);
     } else {
-      Swal.fire("Thông báo", "Không lấy được dữ liệu!", "warning");
+      console.log("Chưa Có Dữ Liệu!!!");
+      //   Swal.fire("Thông báo", "Không lấy được dữ liệu!", "warning");
     }
   } catch (error) {
     console.error(error);
@@ -71,18 +74,17 @@ async function getStudentNotInClass() {
 
 // === Biến toàn cục ===
 /** @type {number} */
-const limitRows = 10;
+const limitRows = 8;
 /** @type {number} */
 let currentPage = 1;
 /** @type {Array<Object>} */
 let studentDatas = []; // Dữ liệu gốc
 /** @type {Array<Object>} */
-let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
+let filterDatas = []; // Dữ liệu sau khi lọc hoặc tìm kiếm
 
 /**
- * Cập nhật dữ liệu hiển thị và render danh sách học viên cùng phân trang.
- *
- * @param {Array<Object>} students - Mảng đối tượng học viên.
+ * Hiển thị bảng chứng chỉ theo từng trang.
+ * @param {number} page - Trang hiện tại cần hiển thị.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -91,9 +93,8 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị danh sách học viên theo trang hiện tại.
- *
- * @param {number} page - Số trang cần hiển thị.
+ * Hiển thị học viên cho một trang cụ thể.
+ * @param {number} page - Số trang cần hiển thị
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -102,19 +103,29 @@ function displayStudentListPage(page) {
   const end = start + limitRows;
   const items = filterDatas.slice(start, end);
 
-  items.forEach((student, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>
-        <input class="form-check-input checkbox-input" type="checkbox" />
-	  </td>
-      <td><span>${start + index + 1}</span></td>
-      <td><span>${student.student_code}</span></td>
-      <td><span>${student.student_middle_name}
-	  ${student.student_name}</span></td>
+  if (items.length > 0) {
+    items.forEach((student, index) => {
+      let date = student.ngay_cap;
+      formatDate = date ? dayjs(date).format("DD/MM/YYYY") : "-";
+      const row = document.createElement("tr");
+      row.innerHTML = `
+			  <td>${index + start + 1}</td>
+			<td>${student.so_hieu}</td>
+			<td>${student.ma_so}</td>
+			<td>${student.ten}</td>
+			<td>${student.lop}</td>
+			<td>${student.ten_mon}</td>
+			<td>${formatDate}</td>
+		`;
+      studentList.appendChild(row);
+    });
+  } else {
+    studentList.innerHTML = `
+		<tr>
+			<td colspan="7" class="text-center text-muted bg-body-secondary">Chưa Có Chứng Chỉ Được Cấp</td>
+		</tr>
 	`;
-    studentList.appendChild(row);
-  });
+  }
 }
 
 /**
@@ -193,9 +204,8 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo phần tử dấu ba chấm "..." dùng trong phân trang.
- *
- * @returns {HTMLLIElement} - Thẻ <li> có style disabled chứa "...".
+ * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
+ * @returns {HTMLLIElement} - Phần tử <li> disabled
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -203,25 +213,3 @@ function createEllipsis() {
   li.innerHTML = `<span class="page-link">...</span>`;
   return li;
 }
-
-/**
- * Xử lý sự kiện nhập liệu trong ô tìm kiếm.
- * Lọc danh sách học viên theo tên, mã số hoặc số điện thoại.
- */
-document.getElementById("searchInput").addEventListener("input", function () {
-  const keyword = this.value.trim().toLowerCase();
-
-  // filter dữ liệu từ danh sách sinh viên gốc
-  const filtered = studentDatas.filter((student) => {
-    const fullName =
-      `${student.student_middle_name} ${student.student_name}`.toLowerCase();
-    return (
-      student.student_code.toLowerCase().includes(keyword) ||
-      fullName.includes(keyword) ||
-      student.student_phone?.toLowerCase().includes(keyword)
-    );
-  });
-
-  currentPage = 1;
-  renderStudentList(filtered);
-});

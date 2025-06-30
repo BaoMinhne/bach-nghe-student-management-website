@@ -13,6 +13,11 @@ router.get("/getStudentInfo", studentController.getStudentInfo);
 router.all("/getStudentInfo", methodNotAllowed);
 router.put("/updateStudentInfo", studentController.updateStudentInfo);
 router.all("/updateStudentInfo", methodNotAllowed);
+router.get(
+  "/getCertificatesOfStudent",
+  studentController.getCertificatesOfStudent
+);
+router.all("/getCertificatesOfStudent", methodNotAllowed);
 
 router.all("/", methodNotAllowed);
 

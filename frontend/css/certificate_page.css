@@ -1,0 +1,51 @@
+.table {
+  font-size: 0.95rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table thead {
+  background-color: #f1f1f1;
+  font-weight: 600;
+}
+
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.table .text-danger {
+  color: #dc3545 !important;
+  font-weight: 500;
+}
+
+.class_info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  max-width: 600px;
+}
+
+.class_info label {
+  font-weight: 600;
+  margin-right: 6px;
+  color: #333;
+}
+
+.class_info .class_name,
+.class_info .module_name {
+  color: #0d6efd;
+  font-weight: 500;
+}

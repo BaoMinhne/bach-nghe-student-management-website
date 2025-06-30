@@ -522,8 +522,12 @@ async function getModuleFilter(req, res, next) {
 
 // Certificate Management
 async function getCertificates(req, res, next) {
+  class_subject_id = req.query.class_subject_id;
+
   try {
-    const listCertificate = await adminService.getCertificates();
+    const listCertificate = await adminService.getCertificates(
+      class_subject_id
+    );
 
     if (!listCertificate) {
       return next(new ApiError(404, "Get fail"));
@@ -565,6 +569,67 @@ async function addCertificates(req, res, next) {
     }
 
     return res.status(200).json(JSend.success(addCert));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getClassCert(req, res, next) {
+  try {
+    const listCertClass = await adminService.getClassCert();
+
+    if (!listCertClass) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(listCertClass));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+// Dash Board Admin
+async function getDashboardStats(req, res, next) {
+  try {
+    const dashBoardStats = await adminService.getDashboardStats();
+
+    if (!dashBoardStats) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(dashBoardStats));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getCountStudentInClass(req, res, next) {
+  try {
+    const counts = await adminService.getCountStudentInClass();
+
+    if (!counts) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(counts));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getModuleCertificateStats(req, res, next) {
+  try {
+    const counts = await adminService.getModuleCertificateStats();
+
+    if (!counts) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(counts));
   } catch (error) {
     console.error(error);
     return res.status(500).json(JSend.error("Internal server error", error));
@@ -613,4 +678,10 @@ module.exports = {
   getCertificates,
   getStudentEligible,
   addCertificates,
+  getClassCert,
+
+  // DashBoard Admin
+  getDashboardStats,
+  getCountStudentInClass,
+  getModuleCertificateStats,
 };

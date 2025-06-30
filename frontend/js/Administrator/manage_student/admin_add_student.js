@@ -74,7 +74,6 @@ document
  * Gửi thông tin học viên mới đến backend để thêm vào hệ thống.
  * @param {Object} student - Đối tượng học viên chứa các trường cần thiết
  */
-
 async function addNewStudent(student) {
   if (!student) {
     Swal.fire("Cảnh Báo", "Không nhận được dữ liệu nhập vào!!!", "error");

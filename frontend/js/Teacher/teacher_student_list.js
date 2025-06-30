@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", function () {
   getStudentList();
 });
 
+/**
+ * Lấy các tham số từ URL query string.
+ *
+ * @returns {Object} Các tham số liên quan đến module, lớp học, môn học
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -13,6 +18,9 @@ function getParams() {
   };
 }
 
+/**
+ * Lấy thông tin từ URL và xác thực người dùng, sau đó gọi hàm fetch dữ liệu sinh viên.
+ */
 function getStudentList() {
   const { moduleCode, classCode, classSubjectId, className, moduleName } =
     getParams();
@@ -43,6 +51,15 @@ function getStudentList() {
   );
 }
 
+/**
+ * Gửi yêu cầu đến API để lấy danh sách sinh viên trong lớp.
+ *
+ * @param {string} teacherCode - Mã giảng viên
+ * @param {string} moduleCode - Mã học phần
+ * @param {string} classCode - Mã lớp
+ * @param {string} className - Tên lớp
+ * @param {string} moduleName - Tên học phần
+ */
 async function fetchStudentList(
   teacherCode,
   moduleCode,
@@ -81,6 +98,11 @@ async function fetchStudentList(
   }
 }
 
+/**
+ * Hiển thị danh sách sinh viên vào bảng HTML.
+ *
+ * @param {Array<Object>} students - Mảng danh sách sinh viên từ API
+ */
 function renderStudentList(students) {
   const tbody = document.getElementById("studentTable");
   tbody.innerHTML = "";
@@ -120,6 +142,12 @@ function renderStudentList(students) {
   });
 }
 
+/**
+ * Cập nhật điểm cho sinh viên theo mã lớp học phần.
+ *
+ * @param {string} studentCode - Mã sinh viên
+ * @param {string|number} score - Điểm cần cập nhật
+ */
 async function updateStudentScore(studentCode, score) {
   const { classSubjectId } = getParams();
 
@@ -163,6 +191,9 @@ async function updateStudentScore(studentCode, score) {
 
 let currentStudentCode = "";
 
+/**
+ * Gán thông tin sinh viên vào modal khi nhấn nút "Sửa".
+ */
 const editModal = document.getElementById("editModal");
 editModal.addEventListener("show.bs.modal", function (event) {
   const button = event.relatedTarget;
@@ -177,6 +208,9 @@ editModal.addEventListener("show.bs.modal", function (event) {
   document.getElementById("studentScore").value = score;
 });
 
+/**
+ * Lắng nghe sự kiện submit của form chỉnh sửa điểm và cập nhật điểm.
+ */
 document
   .getElementById("editScoreForm")
   .addEventListener("submit", function (e) {

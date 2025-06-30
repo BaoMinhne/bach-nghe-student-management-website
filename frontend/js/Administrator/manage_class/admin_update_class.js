@@ -1,5 +1,17 @@
+/**
+ * Biến toàn cục
+ * @type {string|null}
+ */
 let classSubjectID = null;
 
+/**
+ * Sự kiện được gọi khi modal chỉnh sửa lớp học phần được hiển thị.
+ * - Lấy danh sách học kỳ và giảng viên
+ * - Đổ dữ liệu từ nút trigger vào form modal
+ * - Gán các giá trị đã chọn vào các ô input tương ứng trong modal
+ *
+ * @param {Event} event - Sự kiện Bootstrap modal show
+ */
 document
   .getElementById("editClassModal")
   .addEventListener("show.bs.modal", async function (event) {
@@ -63,6 +75,15 @@ document
     }
   });
 
+/**
+ * Gửi yêu cầu cập nhật thông tin lớp học phần đến backend.
+ *
+ * @param {Object} payload - Dữ liệu cập nhật lớp học phần.
+ * @param {string} payload.classSubjectID - ID lớp học phần.
+ * @param {string} payload.semesterID - ID học kỳ.
+ * @param {string} payload.classStatus - Trạng thái lớp (active/inactive...).
+ * @param {string} payload.teacherCode - Mã giảng viên phụ trách.
+ */
 async function updateClass(payload) {
   if (!payload) {
     Swal.fire("Lỗi", "Thiếu thông tin để cập nhật!", "error");
@@ -96,6 +117,14 @@ async function updateClass(payload) {
   }
 }
 
+/**
+ * Xử lý khi người dùng nhấn nút "Lưu" trên form chỉnh sửa lớp học phần.
+ * - Lấy dữ liệu từ form
+ * - Đóng modal
+ * - Gửi yêu cầu cập nhật qua `updateClass()`
+ *
+ * @param {Event} e - Sự kiện submit của form
+ */
 document
   .getElementById("editClassForm")
   .addEventListener("submit", function (e) {

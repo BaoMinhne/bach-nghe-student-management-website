@@ -135,9 +135,28 @@ async function updateStudentInfo(req, res, next) {
   }
 }
 
+async function getCertificatesOfStudent(req, res, next) {
+  const studentCode = req.query.studentCode;
+
+  try {
+    const listCerts = await studentService.getCertificatesOfStudent(
+      studentCode
+    );
+    if (!listCerts) {
+      return next(new ApiError(401, "Data not found"));
+    }
+
+    return res.json(JSend.success(listCerts));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(401, "Infomation not valid or data not found"));
+  }
+}
+
 module.exports = {
   getScore,
   getScoreBySemester,
   getStudentInfo,
   updateStudentInfo,
+  getCertificatesOfStudent,
 };

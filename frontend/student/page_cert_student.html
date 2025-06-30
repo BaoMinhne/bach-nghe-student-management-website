@@ -20,21 +20,24 @@
     <link rel="stylesheet" href="../css/certificate_page.css" />
   </head>
   <body>
-    <!-- TOPBAR -->
-    <div class="topbar">
+    <!-- Top Bar -->
+    <div class="topbar shadow-sm">
       <div class="logo-wrapper">
-        <a href="page_admin.html"
+        <a href="page_student.html"
           ><img src="../images/logo_Truong_Bach_Nghe.png" alt="Logo" />
           <span>Trường Trung Cấp Bách Nghệ</span></a
         >
       </div>
       <div class="dropdown">
         <button
-          class="btn dropdown-toggle"
+          class="btn btn-light dropdown-toggle"
           type="button"
           data-bs-toggle="dropdown"
         >
-          Nguyễn Nhật Duy
+          <span
+            class="studentFullName"
+            style="text-transform: capitalize"
+          ></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="#">Tài khoản</a></li>
@@ -46,47 +49,22 @@
       </div>
     </div>
 
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <div class="sidebar">
       <ul class="menu">
         <li>
-          <a href="page_admin.html"
-            ><i class="fa-solid fa-chart-line"></i> Trang Chủ</a
+          <a href="page_student.html"
+            ><i class="bi bi-house me-2"></i>Trang chủ</a
           >
         </li>
         <li>
-          <a href="page_account_management.html"
-            ><i class="bi bi-person-gear"></i> Tài Khoản</a
+          <a href="page_info_student.html"
+            ><i class="bi bi-person me-2"></i>Thông tin cá nhân</a
           >
         </li>
         <li>
-          <a href="page_create_account.html"
-            ><i class="bi bi-person-plus me-2"></i> Tạo tài khoản</a
-          >
-        </li>
-        <li>
-          <a href="page_class_management.html"
-            ><i class="bi bi-journal-plus me-2"></i> Danh Sách Lớp</a
-          >
-        </li>
-        <li>
-          <a href="page_student_management.html"
-            ><i class="bi bi-people me-2"></i> Học Viên</a
-          >
-        </li>
-        <li>
-          <a href="page_teacher_management.html"
-            ><i class="bi bi-person-workspace me-2"></i> Giảng viên</a
-          >
-        </li>
-        <li>
-          <a href="page_add_certificate.html"
-            ><i class="bi bi-patch-plus"></i>Cấp chứng chỉ</a
-          >
-        </li>
-        <li>
-          <a href="page_list_certificate_class.html"
-            ><i class="bi bi-patch-check"></i> Danh Sách Chứng chỉ</a
+          <a href="page_cert_student.html"
+            ><i class="fa-solid fa-graduation-cap"></i>Chứng chỉ của tôi</a
           >
         </li>
         <li>
@@ -103,24 +81,13 @@
         <div class="row">
           <div class="col-md-12">
             <div class="d-flex align-items-center justify-content-between mb-4">
-              <a href="#" onclick="history.back();" class="back-icon">
-                <i class="bi bi-backspace-fill fs-3"></i>
-              </a>
               <h4
                 class="text-uppercase text-header m-0 flex-grow-1 text-center"
               >
-                Danh sách nhận chứng chỉ
+                Chứng Chỉ Của Tôi
               </h4>
             </div>
-            <div class="filter d-flex align-items-center">
-              <div class="class_info">
-                <label class="class_label">Lớp: </label>
-                <span class="class_name"></span>
-                -
-                <label class="module_label">Môn: </label>
-                <span class="module_name"></span>
-              </div>
-            </div>
+            <hr />
           </div>
         </div>
         <div class="row">
@@ -129,29 +96,21 @@
               <thead>
                 <tr>
                   <th scope="col">STT</th>
+                  <th scope="col">Số Hiệu</th>
                   <th scope="col">Mã Số</th>
                   <th scope="col">Tên</th>
-                  <th scope="col">CCCD</th>
-                  <th scope="col">Địa Chỉ</th>
-                  <th scope="col">Số Hiệu</th>
+                  <th scope="col">Lớp</th>
+                  <th scope="col">Môn Học</th>
                   <th scope="col">Ngày Cấp</th>
-                  <!-- <th scope="col">Thao Tác</th> -->
                 </tr>
               </thead>
               <tbody id="form-list">
                 <tr>
-                  <td>1</td>
-                  <td>026/TX.2024</td>
-                  <td>0092/24-THUD</td>
-                  <td>Võ Đình Nguyên</td>
-                  <td>082287007656</td>
-                  <td>Mỹ Thuận Bình Tân Vĩnh Long Cần Thơ</td>
-                  <td>026/VHXN</td>
-                  <td>26/6/2025</td>
-                  <td>
-                    <button class="btn btn-primary">
-                      <i class="bi bi-list-ul"></i>
-                    </button>
+                  <td
+                    colspan="7"
+                    class="text-center text-muted bg-body-secondary"
+                  >
+                    Chưa Có Chứng Chỉ Được Cấp
                   </td>
                 </tr>
               </tbody>
@@ -172,6 +131,6 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
-    <script src="../js/Administrator/manage_certificate/admin_display_certificate.js"></script>
+    <script src="../js/Student/student_cert.js"></script>
   </body>
 </html>

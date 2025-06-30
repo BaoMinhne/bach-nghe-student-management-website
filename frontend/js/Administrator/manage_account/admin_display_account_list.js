@@ -1,12 +1,26 @@
+/**
+ * Sự kiện DOMContentLoaded được kích hoạt khi toàn bộ HTML được tải xong.
+ * Gọi hàm load danh sách theo vai trò ban đầu.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadListByRole();
 });
 
+/**
+ * Sự kiện khi thay đổi lựa chọn vai trò (sinh viên / giảng viên).
+ * Đặt lại trang hiện tại về 1 và tải lại danh sách theo vai trò mới.
+ */
 document.getElementById("role").addEventListener("change", async () => {
   currentPage = 1;
   await loadListByRole();
 });
 
+/**
+ * Tạo mật khẩu ngẫu nhiên với độ dài nhất định.
+ *
+ * @param {number} length - Độ dài chuỗi mật khẩu mong muốn.
+ * @returns {string} - Mật khẩu được sinh ra ngẫu nhiên.
+ */
 function generateRandomPassword(length) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
@@ -27,6 +41,9 @@ let currentPage = 1;
 let filterDatas = [];
 let currentRole = "1";
 
+/**
+ * Kiểm tra vai trò được chọn (sinh viên hoặc giảng viên) và gọi API tương ứng để lấy danh sách.
+ */
 async function loadListByRole() {
   const roleValue = document.getElementById("role").value;
   currentRole = roleValue;
@@ -40,6 +57,10 @@ async function loadListByRole() {
   }
 }
 
+/**
+ * Gửi yêu cầu API để lấy danh sách mã học viên.
+ * Gọi hàm render danh sách học viên nếu thành công.
+ */
 async function getListStudentCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -59,6 +80,10 @@ async function getListStudentCode() {
   }
 }
 
+/**
+ * Gửi yêu cầu API để lấy danh sách mã giảng viên.
+ * Gọi hàm render danh sách giảng viên nếu thành công.
+ */
 async function getListTeacherCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -79,8 +104,9 @@ async function getListTeacherCode() {
 }
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu và hiển thị danh sách học viên trên giao diện, kèm phân trang.
+ *
+ * @param {Array<Object>} students - Mảng dữ liệu học viên từ server.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -89,8 +115,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học viên theo trang.
+ *
+ * @param {number} page - Trang cần hiển thị.
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -123,12 +150,22 @@ function displayStudentListPage(page) {
   });
 }
 
+/**
+ * Gán dữ liệu và hiển thị danh sách giảng viên trên giao diện, kèm phân trang.
+ *
+ * @param {Array<Object>} teacher - Mảng dữ liệu giảng viên từ server.
+ */
 function renderTeacherList(teacher) {
   filterDatas = teacher;
   displayTeacherListPage(currentPage);
   renderPagination();
 }
 
+/**
+ * Hiển thị danh sách giảng viên theo trang.
+ *
+ * @param {number} page - Trang cần hiển thị.
+ */
 function displayTeacherListPage(page) {
   const teacherList = document.getElementById("form-list");
   teacherList.innerHTML = ""; // Clear existing rows
@@ -159,8 +196,8 @@ function displayTeacherListPage(page) {
 }
 
 /**
- * Vẽ thanh phân trang phía dưới bảng.
- * Tự động thêm các nút trang, dấu "..." và nút chuyển trang trước/sau.
+ * Vẽ thanh phân trang ở dưới bảng dữ liệu.
+ * Bao gồm nút "«", "»", các trang hiện tại, đầu/cuối, và dấu "...".
  */
 function renderPagination() {
   const totalPages = Math.ceil(filterDatas.length / limitRows);
@@ -211,10 +248,11 @@ function renderPagination() {
 }
 
 /**
- * Tạo một nút trang (số hoặc điều hướng).
- * @param {string|number} label - Nội dung hiển thị của nút
- * @param {number} pageNum - Số trang tương ứng khi click
- * @returns {HTMLLIElement} - Phần tử <li> chứa nút
+ * Tạo một phần tử nút trang (ví dụ: 1, 2, «, »).
+ *
+ * @param {string|number} label - Nhãn hiển thị của nút (ví dụ: "1", "»").
+ * @param {number} pageNum - Trang sẽ được hiển thị khi click.
+ * @returns {HTMLLIElement} - Phần tử <li> tương ứng.
  */
 function createPageItem(label, pageNum) {
   const li = document.createElement("li");
@@ -239,8 +277,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử dấu ba chấm (...) trong thanh phân trang.
+ *
+ * @returns {HTMLLIElement} - Phần tử <li> disabled hiển thị "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");

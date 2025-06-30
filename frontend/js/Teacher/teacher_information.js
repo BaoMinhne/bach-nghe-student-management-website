@@ -2,6 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
   getTeacherInformation();
 });
 
+/**
+ * Gửi yêu cầu tới API để lấy thông tin của giảng viên hiện đang đăng nhập.
+ * Hiển thị thông tin tên giảng viên trên giao diện nếu thành công.
+ *
+ * @returns {Promise<void>}
+ */
 async function getTeacherInformation() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -30,6 +36,12 @@ async function getTeacherInformation() {
   }
 }
 
+/**
+ * Gán tên giảng viên vào các phần tử có class `teacher_name`.
+ *
+ * @param {Object} teacherInfo - Đối tượng chứa thông tin giảng viên từ server
+ * @param {string} teacherInfo.teacher_name - Tên giảng viên cần hiển thị
+ */
 function renderDropdownMenu(teacherInfo) {
   const name = teacherInfo.teacher_name || "Giảng viên";
   document.querySelectorAll(".teacher_name").forEach((el) => {

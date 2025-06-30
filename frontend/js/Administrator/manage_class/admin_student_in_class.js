@@ -1,8 +1,18 @@
+/**
+ * Khi trang được tải xong, gọi API để lấy danh sách học viên trong lớp
+ * và hiển thị thông tin lớp học lên giao diện.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getStudentInClass();
   displayClass();
 });
 
+/**
+ * Lấy các tham số từ URL hiện tại để phục vụ việc truy xuất dữ liệu lớp học.
+ *
+ * @returns {{ class_subject_id: string|null, class_name: string|null, module_name: string|null }}
+ * Các thông tin: mã lớp học phần, tên lớp, tên môn học.
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -12,6 +22,9 @@ function getParams() {
   };
 }
 
+/**
+ * Hiển thị tên lớp và tên môn học lên giao diện dựa trên tham số từ URL.
+ */
 function displayClass() {
   const { class_name, module_name } = getParams();
 
@@ -20,8 +33,8 @@ function displayClass() {
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu đến backend để lấy danh sách học viên đã thuộc lớp học phần.
+ * Sau đó cập nhật giao diện và phân trang danh sách.
  */
 async function getStudentInClass() {
   const API_BASE = "http://localhost:3000";
@@ -53,13 +66,14 @@ const limitRows = 10;
 /** @type {number} */
 let currentPage = 1;
 /** @type {Array<Object>} */
-let studentDatas = []; // Dữ liệu gốc
+let studentDatas = []; // Dữ liệu học viên từ server
 /** @type {Array<Object>} */
-let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
+let filterDatas = []; // Dữ liệu học viên sau khi lọc tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu và hiển thị danh sách học viên theo trang.
+ *
+ * @param {Array<Object>} students - Mảng dữ liệu học viên từ server.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -68,8 +82,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học viên trong một trang cụ thể.
+ *
+ * @param {number} page - Số trang cần hiển thị.
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -177,8 +192,8 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * Lắng nghe sự kiện nhập liệu trong ô tìm kiếm và lọc danh sách học viên
+ * theo mã sinh viên, họ tên hoặc số điện thoại.
  */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();

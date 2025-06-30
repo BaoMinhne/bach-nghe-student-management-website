@@ -1,7 +1,15 @@
+/**
+ * Khi trang được tải xong, thực thi hàm để lấy danh sách sinh viên.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getStudentList();
 });
 
+/**
+ * Lấy và phân tích các tham số từ URL hiện tại.
+ *
+ * @returns {Object} - Đối tượng chứa các tham số module, class, class_subject, class_name, module_name
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -13,6 +21,13 @@ function getParams() {
   };
 }
 
+/**
+ * Lấy mã số sinh viên từ tên đệm và tên chính của sinh viên.
+ *
+ * @param {string} studentMiddleName - Họ và tên đệm của sinh viên
+ * @param {string} studentName - Tên chính của sinh viên
+ * @returns {Promise<string|undefined>} - Mã sinh viên nếu thành công, undefined nếu lỗi
+ */
 async function getStudentCode(studentMiddleName, studentName) {
   if (!studentMiddleName || !studentName) {
     Swal.fire("Lỗi", "Không nhận được tên của sinh viên!", "error");
@@ -40,6 +55,12 @@ async function getStudentCode(studentMiddleName, studentName) {
   }
 }
 
+/**
+ * Đọc file Excel đầu vào và chuyển đổi thành danh sách sinh viên với tên và điểm.
+ *
+ * @param {File} file - File Excel người dùng chọn
+ * @returns {Promise<Array<Object>|null>} - Danh sách sinh viên đã parse hoặc null nếu lỗi
+ */
 async function parseExcelFile(file) {
   if (!file) {
     console.error("Không có file Excel được chọn");
@@ -81,6 +102,12 @@ async function parseExcelFile(file) {
   }
 }
 
+/**
+ * Chuyển đổi danh sách họ tên trong file Excel thành mã sinh viên tương ứng.
+ *
+ * @param {Array<Object>} names - Mảng đối tượng gồm hoDem, ten và score
+ * @returns {Promise<Array<Object>>} - Mảng gồm các object {student_code, score}
+ */
 async function parseNametoStudentCode(names) {
   names = names.slice(1); // Bỏ qua dòng tiêu đề
   if (!Array.isArray(names) || names.length === 0) {
@@ -121,6 +148,11 @@ async function parseNametoStudentCode(names) {
   return studentCodes;
 }
 
+/**
+ * Gửi dữ liệu điểm sinh viên lên server để lưu trữ vào hệ thống.
+ *
+ * @param {Object} payload - Dữ liệu bao gồm classSubjectId và danh sách sinh viên (student_code + score)
+ */
 async function importStudentScores(payload) {
   if (!payload || !payload.classSubjectId || !Array.isArray(payload.students)) {
     Swal.fire("Lỗi", "Dữ liệu không hợp lệ!", "error");
@@ -166,6 +198,10 @@ async function importStudentScores(payload) {
   }
 }
 
+/**
+ * Sự kiện khi người dùng chọn file Excel.
+ * Đọc file, chuyển đổi dữ liệu và gửi nhập điểm vào hệ thống.
+ */
 document
   .getElementById("excelFile")
   .addEventListener("change", async function () {
