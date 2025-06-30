@@ -1,3 +1,7 @@
+/**
+ * Sự kiện sau khi DOM đã tải xong: khởi tạo toggle password, modal, sự kiện submit,
+ * và lấy danh sách tài khoản.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", function () {
@@ -48,6 +52,10 @@ document.addEventListener("DOMContentLoaded", function () {
   getAccountList();
 });
 
+/**
+ * Gửi yêu cầu API để lấy danh sách toàn bộ tài khoản.
+ * Gán kết quả vào listAccount và gọi hàm hiển thị.
+ */
 async function getAccountList() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -73,12 +81,19 @@ let currentPage = 1;
 let listAccount = [];
 let searchAccounts = [];
 
+/**
+ * Gán danh sách dữ liệu tài khoản cần hiển thị và thực hiện hiển thị theo trang.
+ * @param {Array<Object>} datas - Danh sách tài khoản.
+ */
 function renderListAccount(datas) {
   searchAccounts = datas;
   displayListAccount(currentPage);
   renderPagination();
 }
 
+/**
+ * Tạo các nút phân trang dựa trên số lượng tài khoản và trang hiện tại.
+ */
 function renderPagination() {
   const totalPages = Math.ceil(searchAccounts.length / limitRows);
   const pagination = document.getElementById("pagination");
@@ -127,7 +142,12 @@ function renderPagination() {
   }
 }
 
-// Tạo nút trang
+/**
+ * Tạo nút phân trang.
+ * @param {string|number} label - Nội dung nút (số trang hoặc ký tự).
+ * @param {number} pageNum - Số trang tương ứng.
+ * @returns {HTMLLIElement} - Phần tử nút trang.
+ */
 function createPageItem(label, pageNum) {
   const li = document.createElement("li");
   li.className = "page-item";
@@ -145,7 +165,10 @@ function createPageItem(label, pageNum) {
   return li;
 }
 
-// Tạo dấu ...
+/**
+ * Tạo phần tử dấu ba chấm (...) trong phân trang.
+ * @returns {HTMLLIElement} - Phần tử dấu ba chấm.
+ */
 function createEllipsis() {
   const li = document.createElement("li");
   li.className = "page-item disabled";
@@ -153,6 +176,10 @@ function createEllipsis() {
   return li;
 }
 
+/**
+ * Hiển thị danh sách tài khoản tương ứng với trang hiện tại.
+ * @param {number} page - Trang cần hiển thị.
+ */
 function displayListAccount(page) {
   const accountList = document.getElementById("account-list");
   accountList.innerHTML = ""; // Clear existing rows
@@ -227,6 +254,10 @@ function displayListAccount(page) {
   });
 }
 
+/**
+ * Gửi API lấy danh sách tài khoản của học viên.
+ * Gọi render sau khi lấy dữ liệu thành công.
+ */
 async function getStudentAccount() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -245,6 +276,10 @@ async function getStudentAccount() {
   }
 }
 
+/**
+ * Gửi API lấy danh sách tài khoản của giảng viên.
+ * Gọi render sau khi lấy dữ liệu thành công.
+ */
 async function getTeacherAccount() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -263,6 +298,9 @@ async function getTeacherAccount() {
   }
 }
 
+/**
+ * Lọc tài khoản theo vai trò được chọn từ select box.
+ */
 function filterAccounts() {
   const fliter = document.getElementById("role_filter").value;
 
@@ -278,6 +316,13 @@ function filterAccounts() {
   }
 }
 
+/**
+ * Gửi yêu cầu cập nhật mật khẩu và trạng thái của tài khoản.
+ *
+ * @param {string} currentCode - Tên đăng nhập (username).
+ * @param {string} newPassword - Mật khẩu mới.
+ * @param {number|string} newStatus - Trạng thái mới (0 hoặc 1).
+ */
 async function updateAccount(currentCode, newPassword, newStatus) {
   const API_BASE = "http://localhost:3000";
 
@@ -316,6 +361,9 @@ async function updateAccount(currentCode, newPassword, newStatus) {
   }
 }
 
+/**
+ * Bắt sự kiện nhập liệu vào ô tìm kiếm, lọc danh sách tài khoản theo tên hoặc username.
+ */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();
 

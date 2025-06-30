@@ -1,7 +1,32 @@
+/**
+ * Hàm chính được gọi khi tài liệu DOM đã sẵn sàng.
+ * Gọi hàm lấy danh sách môn học mà giảng viên đang dạy và hiển thị thông báo nếu có.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getModules();
+  const message = localStorage.getItem("loginSuccess");
+  if (message) {
+    // Hiển thị toast
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: message,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
+
+    // Xóa sau khi hiển thị
+    localStorage.removeItem("loginSuccess");
+  }
 });
 
+/**
+ * Gọi API để lấy danh sách các môn học mà giảng viên hiện tại đang giảng dạy.
+ * Nếu thành công sẽ hiển thị danh sách qua `renderModulesList`.
+ * Hiển thị thông báo nếu không xác định được người dùng hoặc lỗi kết nối.
+ */
 async function getModules() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -28,6 +53,12 @@ async function getModules() {
   }
 }
 
+/**
+ * Hiển thị danh sách môn học dưới dạng card (thẻ) Bootstrap trong DOM.
+ * Mỗi môn sẽ bao gồm mã, tên môn, tên giảng viên, lớp học và nút truy cập.
+ *
+ * @param {Array<Object>} modules - Mảng đối tượng môn học (module_code, module_name, teacher_name, class_name, class_code, class_subject_id)
+ */
 function renderModulesList(modules) {
   const moduleList = document.querySelector(".module-list");
   moduleList.innerHTML = ""; // Xoá nội dung cũ

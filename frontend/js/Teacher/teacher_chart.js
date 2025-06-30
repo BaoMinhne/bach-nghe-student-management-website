@@ -1,3 +1,7 @@
+/**
+ * Hàm chính được gọi khi trang tải xong.
+ * Gọi các API thống kê và hiển thị dữ liệu lên dashboard giảng viên.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getStudentPassing();
   getPassingPropotion();
@@ -7,6 +11,9 @@ document.addEventListener("DOMContentLoaded", function () {
   getLastUpdate();
 });
 
+/**
+ * Gọi API để lấy số lượng sinh viên đạt theo môn học và vẽ biểu đồ cột.
+ */
 async function getStudentPassing() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -33,6 +40,9 @@ async function getStudentPassing() {
   }
 }
 
+/**
+ * Gọi API để lấy tổng số sinh viên đạt/chưa đạt và hiển thị biểu đồ tròn.
+ */
 async function getPassingPropotion() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -59,6 +69,9 @@ async function getPassingPropotion() {
   }
 }
 
+/**
+ * Gọi API để lấy điểm trung bình theo lớp-môn và hiển thị biểu đồ ngang.
+ */
 async function getAvgScore() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -85,6 +98,9 @@ async function getAvgScore() {
   }
 }
 
+/**
+ * Gọi API để lấy tiến độ nhập điểm và hiển thị lên dashboard.
+ */
 async function getScoreProgress() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -111,6 +127,10 @@ async function getScoreProgress() {
   }
 }
 
+/**
+ * Hiển thị phần trăm tiến độ nhập điểm trên giao diện.
+ * @param {Object} datas - Dữ liệu gồm tong_sinh_vien và so_diem_da_nhap
+ */
 function renderScoreProgress(datas) {
   const score = document.querySelector(".score_progress");
 
@@ -126,6 +146,9 @@ function renderScoreProgress(datas) {
   score.textContent = progressPercentage + "%";
 }
 
+/**
+ * Gọi API để lấy số lượng lớp mà giảng viên đang giảng dạy.
+ */
 async function getCountTeaching() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -151,6 +174,10 @@ async function getCountTeaching() {
   }
 }
 
+/**
+ * Hiển thị tổng số lớp đang giảng dạy lên dashboard.
+ * @param {number|string} data - Số lượng lớp hoặc chuỗi lỗi
+ */
 function renderCountTeaching(data) {
   const countElement = document.querySelector(".count_teaching");
   if (data) {
@@ -161,6 +188,9 @@ function renderCountTeaching(data) {
   console.log("Count Teaching Data:", data);
 }
 
+/**
+ * Gọi API để lấy lần cuối cùng giảng viên cập nhật điểm.
+ */
 async function getLastUpdate() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -186,6 +216,10 @@ async function getLastUpdate() {
   }
 }
 
+/**
+ * Hiển thị thời gian cập nhật điểm gần nhất lên dashboard.
+ * @param {string} data - Dữ liệu thời gian (đã được định dạng sẵn từ server)
+ */
 function renderLastUpdate(data) {
   const lastUpdateElement = document.querySelector(".last_update");
   if (data) {
@@ -195,6 +229,10 @@ function renderLastUpdate(data) {
   }
 }
 
+/**
+ * Vẽ biểu đồ cột so sánh số sinh viên đạt và tổng sinh viên theo môn học.
+ * @param {Array<Object>} datas - Dữ liệu gồm các môn và số sinh viên đạt
+ */
 function renderStudentPassingChart(datas) {
   const ctx = document.getElementById("studentPassingChart").getContext("2d");
   const labels = datas.map((item) => `${item.subject}`);
@@ -231,6 +269,10 @@ function renderStudentPassingChart(datas) {
   });
 }
 
+/**
+ * Vẽ biểu đồ tròn tỉ lệ sinh viên đạt và chưa đạt.
+ * @param {Object} data - Dữ liệu có dạng { passed_students, total_students }
+ */
 function renderPieChart(data) {
   const ctx = document.getElementById("pieChart").getContext("2d");
 
@@ -259,6 +301,10 @@ function renderPieChart(data) {
   });
 }
 
+/**
+ * Vẽ biểu đồ ngang điểm trung bình theo lớp - môn học.
+ * @param {Array<Object>} datas - Dữ liệu gồm class, subject, average_score
+ */
 function renderAvgScoreChart(datas) {
   const ctx = document.getElementById("avgScoreChart").getContext("2d");
 

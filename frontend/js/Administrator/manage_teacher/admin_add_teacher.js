@@ -1,3 +1,7 @@
+/**
+ * Khi tài liệu HTML được tải xong:
+ * - Tự động lấy mã giáo viên mới và mã cuối cùng hiện tại để hiển thị trong console.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   const newCode = await getNewCode();
   const oldCode = await getLastTeacherCode();
@@ -6,10 +10,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /**
- * Gửi yêu cầu đến backend để lấy mã học viên cuối cùng hiện tại.
- * @returns {Promise<string|undefined>} - Mã học viên cuối nếu thành công
+ * Gửi yêu cầu đến backend để lấy mã giáo viên cuối cùng đã có trong hệ thống.
+ *
+ * @returns {Promise<string|undefined>} - Mã giáo viên cuối nếu thành công, ngược lại trả về `undefined`.
  */
-
 async function getLastTeacherCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -30,11 +34,11 @@ async function getLastTeacherCode() {
 }
 
 /**
- * Tăng số thứ tự của mã học viên lên 1 và định dạng lại.
- * @param {string} teacherCode - Mã học viên hiện tại dạng chuỗi
- * @returns {string|null} - Mã mới được định dạng hoặc null nếu lỗi
+ * Tăng số thứ tự trong mã giáo viên cũ và định dạng lại theo quy chuẩn.
+ *
+ * @param {string} teacherCode - Mã giáo viên hiện tại (ví dụ: "GV00012")
+ * @returns {string|null} - Mã mới (ví dụ: "GV00013"), hoặc null nếu có lỗi.
  */
-
 function formatTeacherCode(teacherCode) {
   if (!teacherCode) {
     Swal.fire("Thông báo", "Không lấy được mã học viên cuối!", "warning");
@@ -51,8 +55,9 @@ function formatTeacherCode(teacherCode) {
 }
 
 /**
- * Lấy mã học viên cuối và tạo mã học viên mới.
- * @returns {Promise<string|null>} - Mã mới được tạo
+ * Lấy mã giáo viên cuối cùng từ hệ thống và trả về mã mới được định dạng.
+ *
+ * @returns {Promise<string|null>} - Mã giáo viên mới (ví dụ: "GV00013")
  */
 async function getNewCode() {
   const beforeFormat = await getLastTeacherCode();
@@ -61,7 +66,7 @@ async function getNewCode() {
 }
 
 /**
- * Khi modal thêm học viên hiển thị, tự động gán mã học viên mới vào input.
+ * Khi modal "Thêm giáo viên" được mở, tự động gán mã giáo viên mới vào ô input.
  */
 document
   .getElementById("addTeacherModal")
@@ -73,10 +78,17 @@ document
   });
 
 /**
- * Gửi thông tin học viên mới đến backend để thêm vào hệ thống.
- * @param {Object} student - Đối tượng học viên chứa các trường cần thiết
+ * Gửi dữ liệu giáo viên mới lên server thông qua API.
+ *
+ * @param {Object} teacher - Đối tượng giáo viên cần thêm.
+ * @param {string} teacher.teacher_code
+ * @param {string} teacher.teacher_name
+ * @param {string} teacher.teacher_date_of_birth
+ * @param {string} teacher.teacher_gender
+ * @param {string} teacher.teacher_address
+ * @param {string} teacher.teacher_email
+ * @param {string} teacher.teacher_phone
  */
-
 async function addNewTeacher(teacher) {
   if (!teacher) {
     Swal.fire("Cảnh Báo", "Không nhận được dữ liệu nhập vào!!!", "error");
@@ -111,8 +123,10 @@ async function addNewTeacher(teacher) {
 }
 
 /**
- * Lắng nghe sự kiện submit form thêm học viên.
- * Tạo object học viên, gọi hàm thêm và reset form sau khi hoàn tất.
+ * Lắng nghe sự kiện submit của form thêm giáo viên.
+ * - Tạo object giáo viên từ input form.
+ * - Gửi dữ liệu lên server.
+ * - Đóng modal và reset form sau khi thêm thành công.
  */
 document.getElementById("teacherForm").addEventListener("submit", async (e) => {
   e.preventDefault(); // Ngăn form reload trang

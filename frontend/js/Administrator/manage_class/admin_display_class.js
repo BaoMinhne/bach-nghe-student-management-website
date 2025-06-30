@@ -1,13 +1,16 @@
+/**
+ * Khi trang tải xong, gọi API để lấy danh sách lớp học phần (module list).
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getModuleList();
 });
 
 /**
- * Chuyển đổi các giá trị kỹ thuật thành dạng dễ đọc cho người dùng.
- * @param {*} value - Giá trị cần chuyển đổi (string, null, undefined)
- * @returns {string} - Giá trị đã chuyển đổi phù hợp để hiển thị
+ * Chuyển đổi giá trị kỹ thuật thành chuỗi dễ hiểu cho người dùng.
+ *
+ * @param {*} value - Giá trị cần chuyển đổi.
+ * @returns {string} - Giá trị chuyển đổi phù hợp để hiển thị.
  */
-
 function transferValue(value) {
   if (value === null || value === undefined || value === "") {
     return "-";
@@ -25,8 +28,8 @@ function transferValue(value) {
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu API để lấy danh sách lớp học phần (module list).
+ * Nếu thành công, render danh sách và phân trang.
  */
 async function getModuleList() {
   const API_BASE = "http://localhost:3000";
@@ -59,8 +62,9 @@ let moduleDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} modules - Mảng dữ liệu học viên từ server
+ * Cập nhật dữ liệu hiển thị và vẽ danh sách học phần theo trang.
+ *
+ * @param {Array<Object>} modules - Danh sách học phần từ server.
  */
 function renderModuleList(modules) {
   filterDatas = modules;
@@ -69,8 +73,9 @@ function renderModuleList(modules) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học phần theo trang cụ thể.
+ *
+ * @param {number} page - Số trang cần hiển thị.
  */
 function displayModuleListPage(page) {
   const moduleList = document.getElementById("module-list");
@@ -216,8 +221,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử phân trang dấu ba chấm "..." khi có nhiều trang.
+ *
+ * @returns {HTMLLIElement} - Thẻ <li> đã disable chứa "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -247,6 +253,11 @@ function createEllipsis() {
 //   renderTeacherList(filtered);
 // });
 
+/**
+ * Khi mở modal xem thông tin lớp học:
+ * - Lấy dữ liệu từ nút được click.
+ * - Hiển thị thông tin lớp học lên modal.
+ */
 document
   .getElementById("viewClassModal")
   .addEventListener("show.bs.modal", function (event) {

@@ -4,16 +4,30 @@ let class_subject_id = urlParams.get("class_subject"); // có thể gán trực 
 let className = urlParams.get("class_name");
 let moduleName = urlParams.get("module_name");
 
+/**
+ * Khi DOM đã tải xong, thực hiện:
+ * - Lấy dữ liệu chứng chỉ từ API (`getCertificates`)
+ * - Hiển thị tên môn học và lớp học trên giao diện.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   await getCertificates();
   renderModuleName();
 });
 
+/**
+ * Hiển thị tên môn học và tên lớp học lên giao diện.
+ * Lấy dữ liệu từ URL query params: `module_name`, `class_name`.
+ */
 function renderModuleName() {
   document.querySelector(".module_name").textContent = moduleName;
   document.querySelector(".class_name").textContent = className;
 }
 
+/**
+ * Gửi yêu cầu API để lấy danh sách học viên đã được cấp chứng chỉ cho lớp học phần hiện tại.
+ * Dữ liệu được lấy theo `class_subject_id` trong URL.
+ * Gán dữ liệu vào biến toàn cục `studentDatas` và `filterDatas`, rồi hiển thị ra bảng.
+ */
 async function getCertificates() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -48,8 +62,9 @@ let studentDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu danh sách học viên và hiển thị bảng danh sách theo trang.
+ *
+ * @param {Array<Object>} students - Mảng đối tượng học viên (có thông tin chứng chỉ).
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -58,8 +73,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị bảng danh sách học viên cho một trang cụ thể.
+ *
+ * @param {number} page - Trang cần hiển thị (bắt đầu từ 1).
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -86,11 +102,7 @@ function displayStudentListPage(page) {
 		</td>
 		<td>${student.cert_number}</td>
 		<td>${formatDate}</td>
-		<td>
-		<button class="btn btn-primary">
-			<i class="bi bi-list-ul"></i>
-		</button>
-		</td>
+		
 	`;
     studentList.appendChild(row);
   });
@@ -149,10 +161,11 @@ function renderPagination() {
 }
 
 /**
- * Tạo một nút trang (số hoặc điều hướng).
- * @param {string|number} label - Nội dung hiển thị của nút
- * @param {number} pageNum - Số trang tương ứng khi click
- * @returns {HTMLLIElement} - Phần tử <li> chứa nút
+ * Tạo một phần tử nút trang (có thể là số trang hoặc ký hiệu điều hướng).
+ *
+ * @param {string|number} label - Nội dung hiển thị của nút (ví dụ: 1, "«", "»").
+ * @param {number} pageNum - Trang sẽ hiển thị khi người dùng click vào nút này.
+ * @returns {HTMLLIElement} - Phần tử <li> chứa nút chuyển trang.
  */
 function createPageItem(label, pageNum) {
   const li = document.createElement("li");
@@ -172,8 +185,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử dấu ba chấm "..." dùng trong phân trang để biểu thị trang bị ẩn.
+ *
+ * @returns {HTMLLIElement} - Phần tử <li> disabled với nội dung "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -183,8 +197,9 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * (Tạm thời bị comment)
+ * Tìm kiếm học viên theo mã sinh viên, họ tên hoặc số điện thoại.
+ * Lọc từ `studentDatas` gốc và hiển thị lại bảng theo kết quả lọc.
  */
 // document.getElementById("searchInput").addEventListener("input", function () {
 //   const keyword = this.value.trim().toLowerCase();

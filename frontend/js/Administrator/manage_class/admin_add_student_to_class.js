@@ -1,3 +1,7 @@
+/**
+ * Lắng nghe sự kiện submit của form `#addStudentForm`.
+ * Kiểm tra các checkbox đã chọn học sinh chưa, sau đó gửi yêu cầu thêm học sinh vào lớp.
+ */
 document
   .getElementById("addStudentForm")
   .addEventListener("submit", async function (e) {
@@ -12,6 +16,11 @@ document
     await addStudentsToClass(students);
   });
 
+/**
+ * Lấy danh sách mã học sinh từ các hàng đã được chọn (checkbox).
+ *
+ * @returns {Array<string>} - Mảng mã học sinh đã được chọn.
+ */
 function selectedRows() {
   const checkboxes = document.querySelectorAll(".checkbox-input");
   const students = [];
@@ -29,6 +38,13 @@ function selectedRows() {
   return students;
 }
 
+/**
+ * Gửi danh sách mã học sinh được chọn đến backend để thêm vào lớp học phần.
+ * Nếu thành công, gọi lại hàm `getStudentNotInClass` để cập nhật danh sách.
+ *
+ * @param {Array<string>} datas - Mảng mã học sinh.
+ * @returns {Promise<void>}
+ */
 async function addStudentsToClass(datas) {
   const classSubject = getParams();
 

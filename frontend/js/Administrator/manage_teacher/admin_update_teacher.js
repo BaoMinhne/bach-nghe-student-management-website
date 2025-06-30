@@ -1,5 +1,6 @@
 /**
- * Khi modal học viên hiển thị, tự động gán mã học viên vào input.
+ * Khi modal sửa thông tin giảng viên được hiển thị, tự động lấy dữ liệu từ nút trigger
+ * và gán các giá trị vào các input trong form chỉnh sửa.
  */
 document
   .getElementById("editTeacherModal")
@@ -24,6 +25,10 @@ document
     document.getElementById("editTrangThai").value = status;
   });
 
+/**
+ * Bắt sự kiện submit của form sửa giảng viên.
+ * Thu thập dữ liệu từ form, đóng modal, reset form và gọi hàm cập nhật thông tin giảng viên.
+ */
 document
   .getElementById("editTeacherForm")
   .addEventListener("submit", function (e) {
@@ -55,11 +60,25 @@ document
     updateTeacherInfor(teacher);
   });
 
+/**
+ * Gửi yêu cầu cập nhật thông tin giảng viên đến backend.
+ *
+ * @param {Object} teacher - Đối tượng chứa dữ liệu giảng viên cần cập nhật
+ * @param {string} teacher.teacher_code - Mã số giảng viên
+ * @param {string} teacher.teacher_name - Họ và tên
+ * @param {string} teacher.teacher_date_of_birth - Ngày sinh (YYYY-MM-DD)
+ * @param {string} teacher.teacher_gender - Giới tính
+ * @param {string} teacher.teacher_address - Địa chỉ
+ * @param {string} teacher.teacher_email - Email
+ * @param {string} teacher.teacher_phone - Số điện thoại
+ * @param {string} teacher.teacher_status - Trạng thái giảng viên
+ */
 async function updateTeacherInfor(teacher) {
   if (!teacher) {
     Swal.fire("Lỗi", "Thiếu thông tin của học viên!", "error");
     return;
   }
+  console.log("teacher", teacher);
   const API_BASE = "http://localhost:3000";
   try {
     const res = await fetch(`${API_BASE}/api/v1/admin/updateTeacherInfor`, {
@@ -73,8 +92,8 @@ async function updateTeacherInfor(teacher) {
     const data = await res.json();
 
     if (data.status === "success") {
-      Swal.fire("Thành công", "Thông tin đã được cập nhật!", "success");
       getTeacherList();
+      Swal.fire("Thành công", "Thông tin đã được cập nhật!", "success");
     } else {
       Swal.fire(
         "Lỗi",

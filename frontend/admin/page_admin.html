@@ -107,31 +107,53 @@
           <div class="col-sm-6 col-lg-3">
             <div class="bg-white shadow rounded p-3">
               <h6 class="text-muted">Số lớp học</h6>
-              <h3 class="text-blue-500 fw-bold">12</h3>
+              <h3 id="total-class" class="text-blue-500 fw-bold"></h3>
             </div>
           </div>
           <div class="col-sm-6 col-lg-3">
             <div class="bg-white shadow rounded p-3">
               <h6 class="text-muted">Số sinh viên</h6>
-              <h3 class="text-orange-500 fw-bold">350</h3>
+              <h3 id="total-student" class="text-orange-500 fw-bold"></h3>
             </div>
           </div>
           <div class="col-sm-6 col-lg-3">
             <div class="bg-white shadow rounded p-3">
               <h6 class="text-muted">Số giảng viên</h6>
-              <h3 class="text-green-500 fw-bold">1200</h3>
+              <h3 id="total-teacher" class="text-green-500 fw-bold"></h3>
             </div>
           </div>
           <div class="col-sm-6 col-lg-3">
             <div class="bg-white shadow rounded p-3">
               <h6 class="text-muted">Tài khoản đã tạo</h6>
-              <h3 class="text-red-500 fw-bold">325</h3>
+              <h3 id="total-account" class="text-red-500 fw-bold"></h3>
             </div>
           </div>
         </div>
 
         <!-- Chart -->
-        <div class="bg-white shadow rounded p-4">
+        <div class="row gx-4 gy-4 mb-4">
+          <!-- Biểu đồ Pie -->
+          <div class="col-md-6">
+            <div
+              class="bg-white rounded shadow p-4 chart-wrapper pie-chart-wrapper"
+            >
+              <h5 class="mb-3">Tỷ lệ sinh viên đạt</h5>
+              <canvas id="certPieChart" class="small-pie-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Biểu đồ Bar -->
+          <div class="col-md-6">
+            <div
+              class="bg-white rounded shadow p-4 chart-wrapper bar-chart-wrapper"
+            >
+              <h5 class="mb-3">Số sinh viên đạt theo lớp - môn</h5>
+              <canvas id="moduleChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded p-4 mb-4">
           <h5 class="mb-3">Thống kê số lượng sinh viên theo lớp</h5>
           <canvas id="classChart" height="100"></canvas>
         </div>
@@ -141,6 +163,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/Authentication/storage.js"></script>
     <script src="../js/Authentication/logout.js"></script>
-    <script src="../js/test_chart.js"></script>
+    <script src="../js/Administrator/manage_dashboard/admin_display_stats.js"></script>
+    <script src="../js/Administrator/manage_dashboard/dashboard_chart.js"></script>
   </body>
 </html>

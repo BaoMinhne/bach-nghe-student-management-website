@@ -1,36 +1,33 @@
+/**
+ * Sự kiện DOMContentLoaded: Khi tài liệu được tải xong, gọi hàm lấy danh sách giáo viên.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getTeacherList();
 });
 
 /**
- * Chuyển đổi các giá trị kỹ thuật thành dạng dễ đọc cho người dùng.
- * @param {*} value - Giá trị cần chuyển đổi (string, null, undefined)
+ * Chuyển đổi các giá trị kỹ thuật (status, gender, v.v.) thành dạng dễ đọc cho người dùng.
+ *
+ * @param {*} value - Giá trị cần chuyển đổi (string hoặc null/undefined)
  * @returns {string} - Giá trị đã chuyển đổi phù hợp để hiển thị
  */
-
 function transferValue(value) {
-  if (value === null || value === undefined || value === "") {
-    return "-";
-  } else if (value === "female") {
-    return "Nữ";
-  } else if (value === "male") {
-    return "Nam";
-  } else if (value === "other") {
-    return "Khác";
-  } else if (value === "on_leave") {
-    return "Nghỉ phép";
-  } else if (value === "resigned") {
-    return "Nghỉ việc";
-  } else if (value === "retired") {
-    return "Nghỉ hưu";
-  } else {
-    return value;
-  }
+  if (value === null || value === undefined || value === "") return "-";
+  const dictionary = {
+    female: "Nữ",
+    male: "Nam",
+    other: "Khác",
+    teaching: "Đang dạy",
+    on_leave: "Nghỉ phép",
+    resigned: "Nghỉ việc",
+    retired: "Nghỉ hưu",
+  };
+  return dictionary[value] || value;
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu đến API backend để lấy danh sách giáo viên.
+ * Nếu thành công, gọi hàm hiển thị danh sách và phân trang.
  */
 async function getTeacherList() {
   const API_BASE = "http://localhost:3000";
@@ -63,8 +60,9 @@ let teacherDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} teachers - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu và hiển thị danh sách giáo viên kèm phân trang.
+ *
+ * @param {Array<Object>} teachers - Mảng dữ liệu giáo viên
  */
 function renderTeacherList(teachers) {
   filterDatas = teachers;
@@ -73,7 +71,8 @@ function renderTeacherList(teachers) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
+ * Hiển thị danh sách giáo viên cho một trang cụ thể.
+ *
  * @param {number} page - Số trang cần hiển thị
  */
 function displayTeacherListPage(page) {
@@ -210,8 +209,7 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * Lọc dữ liệu giáo viên theo từ khóa tìm kiếm và hiển thị kết quả.
  */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();

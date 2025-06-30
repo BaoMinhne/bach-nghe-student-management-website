@@ -1,5 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {});
 
+/**
+ * Sự kiện submit form thêm mới tài khoản.
+ * Kiểm tra có chọn tài khoản nào không, nếu có thì gửi yêu cầu tạo tài khoản.
+ */
 document
   .getElementById("addNewAccountForm")
   .addEventListener("submit", async function (e) {
@@ -14,6 +18,12 @@ document
     await addNewAccount(accounts);
   });
 
+/**
+ * Lấy danh sách tài khoản được chọn trong bảng (checkbox đã chọn).
+ *
+ * @returns {Array<{username: string, pass: string, role: string}>}
+ * Mảng các tài khoản chứa username, password và role (vai trò).
+ */
 function selectedRows() {
   const selectedRows = document.querySelectorAll("#form-list tr");
   const accounts = [];
@@ -40,6 +50,12 @@ function selectedRows() {
   return accounts;
 }
 
+/**
+ * Gửi dữ liệu tài khoản mới lên server để thêm mới.
+ *
+ * @param {Array<{username: string, pass: string, role: string}>} datas - Mảng tài khoản cần tạo.
+ * @returns {Promise<void>}
+ */
 async function addNewAccount(datas) {
   const API_BASE = "http://localhost:3000";
   try {

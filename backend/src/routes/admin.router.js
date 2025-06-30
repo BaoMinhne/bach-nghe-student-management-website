@@ -105,6 +105,19 @@ router.all("/getClassCert", methodNotAllowed);
 router.post("/addCertificates", adminController.addCertificates);
 router.all("/addCertificates", methodNotAllowed);
 
+// Admin Dash Board
+router.get("/getDashboardStats", adminController.getDashboardStats);
+router.all("/getDashboardStats", methodNotAllowed);
+
+router.get("/getCountStudentInClass", adminController.getCountStudentInClass);
+router.all("/getCountStudentInClass", methodNotAllowed);
+
+router.get(
+  "/getModuleCertificateStats",
+  adminController.getModuleCertificateStats
+);
+router.all("/getModuleCertificateStats", methodNotAllowed);
+
 // Default
 router.all("/", methodNotAllowed);
 

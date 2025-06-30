@@ -590,6 +590,52 @@ async function getClassCert(req, res, next) {
   }
 }
 
+// Dash Board Admin
+async function getDashboardStats(req, res, next) {
+  try {
+    const dashBoardStats = await adminService.getDashboardStats();
+
+    if (!dashBoardStats) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(dashBoardStats));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getCountStudentInClass(req, res, next) {
+  try {
+    const counts = await adminService.getCountStudentInClass();
+
+    if (!counts) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(counts));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
+async function getModuleCertificateStats(req, res, next) {
+  try {
+    const counts = await adminService.getModuleCertificateStats();
+
+    if (!counts) {
+      return next(new ApiError(404, "Get fail"));
+    }
+
+    return res.status(200).json(JSend.success(counts));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(JSend.error("Internal server error", error));
+  }
+}
+
 module.exports = {
   // Account Management
   createStudentAccount,
@@ -633,4 +679,9 @@ module.exports = {
   getStudentEligible,
   addCertificates,
   getClassCert,
+
+  // DashBoard Admin
+  getDashboardStats,
+  getCountStudentInClass,
+  getModuleCertificateStats,
 };

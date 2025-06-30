@@ -1,3 +1,7 @@
+/**
+ * Khi DOM được load xong, gọi API để lấy danh sách môn học (module),
+ * sau đó render các option vào dropdown filter `#courseFilter`.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   listModule = await getModuleFilter();
   console.log("list filter: ", listModule);
@@ -12,6 +16,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
+/**
+ * Lắng nghe sự kiện submit của form tạo lớp.
+ * Lấy dữ liệu từ form và gọi hàm `createClassWithTeacher` để gửi về server.
+ * Sau khi tạo thành công, đóng modal và reset form.
+ */
 document
   .getElementById("createClassForm")
   .addEventListener("submit", async function (e) {
@@ -31,6 +40,12 @@ document
     modal.reset();
   });
 
+/**
+ * Gửi yêu cầu lấy danh sách các lớp học và học kỳ tương ứng từ backend.
+ * Dữ liệu này được sử dụng trong modal tạo lớp.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách lớp và học kỳ.
+ */
 async function getClassCodeAndSemester() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -53,6 +68,11 @@ async function getClassCodeAndSemester() {
   }
 }
 
+/**
+ * Lấy danh sách tất cả môn học (module) từ backend.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách môn học.
+ */
 async function getModuleCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -75,6 +95,11 @@ async function getModuleCode() {
   }
 }
 
+/**
+ * Lấy danh sách môn học dùng để lọc danh sách lớp hiển thị.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách môn học để hiển thị trong dropdown lọc.
+ */
 async function getModuleFilter() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -97,6 +122,12 @@ async function getModuleFilter() {
   }
 }
 
+/**
+ * Lấy danh sách giảng viên từ backend.
+ * Dữ liệu dùng để chọn giảng viên khi tạo lớp mới.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách giảng viên.
+ */
 async function getTeacherList() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -114,6 +145,16 @@ async function getTeacherList() {
   }
 }
 
+/**
+ * Gửi yêu cầu tạo lớp học mới với thông tin lớp, môn học, học kỳ, và giảng viên.
+ * Nếu thành công, hiển thị thông báo và làm mới danh sách lớp học.
+ *
+ * @param {string} classID - ID lớp học được chọn.
+ * @param {string} moduleID - ID môn học được chọn.
+ * @param {string} semesterID - ID học kỳ được chọn.
+ * @param {string} teacherCode - Mã giảng viên được chọn.
+ * @returns {Promise<void>}
+ */
 async function createClassWithTeacher(
   classID,
   moduleID,
@@ -142,6 +183,12 @@ async function createClassWithTeacher(
   }
 }
 
+/**
+ * Khi modal `#createClassModal` hiển thị,
+ * load dữ liệu lớp, học kỳ, môn học và giảng viên.
+ * Tự động populate dropdown tương ứng.
+ * Lắng nghe sự kiện thay đổi lớp để hiển thị các học kỳ phù hợp.
+ */
 document
   .getElementById("createClassModal")
   .addEventListener("show.bs.modal", async function (event) {
@@ -206,6 +253,10 @@ document
     });
   });
 
+/**
+ * Khi người dùng thay đổi bộ lọc môn học `#courseFilter`,
+ * lọc danh sách lớp hiện tại và hiển thị theo môn học được chọn.
+ */
 document.getElementById("courseFilter").addEventListener("change", function () {
   const keyword = this.value.trim().toLowerCase();
 

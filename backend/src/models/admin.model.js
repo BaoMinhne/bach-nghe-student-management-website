@@ -640,6 +640,7 @@ const admin = {
           teacher_address: teacher.teacher_address,
           teacher_email: teacher.teacher_email,
           teacher_phone: teacher.teacher_phone,
+          teacher_status: teacher.teacher_status,
         });
     } else {
       updateCount = await knex("teacher")
@@ -650,6 +651,7 @@ const admin = {
           teacher_address: teacher.teacher_address,
           teacher_email: teacher.teacher_email,
           teacher_phone: teacher.teacher_phone,
+          teacher_status: teacher.teacher_status,
         });
     }
 
@@ -886,6 +888,82 @@ const admin = {
     if (classes.length == 0) return null;
 
     return classes;
+  },
+
+  getDashboardStats: async () => {
+    try {
+      const [classResult] = await knex("class_subject").count(
+        "* as total_classes"
+      );
+      const [studentResult] = await knex("student").count(
+        "* as total_students"
+      );
+      const [teacherResult] = await knex("teacher").count(
+        "* as total_teachers"
+      );
+      const [accountResult] = await knex("system_user").count(
+        "* as total_accounts"
+      );
+
+      return {
+        total_classes: Number(classResult.total_classes),
+        total_students: Number(studentResult.total_students),
+        total_teachers: Number(teacherResult.total_teachers),
+        total_accounts: Number(accountResult.total_accounts),
+      };
+    } catch (error) {
+      console.error("Lỗi khi thống kê dashboard:", error);
+      throw error;
+    }
+  },
+
+  getCountStudentInClass: async () => {
+    try {
+      const result = await knex("class as c")
+        .select("c.class_name")
+        .count("cs.student_code as student_count")
+        .join("class_subject as csj", "csj.class_id", "c.class_id")
+        .join(
+          "class_student as cs",
+          "cs.class_subject_id",
+          "csj.class_subject_id"
+        )
+        .groupBy("c.class_name");
+
+      if (!result) return null;
+
+      return result;
+    } catch (error) {
+      console.error("Lỗi thống kê số lượng học viên theo lớp:", error);
+      throw error;
+    }
+  },
+
+  getModuleCertificateStats: async () => {
+    const countCert = await knex("module as m")
+      .select(
+        "m.module_name",
+        knex.raw("COUNT(DISTINCT cs.student_code) AS total_students"),
+        knex.raw("COUNT(DISTINCT c.student_code) AS certified_students")
+      )
+      .join("class_subject as csj", "m.module_id", "csj.module_id")
+      .join(
+        "class_student as cs",
+        "csj.class_subject_id",
+        "cs.class_subject_id"
+      )
+      .leftJoin("certificate as c", function () {
+        this.on("cs.student_code", "=", "c.student_code").andOn(
+          "csj.class_subject_id",
+          "=",
+          "c.class_subject_id"
+        );
+      })
+      .groupBy("m.module_name");
+
+    if (countCert.length == 0) return null;
+
+    return countCert;
   },
 };
 

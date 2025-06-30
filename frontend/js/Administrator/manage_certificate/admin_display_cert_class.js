@@ -1,7 +1,17 @@
+/**
+ * Sự kiện được gọi khi toàn bộ DOM đã tải hoàn tất.
+ * Gọi hàm `getCertClass` để lấy dữ liệu các lớp đã được cấp chứng chỉ.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getCertClass();
 });
 
+/**
+ * Gửi yêu cầu API để lấy danh sách các lớp học đã cấp chứng chỉ.
+ * Nếu thành công, gọi hàm `renderCertClass` để hiển thị dữ liệu.
+ *
+ * @returns {Promise<void>}
+ */
 async function getCertClass() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -22,6 +32,20 @@ async function getCertClass() {
   }
 }
 
+/**
+ * Tạo và hiển thị danh sách các lớp học đã cấp chứng chỉ dưới dạng thẻ (card).
+ *
+ * @param {Array<Object>} CertClasses - Mảng đối tượng chứa thông tin lớp, giảng viên, môn học, class_subject_id.
+ *
+ * Mỗi phần tử phải có cấu trúc:
+ * {
+ *   module_code: string,
+ *   module_name: string,
+ *   teacher_name: string,
+ *   class_name: string,
+ *   class_subject_id: number
+ * }
+ */
 function renderCertClass(CertClasses) {
   const certClassList = document.querySelector(".class-cert-list");
   certClassList.innerHTML = ""; // Xoá nội dung cũ

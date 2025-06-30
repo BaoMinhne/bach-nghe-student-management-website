@@ -1,8 +1,16 @@
+/**
+ * Khởi chạy khi DOM đã tải xong.
+ * Gọi các hàm để lấy và cập nhật thông tin sinh viên.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   fetchStudentInfo();
   updateStudentInfo();
 });
 
+/**
+ * Lấy thông tin sinh viên từ localStorage và gọi API để lấy chi tiết.
+ * Hiển thị thông tin sinh viên lên trang và modal cập nhật.
+ */
 async function fetchStudentInfo() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -29,6 +37,10 @@ async function fetchStudentInfo() {
   }
 }
 
+/**
+ * Hiển thị thông tin sinh viên vào các thẻ trong trang chính.
+ * @param {Object} info - Dữ liệu thông tin sinh viên từ API.
+ */
 function displayStudentInfo(info) {
   // Họ tên + mã số
   document.querySelector(
@@ -61,16 +73,31 @@ function displayStudentInfo(info) {
   );
 }
 
+/**
+ * Định dạng ngày sinh sang kiểu hiển thị tiếng Việt.
+ * @param {string} dateStr - Chuỗi ngày ISO.
+ * @returns {string} - Ngày được định dạng dd/mm/yyyy.
+ */
 function formatDate(dateStr) {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
   return date.toLocaleDateString("vi-VN");
 }
 
+/**
+ * Định dạng giới tính từ mã kỹ thuật sang tiếng Việt.
+ * @param {string} gender - Mã giới tính ("male", "female", "other").
+ * @returns {string} - Chuỗi giới tính tương ứng.
+ */
 function formatGender(gender) {
   return gender === "male" ? "Nam" : gender === "female" ? "Nữ" : "Khác";
 }
 
+/**
+ * Định dạng trạng thái học tập.
+ * @param {string} status - Trạng thái học ("studying", "graduated", "inactive").
+ * @returns {string} - Chuỗi trạng thái tiếng Việt.
+ */
 function formatStatus(status) {
   switch (status) {
     case "studying":
@@ -84,6 +111,10 @@ function formatStatus(status) {
   }
 }
 
+/**
+ * Hiển thị thông tin sinh viên vào các input trong modal cập nhật.
+ * @param {Object} info - Dữ liệu thông tin sinh viên từ API.
+ */
 function displayStudentInfoInModal(info) {
   document.getElementById("inputMiddleName").value =
     info.student_middle_name || "";
@@ -104,6 +135,11 @@ function displayStudentInfoInModal(info) {
   document.getElementById("inputAddress").value = info.student_address || "";
 }
 
+/**
+ * Gửi yêu cầu cập nhật thông tin sinh viên lên server.
+ * Lấy dữ liệu từ form modal và gọi API PUT.
+ * Hiển thị thông báo phản hồi bằng Swal.
+ */
 function updateStudentInfo() {
   document
     .getElementById("updateStudentForm")

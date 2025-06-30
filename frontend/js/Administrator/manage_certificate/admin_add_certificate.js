@@ -1,6 +1,9 @@
 let listModule = [];
 
-// ===== SỰ KIỆN CLICK VÀO NÚT CẤP CHỨNG CHỈ =====
+/**
+ * Sự kiện click vào nút "Duyệt chứng chỉ" trên từng dòng học viên.
+ * Gửi mã học viên và class_subject_id để thực hiện Duyệt chứng chỉ.
+ */
 document.getElementById("form-list").addEventListener("click", async (e) => {
   const btn = e.target.closest(".btn-addCert");
   if (!btn) return;
@@ -19,7 +22,13 @@ document.getElementById("form-list").addEventListener("click", async (e) => {
   await addCertificates(stCode, clsID);
 });
 
-// ===== HÀM GỬI REQUEST THÊM CHỨNG CHỈ =====
+/**
+ * Gửi yêu cầu API để cấp chứng chỉ cho học viên (hoặc danh sách học viên).
+ *
+ * @param {string|string[]} stCode - Mã học viên (hoặc danh sách mã).
+ * @param {string|number} clsID - ID của lớp học phần (class_subject_id).
+ * @returns {Promise<void>}
+ */
 async function addCertificates(stCode, clsID) {
   const API_BASE = "http://localhost:3000";
   try {
@@ -48,7 +57,11 @@ async function addCertificates(stCode, clsID) {
   }
 }
 
-// ===== LẤY DANH SÁCH HỌC SINH ĐƯỢC CHECK =====
+/**
+ * Lấy danh sách mã học viên từ các dòng được checkbox chọn.
+ *
+ * @returns {string[]} - Mảng các mã học viên.
+ */
 function selectedRows() {
   const checkboxes = document.querySelectorAll(".checkbox-input");
   const students = [];
@@ -66,8 +79,11 @@ function selectedRows() {
   return students;
 }
 
-// ===== SUBMIT FORM CẤP NHIỀU CHỨNG CHỈ =====
-document.getElementById("addNewCert").addEventListener("submit", async (e) => {
+/**
+ * Sự kiện click vào nút "Phê duyệt" để cấp chứng chỉ hàng loạt.
+ * Gọi `addCertificates` với danh sách mã học viên được chọn.
+ */
+document.getElementById("btnApprove").addEventListener("click", async (e) => {
   e.preventDefault();
   const students = selectedRows();
 
@@ -79,7 +95,11 @@ document.getElementById("addNewCert").addEventListener("submit", async (e) => {
   await addCertificates(students, class_subject_id);
 });
 
-// ===== LẤY DANH SÁCH MÔN HỌC =====
+/**
+ * Gửi yêu cầu API để lấy danh sách môn học (module) để lọc.
+ *
+ * @returns {Promise<Array<Object>>} - Danh sách các môn học, hoặc [] nếu lỗi.
+ */
 async function getModuleFilter() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -98,7 +118,10 @@ async function getModuleFilter() {
   return [];
 }
 
-// ===== SỰ KIỆN LOAD TRANG =====
+/**
+ * Sự kiện DOMContentLoaded: lấy danh sách môn học và hiển thị trong dropdown lọc.
+ * Gán vào biến toàn cục `listModule` và `filterDatas`.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   listModule = await getModuleFilter();
   filterDatas = [...listModule];
@@ -114,7 +137,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// ===== SỰ KIỆN CHỌN MÔN HỌC =====
+/**
+ * Sự kiện khi người dùng chọn môn học từ dropdown.
+ * Lọc danh sách học viên theo mã hoặc tên môn học.
+ */
 document.getElementById("courseFilter").addEventListener("change", function () {
   const keyword = this.value.trim().toLowerCase();
 
@@ -127,5 +153,5 @@ document.getElementById("courseFilter").addEventListener("change", function () {
 
   currentPage = 1;
   filterDatas = filtered;
-  renderStudentList(filtered); // dùng danh sách học viên
+  renderStudentList(filtered);
 });
