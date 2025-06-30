@@ -353,17 +353,22 @@ async function getLastUpdate(req, res, next) {
 }
 
 module.exports = {
+  // READ
   getTeacherInfo,
-  updateTeacherInfo,
   getModuleTeaching,
   getStudentInClass,
-  updateStudentScore,
   getStudentPassing,
   getPassingPropotion,
   getAvgScore,
   getStudentCodeByName,
-  importStudentScores,
   getScoreProgress,
   getCountTeaching,
   getLastUpdate,
+
+  // UPDATE
+  updateTeacherInfo,
+  updateStudentScore,
+
+  // BULK
+  importStudentScores,
 };
