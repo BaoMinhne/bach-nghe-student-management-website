@@ -101,6 +101,7 @@ function displayStudentListPage(page) {
 			${address}
 		</td>
 		<td>${student.cert_number}</td>
+		<td>${student.cert_number_id}</td>
 		<td>${formatDate}</td>
 		
 	`;
@@ -218,3 +219,58 @@ function createEllipsis() {
 //   currentPage = 1;
 //   renderStudentList(filtered);
 // });
+
+function sendReminder() {
+  const rows = document.querySelectorAll("#form-list tr");
+  const studentsToRemind = [];
+
+  rows.forEach((row, index) => {
+    const cccd = row.children[3]?.textContent?.trim();
+    const address = row.children[4]?.textContent?.trim();
+    const studentCode = row.children[1]?.textContent?.trim();
+
+    console.log("cccd", cccd);
+    console.log("address", address);
+    console.log("studentCode", studentCode);
+
+    if (
+      cccd.toLowerCase() === "chưa có thông tin" ||
+      address.toLowerCase() === "chưa có thông tin"
+    ) {
+      studentsToRemind.push(studentCode || `Học viên dòng ${index + 1}`);
+    }
+  });
+
+  if (studentsToRemind.length === 0) {
+    Swal.fire({
+      icon: "success",
+      title: "Tất cả thông tin đã đầy đủ!",
+      text: "Không có học viên nào cần nhắc nhở.",
+    });
+  } else {
+    Swal.fire({
+      icon: "warning",
+      title: "Cần nhắc nhở cập nhật thông tin",
+      html: `
+          <p>Các học viên sau chưa cập nhật đầy đủ CCCD hoặc địa chỉ:</p>
+          <ul style="text-align: left;">
+            ${studentsToRemind.map((code) => `<li>${code}</li>`).join("")}
+          </ul>
+          <p>Bạn có muốn gửi thông báo nhắc nhở không?</p>
+        `,
+      showCancelButton: true,
+      confirmButtonText: "Gửi",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: "success",
+          title: "Đã gửi nhắc nhở!",
+          text: "Thông báo đã được gửi đến các học viên.",
+        });
+
+        // TODO: Gửi thông báo thực tế thông qua API hoặc WebSocket nếu cần
+      }
+    });
+  }
+}
