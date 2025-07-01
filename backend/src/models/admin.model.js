@@ -919,6 +919,7 @@ const admin = {
         "m.module_name",
         "c.class_name",
         "cert.cert_number",
+        "cert.cert_number_id",
         "cert.issued_date",
         "cert.note"
       )
@@ -990,28 +991,40 @@ const admin = {
 
       if (exists) continue;
 
-      // Lấy module_code từ class_subject_id
+      // Lấy module_code và module_name, semester_end_date
       const classInfo = await knex("class_subject as cs")
         .join("module as m", "m.module_id", "cs.module_id")
         .join("semester as sem", "sem.semester_id", "cs.semester_id")
         .where("cs.class_subject_id", class_subject_id)
-        .select("m.module_code", "sem.semester_end_date")
+        .select("m.module_code", "m.module_name", "sem.semester_end_date")
         .first();
 
       if (!classInfo) continue;
 
-      const cert_number = `${classInfo.module_code}-${student_code}`;
-      const issued_date = classInfo.semester_end_date || new Date();
+      const { module_code, module_name, semester_end_date } = classInfo;
+      const issued_date = semester_end_date || new Date();
+      const year = issued_date.getFullYear();
+
+      // Tạo tên viết tắt của môn học (chỉ lấy chữ cái đầu mỗi từ)
+      const initials = module_name
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase())
+        .join("");
+
+      // Tạo mã chứng chỉ theo yêu cầu mới
+      const cert_number = `${student_code}/${initials}`;
+      const cert_number_id = `${student_code}/${module_code}.${year}`;
 
       // Thêm vào bảng certificate
       const [cert_id] = await knex("certificate").insert({
         student_code,
         class_subject_id,
         cert_number,
+        cert_number_id,
         issued_date,
       });
 
-      inserted.push({ student_code, cert_number });
+      inserted.push({ student_code, cert_number, cert_number_id });
     }
 
     return inserted;
