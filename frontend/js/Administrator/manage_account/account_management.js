@@ -76,7 +76,7 @@ async function getAccountList() {
   }
 }
 
-const limitRows = 10;
+const limitRows = 5;
 let currentPage = 1;
 let listAccount = [];
 let searchAccounts = [];

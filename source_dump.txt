@@ -127,7 +127,8 @@ bach-nghe-student-management-website/
 │       ├── page_student_list.html
 │       └── page_teacher_home.html
 ├── .gitignore
-└── README.md
+├── README.md
+└── source_dump.txt
 ```
 
 ## FILE CONTENTS
@@ -176,8 +177,12 @@ const {
   resourceNotFound,
   handleError,
 } = require("./controllers/errors.controller");
+
 const app = express();
 
+/**
+ * Cấu hình CORS cho các nguồn frontend được phép.
+ */
 app.use(
   cors({
     origin: [
@@ -185,13 +190,19 @@ app.use(
       "http://localhost",
       "http://127.0.0.1:5501",
     ],
-    credentials: true, // Cho phép gửi cookie qua CORS
+    credentials: true,
   })
 );
 
+/**
+ * Middleware xử lý dữ liệu JSON và form.
+ */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+/**
+ * Cấu hình phiên làm việc với express-session.
+ */
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -201,6 +212,10 @@ app.use(
   })
 );
 
+/**
+ * Kiểm tra kết nối với cơ sở dữ liệu.
+ * @route GET /api/check-connection
+ */
 app.get("/api/check-connection", async (req, res) => {
   try {
     await knex.raw("SELECT 1");
@@ -213,23 +228,40 @@ app.get("/api/check-connection", async (req, res) => {
   }
 });
 
+/**
+ * Route mặc định trả về response thành công.
+ * @route GET /
+ */
 app.get("/", (req, res) => {
   return res.json(JSend.success());
 });
 
+/**
+ * Route phục vụ tài nguyên tĩnh từ thư mục /public.
+ * @route GET /public/*
+ */
 app.use("/public", express.static("public"));
 
+/**
+ * Khởi tạo router cho các nhóm chức năng chính.
+ */
 authRouter.setup(app);
 studentRouter.setup(app);
 teacherRouter.setup(app);
 adminRouter.setup(app);
 
-//handle 404 response
+/**
+ * Middleware xử lý 404 khi không tìm thấy route.
+ */
 app.use(resourceNotFound);
 
+/**
+ * Middleware xử lý lỗi chung.
+ */
 app.use(handleError);
 
 module.exports = app;
+
 ```
 
 ### backend\src\jsend.js
@@ -298,6 +330,13 @@ const JSend = require("../jsend");
 const ApiError = require("../api-error");
 
 // Account Management
+/**
+ * Tạo tài khoản học viên mới.
+ * @route POST /api/admin/account/student
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {Function} next - Express next middleware
+ */
 async function createStudentAccount(req, res, next) {
   const { username, password } = req.body;
 
@@ -328,6 +367,13 @@ async function createStudentAccount(req, res, next) {
   }
 }
 
+/**
+ * Tạo tài khoản giảng viên mới.
+ * @route POST /api/admin/account/teacher
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
 async function createTeacherAccount(req, res, next) {
   const { username, password, role } = req.body;
 
@@ -358,6 +404,10 @@ async function createTeacherAccount(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tài khoản học viên.
+ * @route GET /api/admin/account/student
+ */
 async function getStudentAccount(req, res, next) {
   try {
     const students = await adminService.getStudentAccount();
@@ -371,6 +421,10 @@ async function getStudentAccount(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tất cả tài khoản người dùng (trừ admin).
+ * @route GET /api/admin/account
+ */
 async function getAccountList(req, res, next) {
   try {
     const users = await adminService.getAccountList();
@@ -384,6 +438,10 @@ async function getAccountList(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tài khoản giảng viên.
+ * @route GET /api/admin/account/teacher
+ */
 async function getTeacherAccount(req, res, next) {
   try {
     const users = await adminService.getTeacherAccount();
@@ -397,6 +455,10 @@ async function getTeacherAccount(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin tài khoản (mật khẩu hoặc trạng thái).
+ * @route PUT /api/admin/account
+ */
 async function updateAccount(req, res, next) {
   const { currentCode, newPassword, newStatus } = req.body;
 
@@ -422,6 +484,10 @@ async function updateAccount(req, res, next) {
   }
 }
 
+/**
+ * Thêm danh sách tài khoản người dùng.
+ * @route POST /api/admin/account/bulk
+ */
 async function addNewAccount(req, res, next) {
   const datas = req.body;
 
@@ -444,6 +510,10 @@ async function addNewAccount(req, res, next) {
 }
 
 // Student Management
+/**
+ * Lấy danh sách học viên.
+ * @route GET /api/admin/student
+ */
 async function getStudentList(req, res, next) {
   try {
     const students = await adminService.getStudentList();
@@ -459,6 +529,10 @@ async function getStudentList(req, res, next) {
   }
 }
 
+/**
+ * Nhập danh sách học viên.
+ * @route POST /api/admin/student/import
+ */
 async function importStudentList(req, res, next) {
   const payload = req.body;
 
@@ -480,6 +554,10 @@ async function importStudentList(req, res, next) {
   }
 }
 
+/**
+ * Lấy mã học viên cuối cùng.
+ * @route GET /api/admin/student/last-code
+ */
 async function getLastStudentCode(req, res, next) {
   try {
     const studentCode = await adminService.getLastStudentCode();
@@ -495,6 +573,10 @@ async function getLastStudentCode(req, res, next) {
   }
 }
 
+/**
+ * Thêm học viên mới.
+ * @route POST /api/admin/student
+ */
 async function addNewStudent(req, res, next) {
   const student = req.body;
 
@@ -516,6 +598,10 @@ async function addNewStudent(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin học viên.
+ * @route PUT /api/admin/student
+ */
 async function updateStudentInfor(req, res, next) {
   const student = req.body;
 
@@ -539,6 +625,10 @@ async function updateStudentInfor(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách mã học viên chưa có tài khoản.
+ * @route GET /api/admin/student/available-codes
+ */
 async function getListStudentCode(req, res, next) {
   try {
     const studentCode = await adminService.getListStudentCode();
@@ -554,6 +644,10 @@ async function getListStudentCode(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách học viên chưa trong lớp.
+ * @route GET /api/admin/student/not-in-class?class_subject_id=...
+ */
 async function getStudentNotInClass(req, res, next) {
   const class_subject_id = req.query.class_subject_id;
   try {
@@ -572,6 +666,10 @@ async function getStudentNotInClass(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách học viên đã trong lớp.
+ * @route GET /api/admin/student/in-class?class_subject_id=...
+ */
 async function getStudentInClass(req, res, next) {
   const class_subject_id = req.query.class_subject_id;
   try {
@@ -589,7 +687,10 @@ async function getStudentInClass(req, res, next) {
 }
 
 // Teacher Management
-
+/**
+ * Lấy danh sách giảng viên.
+ * @route GET /api/admin/teacher
+ */
 async function getTeacherList(req, res, next) {
   try {
     const teachers = await adminService.getTeacherList();
@@ -605,6 +706,10 @@ async function getTeacherList(req, res, next) {
   }
 }
 
+/**
+ * Lấy mã giảng viên cuối cùng.
+ * @route GET /api/admin/teacher/last-code
+ */
 async function getLastTeacherCode(req, res, next) {
   try {
     const teacherCode = await adminService.getLastTeacherCode();
@@ -620,6 +725,10 @@ async function getLastTeacherCode(req, res, next) {
   }
 }
 
+/**
+ * Thêm giảng viên mới.
+ * @route POST /api/admin/teacher
+ */
 async function addNewTeacher(req, res, next) {
   const teacher = req.body;
 
@@ -641,6 +750,10 @@ async function addNewTeacher(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin giảng viên.
+ * @route PUT /api/admin/teacher
+ */
 async function updateTeacherInfor(req, res, next) {
   const teacher = req.body;
 
@@ -664,6 +777,10 @@ async function updateTeacherInfor(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách mã giảng viên chưa có tài khoản.
+ * @route GET /api/admin/teacher/available-codes
+ */
 async function getListTeacherCode(req, res, next) {
   try {
     const teacherCode = await adminService.getListTeacherCode();
@@ -680,7 +797,10 @@ async function getListTeacherCode(req, res, next) {
 }
 
 // Class & Enrollment
-
+/**
+ * Tạo lớp học với giảng viên.
+ * @route POST /api/admin/class
+ */
 async function createClassWithTeacher(req, res, next) {
   const { classID, moduleID, semesterID, teacherCode } = req.body;
 
@@ -707,6 +827,10 @@ async function createClassWithTeacher(req, res, next) {
   }
 }
 
+/**
+ * Thêm học viên vào lớp học.
+ * @route POST /api/admin/class/add-students
+ */
 async function addStudentsToClass(req, res, next) {
   const { class_subject_id, student_codes } = req.body;
 
@@ -732,6 +856,10 @@ async function addStudentsToClass(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin lớp học.
+ * @route PUT /api/admin/class
+ */
 async function updateClass(req, res, next) {
   const payload = req.body;
 
@@ -753,6 +881,10 @@ async function updateClass(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách lớp và học kỳ tương ứng.
+ * @route GET /api/admin/class/with-semester
+ */
 async function getClassCodeAndSemester(req, res, next) {
   try {
     const listClassWithSemester = await adminService.getClassCodeAndSemester();
@@ -769,7 +901,10 @@ async function getClassCodeAndSemester(req, res, next) {
 }
 
 // Module Management
-
+/**
+ * Lấy danh sách lớp môn học.
+ * @route GET /api/admin/module/list
+ */
 async function getModuleList(req, res, next) {
   try {
     const listModule = await adminService.getModuleList();
@@ -785,6 +920,10 @@ async function getModuleList(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách tất cả module.
+ * @route GET /api/admin/module/code
+ */
 async function getModuleCode(req, res, next) {
   try {
     const listModule = await adminService.getModuleCode();
@@ -800,6 +939,10 @@ async function getModuleCode(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách module có phân lớp.
+ * @route GET /api/admin/module/filter
+ */
 async function getModuleFilter(req, res, next) {
   try {
     const listModule = await adminService.getModuleFilter();
@@ -816,6 +959,10 @@ async function getModuleFilter(req, res, next) {
 }
 
 // Certificate Management
+/**
+ * Lấy danh sách chứng chỉ theo lớp môn học.
+ * @route GET /api/admin/certificate?class_subject_id=...
+ */
 async function getCertificates(req, res, next) {
   class_subject_id = req.query.class_subject_id;
 
@@ -835,6 +982,10 @@ async function getCertificates(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách học viên đủ điều kiện cấp chứng chỉ.
+ * @route GET /api/admin/certificate/eligible
+ */
 async function getStudentEligible(req, res, next) {
   try {
     const studentList = await adminService.getStudentEligible();
@@ -850,6 +1001,10 @@ async function getStudentEligible(req, res, next) {
   }
 }
 
+/**
+ * Thêm chứng chỉ cho học viên.
+ * @route POST /api/admin/certificate
+ */
 async function addCertificates(req, res, next) {
   const { class_subject_id, student_codes } = req.body;
 
@@ -870,6 +1025,10 @@ async function addCertificates(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách lớp đã có chứng chỉ.
+ * @route GET /api/admin/certificate/class-list
+ */
 async function getClassCert(req, res, next) {
   try {
     const listCertClass = await adminService.getClassCert();
@@ -886,6 +1045,10 @@ async function getClassCert(req, res, next) {
 }
 
 // Dash Board Admin
+/**
+ * Lấy thống kê tổng quan cho dashboard admin.
+ * @route GET /api/admin/dashboard
+ */
 async function getDashboardStats(req, res, next) {
   try {
     const dashBoardStats = await adminService.getDashboardStats();
@@ -901,6 +1064,10 @@ async function getDashboardStats(req, res, next) {
   }
 }
 
+/**
+ * Lấy thống kê số lượng học viên theo lớp.
+ * @route GET /api/admin/dashboard/student-in-class
+ */
 async function getCountStudentInClass(req, res, next) {
   try {
     const counts = await adminService.getCountStudentInClass();
@@ -916,6 +1083,10 @@ async function getCountStudentInClass(req, res, next) {
   }
 }
 
+/**
+ * Lấy thống kê học viên có chứng chỉ theo module.
+ * @route GET /api/admin/dashboard/module-cert
+ */
 async function getModuleCertificateStats(req, res, next) {
   try {
     const counts = await adminService.getModuleCertificateStats();
@@ -990,6 +1161,15 @@ const JSend = require("../jsend");
 const ApiError = require("../api-error");
 const jwt = require("jsonwebtoken");
 
+/**
+ * Đăng nhập người dùng.
+ *
+ * @route POST /api/auth/login
+ * @param {import('express').Request} req - Yêu cầu HTTP chứa username và password.
+ * @param {import('express').Response} res - Phản hồi HTTP trả về token và thông tin người dùng.
+ * @param {import('express').NextFunction} next - Middleware xử lý lỗi.
+ * @returns {Promise<void>}
+ */
 async function login(req, res, next) {
   const { username, password } = req.body;
 
@@ -1036,6 +1216,14 @@ async function login(req, res, next) {
   }
 }
 
+/**
+ * Đăng xuất người dùng (huỷ session).
+ *
+ * @route POST /api/auth/logout
+ * @param {import('express').Request} req - Yêu cầu HTTP chứa session hiện tại.
+ * @param {import('express').Response} res - Phản hồi xác nhận đăng xuất.
+ * @returns {Promise<import('express').Response>}
+ */
 async function logout(req, res) {
   req.session.destroy();
   return res.status(200).json(JSend.success({ message: "Logout successful" }));
@@ -1104,6 +1292,14 @@ const studentService = require("../models/student.model");
 const JSend = require("../jsend");
 const ApiError = require("../api-error");
 
+/**
+ * Lấy tất cả điểm của học viên theo mã học viên.
+ *
+ * @route GET /api/student/score
+ * @param {import('express').Request} req - Request chứa query `studentCode`.
+ * @param {import('express').Response} res - Response trả về điểm học viên.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getScore(req, res, next) {
   const studentCode = req.query.studentCode;
 
@@ -1125,6 +1321,14 @@ async function getScore(req, res, next) {
   }
 }
 
+/**
+ * Lấy điểm học viên theo học kỳ.
+ *
+ * @route GET /api/student/score/semester
+ * @param {import('express').Request} req - Query gồm `studentCode` và `semester`.
+ * @param {import('express').Response} res - Response trả về danh sách điểm theo học kỳ.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getScoreBySemester(req, res, next) {
   const { studentCode, semester } = req.query;
 
@@ -1158,6 +1362,14 @@ async function getScoreBySemester(req, res, next) {
   }
 }
 
+/**
+ * Lấy thông tin học viên theo mã học viên.
+ *
+ * @route GET /api/student/info
+ * @param {import('express').Request} req - Query chứa `studentCode`.
+ * @param {import('express').Response} res - Response trả về thông tin học viên.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getStudentInfo(req, res, next) {
   const studentCode = req.query.studentCode;
 
@@ -1179,6 +1391,14 @@ async function getStudentInfo(req, res, next) {
   }
 }
 
+/**
+ * Cập nhật thông tin học viên.
+ *
+ * @route PUT /api/student/info
+ * @param {import('express').Request} req - Query gồm `studentCode`, body chứa các trường thông tin cần cập nhật.
+ * @param {import('express').Response} res - Response xác nhận cập nhật thành công.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function updateStudentInfo(req, res, next) {
   const studentCode = req.query.studentCode;
   if (!studentCode) {
@@ -1237,6 +1457,14 @@ async function updateStudentInfo(req, res, next) {
   }
 }
 
+/**
+ * Lấy danh sách chứng chỉ của học viên.
+ *
+ * @route GET /api/student/certificates
+ * @param {import('express').Request} req - Query chứa `studentCode`.
+ * @param {import('express').Response} res - Response trả về danh sách chứng chỉ của học viên.
+ * @param {import('express').NextFunction} next - Middleware tiếp theo xử lý lỗi.
+ */
 async function getCertificatesOfStudent(req, res, next) {
   const studentCode = req.query.studentCode;
 
@@ -1622,19 +1850,24 @@ async function getLastUpdate(req, res, next) {
 }
 
 module.exports = {
+  // READ
   getTeacherInfo,
-  updateTeacherInfo,
   getModuleTeaching,
   getStudentInClass,
-  updateStudentScore,
   getStudentPassing,
   getPassingPropotion,
   getAvgScore,
   getStudentCodeByName,
-  importStudentScores,
   getScoreProgress,
   getCountTeaching,
   getLastUpdate,
+
+  // UPDATE
+  updateTeacherInfo,
+  updateStudentScore,
+
+  // BULK
+  importStudentScores,
 };
 
 ```
@@ -1650,6 +1883,14 @@ const knex = require("../database/knex");
 const moment = require("moment");
 
 const admin = {
+  // Account Management
+  /**
+   * Tạo tài khoản học viên mới.
+   * @param {Object} param0 - Thông tin tài khoản.
+   * @param {string} param0.username - Tên đăng nhập.
+   * @param {string} param0.password - Mật khẩu.
+   * @returns {Promise<Object|null>} Tài khoản vừa tạo hoặc null nếu thất bại.
+   */
   createStudentAccount: async ({ username, password }) => {
     const student = await knex("system_user").insert({
       user_username: username,
@@ -1667,6 +1908,13 @@ const admin = {
     return null;
   },
 
+  /**
+   * Tạo tài khoản giảng viên mới.
+   * @param {Object} param0 - Thông tin tài khoản.
+   * @param {string} param0.username - Tên đăng nhập.
+   * @param {string} param0.password - Mật khẩu.
+   * @returns {Promise<Object|null>} Tài khoản vừa tạo hoặc null nếu thất bại.
+   */
   createTeacherAccount: async ({ username, password }) => {
     const teacher = await knex("system_user").insert({
       user_username: username,
@@ -1685,6 +1933,44 @@ const admin = {
     return null;
   },
 
+  /**
+   * Thêm nhiều tài khoản hệ thống.
+   * @param {Array<Object>} datas - Danh sách tài khoản.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản đã thêm.
+   */
+
+  addNewAccount: async (datas) => {
+    const inserted = [];
+
+    for (const data of datas) {
+      try {
+        const newAccount = await knex("system_user").insert({
+          user_username: data.username,
+          user_pass: data.pass,
+          user_role: data.role,
+        });
+
+        if (newAccount) {
+          inserted.push({
+            user_username: data.username,
+            user_pass: data.pass,
+            user_role: data.role,
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi khi thêm tài khoản:", data.username, err);
+        // Bạn có thể bỏ qua hoặc xử lý thêm ở đây
+      }
+    }
+
+    return inserted.length > 0 ? inserted : null;
+  },
+
+  /**
+   * Kiểm tra tài khoản theo username.
+   * @param {string} username - Tên đăng nhập.
+   * @returns {Promise<Object|null>} Thông tin tài khoản nếu tồn tại.
+   */
   checkUserAccount: async (username) => {
     const user = await knex("system_user")
       .where({ user_username: username })
@@ -1697,6 +1983,10 @@ const admin = {
     return null;
   },
 
+  /**
+   * Lấy danh sách tài khoản không phải admin.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản người dùng.
+   */
   getAccountList: async () => {
     const users = await knex("system_user")
       .select("*")
@@ -1744,6 +2034,10 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy danh sách tài khoản học viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản học viên.
+   */
   getStudentAccount: async () => {
     const users = await knex("system_user").select("*").where({
       user_role: 1, // Assuming 1 is the role for students
@@ -1782,6 +2076,10 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy danh sách tài khoản giảng viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách tài khoản giảng viên.
+   */
   getTeacherAccount: async () => {
     const users = await knex("system_user").select("*").where({
       user_role: 2, // Assuming 2 is the role for teachers
@@ -1815,214 +2113,14 @@ const admin = {
     return result;
   },
 
-  createClassWithTeacher: async ({
-    classID,
-    moduleID,
-    semesterID,
-    teacherCode,
-  }) => {
-    const trx = await knex.transaction();
-    try {
-      const [clsId] = await trx("class_subject").insert({
-        class_id: classID,
-        module_id: moduleID,
-        semester_id: semesterID,
-      });
-
-      if (!clsId) {
-        throw new Error("Failed to insert class_subject");
-      }
-
-      await trx("teacher_subject_class").insert({
-        teacher_code: teacherCode,
-        class_subject_id: clsId,
-      });
-
-      await trx.commit();
-      const newClass = await knex("class_subject")
-        .where("class_subject.class_subject_id", clsId)
-        .join("class", "class_subject.class_id", "class.class_id")
-        .join("module", "class_subject.module_id", "module.module_id")
-        .join("semester", "class_subject.semester_id", "semester.semester_id")
-        .join(
-          "teacher_subject_class",
-          "class_subject.class_subject_id",
-          "teacher_subject_class.class_subject_id"
-        )
-        .join(
-          "teacher",
-          "teacher_subject_class.teacher_code",
-          "teacher.teacher_code"
-        )
-        .select(
-          "class_subject.class_subject_id",
-          "module.module_name",
-          "class.class_name",
-          "semester.semester_number",
-          "teacher.teacher_name"
-        )
-        .first();
-
-      return newClass;
-    } catch (error) {
-      await trx.rollback();
-      console.error("Error creating class_subject:", error.message);
-      throw error;
-    }
-  },
-
-  updateClass: async (payload) => {
-    if (!payload.classSubjectID) {
-      throw new Error("Thiếu class_subject_id");
-    }
-
-    const trx = await knex.transaction();
-    try {
-      const updateStatus = await trx("class_subject")
-        .where({ class_subject_id: payload.classSubjectID })
-        .update({
-          semester_id: payload.semesterID,
-          class_status: payload.classStatus,
-        });
-
-      const exist = await trx("teacher_subject_class")
-        .select("*")
-        .where({ class_subject_id: payload.classSubjectID });
-
-      if (exist.length === 0) {
-        await trx("teacher_subject_class").insert({
-          teacher_code: payload.teacherCode,
-          class_subject_id: payload.classSubjectID,
-        });
-      } else {
-        await trx("teacher_subject_class")
-          .update({ teacher_code: payload.teacherCode })
-          .where({ class_subject_id: payload.classSubjectID });
-      }
-
-      await trx.commit();
-
-      return {
-        class_subject_updated: updateStatus,
-        teacher_updated: payload.teacherCode,
-      };
-    } catch (error) {
-      await trx.rollback();
-      console.error("Error updating class_subject:", error.message);
-      throw error;
-    }
-  },
-
-  getClassCodeAndSemester: async () => {
-    const classes = await knex("class").select("*");
-    const result = [];
-
-    if (classes && classes.length > 0) {
-      for (const classItem of classes) {
-        const semester = await knex("semester")
-          .select("*")
-          .where({ class_id: classItem.class_id });
-
-        result.push({ class: classItem, semesters: semester });
-      }
-    }
-
-    return result;
-  },
-
-  getModuleCode: async () => {
-    const module = await knex("module").select("*");
-
-    if (!module) {
-      return null;
-    }
-
-    return module;
-  },
-
-  addStudentsToClass: async ({ class_subject_id, student_codes }) => {
-    const trx = await knex.transaction();
-    try {
-      // Kiểm tra class_subject_id có tồn tại không
-      const classSubject = await trx("class_subject")
-        .where({ class_subject_id })
-        .first();
-
-      if (!classSubject) {
-        throw new Error("Class subject not found");
-      }
-
-      const students = [];
-
-      for (const studentCode of student_codes) {
-        try {
-          // Thêm vào class_student
-          await trx("class_student").insert({
-            class_subject_id,
-            student_code: studentCode,
-          });
-
-          // Thêm vào score (với điểm NULL ban đầu)
-          await trx("score").insert({
-            class_subject_id,
-            student_code: studentCode,
-            score: null, // optional vì mặc định đã là null
-          });
-
-          students.push(studentCode);
-        } catch (err) {
-          // Nếu bị duplicate (đã tồn tại trong class_student hoặc score), ghi log và bỏ qua
-          console.error("Lỗi khi thêm sinh viên:", err.message);
-
-          // Nếu lỗi không phải duplicate thì rollback
-          if (!err.message.includes("duplicate")) {
-            throw err;
-          }
-        }
-      }
-
-      await trx.commit();
-      return students;
-    } catch (error) {
-      await trx.rollback();
-      console.error("Error adding students to class subject:", error.message);
-      throw error;
-    }
-  },
-
-  getModuleList: async () => {
-    const result = await knex("class_subject as cs")
-      .join("class as c", "cs.class_id", "c.class_id")
-      .join("module as m", "cs.module_id", "m.module_id")
-      .join("semester as s", "cs.semester_id", "s.semester_id")
-      .leftJoin(
-        "teacher_subject_class as tsc",
-        "cs.class_subject_id",
-        "tsc.class_subject_id"
-      )
-      .leftJoin("teacher as t", "tsc.teacher_code", "t.teacher_code")
-      .select(
-        "cs.class_subject_id",
-        "c.class_id",
-        "c.class_code",
-        "c.class_name",
-        "m.module_code",
-        "m.module_name",
-        "s.semester_number",
-        "cs.class_status",
-        "s.semester_id",
-        "s.semester_start_date",
-        "s.semester_end_date",
-        "tsc.teacher_code",
-        "t.teacher_name"
-      )
-      .orderBy("s.semester_number", "asc");
-
-    if (!result) return null;
-
-    return result;
-  },
-
+  /**
+   * Cập nhật mật khẩu hoặc trạng thái tài khoản.
+   * @param {Object} param0 - Dữ liệu cập nhật.
+   * @param {string} param0.currentCode - Username cần cập nhật.
+   * @param {string} [param0.newPassword] - Mật khẩu mới.
+   * @param {number} [param0.newStatus] - Trạng thái tài khoản mới.
+   * @returns {Promise<number>} Số bản ghi được cập nhật.
+   */
   updateAccount: async ({ currentCode, newPassword, newStatus }) => {
     const updates = {};
 
@@ -2047,6 +2145,11 @@ const admin = {
     return updatedRows;
   },
 
+  // Student Management
+  /**
+   * Lấy danh sách học viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
   getStudentList: async () => {
     const students = await knex("student").select("*");
 
@@ -2080,6 +2183,81 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy mã học viên cuối cùng.
+   * @returns {Promise<Object|null>} Mã học viên mới nhất.
+   */
+  getLastStudentCode: async () => {
+    const stCode = await knex("student")
+      .select("student_code")
+      .orderBy("student_code", "desc")
+      .limit(1);
+
+    if (!stCode) {
+      return null;
+    }
+
+    return stCode[0];
+  },
+
+  /**
+   * Thêm một học viên mới.
+   * @param {Object} student - Dữ liệu học viên.
+   * @returns {Promise<Object|null>} Thông tin học viên đã thêm.
+   */
+  addNewStudent: async (student) => {
+    let formatted = 0;
+    const inserted = [];
+    if (student.student_date_of_birth) {
+      formatted = moment(student.student_date_of_birth, "DD/MM/YYYY").format(
+        "YYYY-MM-DD"
+      );
+    }
+    const newStudent = await knex("student").insert({
+      student_code: student.student_code,
+      student_middle_name: student.student_middle_name,
+      student_name: student.student_name,
+      student_phone: student.student_phone,
+    });
+
+    if (newStudent) {
+      inserted.push({
+        student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_phone: student.student_phone,
+      });
+      return inserted[0];
+    }
+
+    return null;
+  },
+
+  /**
+   * Cập nhật thông tin học viên.
+   * @param {Object} student - Dữ liệu học viên cần cập nhật.
+   * @returns {Promise<Object|null>} Thông tin cập nhật.
+   */
+  updateStudentInfor: async (student) => {
+    const updateCount = await knex("student")
+      .where({ student_code: student.student_code })
+      .update({
+        // student_code: student.student_code,
+        student_middle_name: student.student_middle_name,
+        student_name: student.student_name,
+        student_status: student.student_status,
+      });
+
+    if (updateCount === 0) return null;
+
+    return { message: "Cập nhật thành công", updated: updateCount };
+  },
+
+  /**
+   * Nhập danh sách học viên từ tệp.
+   * @param {Array<Object>} students - Danh sách học viên.
+   * @returns {Promise<Object>} Kết quả chèn và danh sách bỏ qua.
+   */
   importStudentList: async (students) => {
     const inserted = [];
     const skipped = [];
@@ -2148,62 +2326,67 @@ const admin = {
     };
   },
 
-  getLastStudentCode: async () => {
-    const stCode = await knex("student")
-      .select("student_code")
-      .orderBy("student_code", "desc")
-      .limit(1);
+  /**
+   * Lấy danh sách học viên chưa có tài khoản hệ thống.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
+  getListStudentCode: async () => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereNotIn("student_code", function () {
+        this.select("user_username").from("system_user");
+      });
 
-    if (!stCode) {
+    if (result.length == 0) {
       return null;
     }
 
-    return stCode[0];
+    return result;
   },
 
-  addNewStudent: async (student) => {
-    let formatted = 0;
-    const inserted = [];
-    if (student.student_date_of_birth) {
-      formatted = moment(student.student_date_of_birth, "DD/MM/YYYY").format(
-        "YYYY-MM-DD"
-      );
-    }
-    const newStudent = await knex("student").insert({
-      student_code: student.student_code,
-      student_middle_name: student.student_middle_name,
-      student_name: student.student_name,
-      student_phone: student.student_phone,
-    });
-
-    if (newStudent) {
-      inserted.push({
-        student_code: student.student_code,
-        student_middle_name: student.student_middle_name,
-        student_name: student.student_name,
-        student_phone: student.student_phone,
-      });
-      return inserted[0];
-    }
-
-    return null;
-  },
-
-  updateStudentInfor: async (student) => {
-    const updateCount = await knex("student")
-      .where({ student_code: student.student_code })
-      .update({
-        // student_code: student.student_code,
-        student_middle_name: student.student_middle_name,
-        student_name: student.student_name,
-        student_status: student.student_status,
+  /**
+   * Lấy danh sách học viên đã đăng ký vào lớp.
+   * @param {number} class_subject_id - ID lớp môn học.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
+  getStudentInClass: async (class_subject_id) => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereIn("student_code", function () {
+        this.select("student_code")
+          .from("class_student")
+          .where({ class_subject_id: class_subject_id });
       });
 
-    if (updateCount === 0) return null;
+    if (result.length == 0) return null;
 
-    return { message: "Cập nhật thành công", updated: updateCount };
+    return result;
   },
 
+  /**
+   * Lấy danh sách học viên chưa đăng ký lớp.
+   * @param {number} class_subject_id - ID lớp môn học.
+   * @returns {Promise<Array<Object>|null>} Danh sách học viên.
+   */
+  getStudentNotInClass: async (class_subject_id) => {
+    const result = await knex("student")
+      .select("student_code", "student_middle_name", "student_name")
+      .whereNotIn("student_code", function () {
+        this.select("student_code")
+          .from("class_student")
+          .where({ class_subject_id: class_subject_id });
+      });
+
+    if (result.length == 0) return null;
+
+    return result;
+  },
+
+  // Teacher Management
+  /**
+   * Lấy danh sách giảng viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách giảng viên.
+   */
   getTeacherList: async () => {
     const teachers = await knex("teacher").select("*");
 
@@ -2234,6 +2417,10 @@ const admin = {
     return result;
   },
 
+  /**
+   * Lấy mã giảng viên cuối cùng.
+   * @returns {Promise<Object|null>} Mã giảng viên cuối.
+   */
   getLastTeacherCode: async () => {
     const teacherCode = await knex("teacher")
       .select("teacher_code")
@@ -2247,6 +2434,11 @@ const admin = {
     return teacherCode[0];
   },
 
+  /**
+   * Thêm giảng viên mới.
+   * @param {Object} teacher - Dữ liệu giảng viên.
+   * @returns {Promise<Object|null>} Thông tin giảng viên.
+   */
   addNewTeacher: async (teacher) => {
     const inserted = [];
     console.log(teacher.teacher_date_of_birth);
@@ -2276,6 +2468,11 @@ const admin = {
     return null;
   },
 
+  /**
+   * Cập nhật thông tin giảng viên.
+   * @param {Object} teacher - Dữ liệu giảng viên cần cập nhật.
+   * @returns {Promise<Object|null>} Thông tin cập nhật.
+   */
   updateTeacherInfor: async (teacher) => {
     let updateCount = 0;
     if (teacher.teacher_date_of_birth) {
@@ -2308,48 +2505,10 @@ const admin = {
     return { message: "Cập nhật thành công", updated: updateCount };
   },
 
-  getListStudentCode: async () => {
-    const result = await knex("student")
-      .select("student_code", "student_middle_name", "student_name")
-      .whereNotIn("student_code", function () {
-        this.select("user_username").from("system_user");
-      });
-
-    if (result.length == 0) {
-      return null;
-    }
-
-    return result;
-  },
-
-  getStudentNotInClass: async (class_subject_id) => {
-    const result = await knex("student")
-      .select("student_code", "student_middle_name", "student_name")
-      .whereNotIn("student_code", function () {
-        this.select("student_code")
-          .from("class_student")
-          .where({ class_subject_id: class_subject_id });
-      });
-
-    if (result.length == 0) return null;
-
-    return result;
-  },
-
-  getStudentInClass: async (class_subject_id) => {
-    const result = await knex("student")
-      .select("student_code", "student_middle_name", "student_name")
-      .whereIn("student_code", function () {
-        this.select("student_code")
-          .from("class_student")
-          .where({ class_subject_id: class_subject_id });
-      });
-
-    if (result.length == 0) return null;
-
-    return result;
-  },
-
+  /**
+   * Lấy danh sách giảng viên chưa có tài khoản hệ thống.
+   * @returns {Promise<Array<Object>|null>} Danh sách giảng viên.
+   */
   getListTeacherCode: async () => {
     const result = await knex("teacher")
       .select("teacher_code", "teacher_name")
@@ -2364,6 +2523,247 @@ const admin = {
     return result;
   },
 
+  // Class & Enrollment
+  /**
+   * Tạo lớp học với giảng viên.
+   * @param {Object} data - Dữ liệu lớp học.
+   * @returns {Promise<Object>} Lớp học vừa tạo.
+   */
+  createClassWithTeacher: async ({
+    classID,
+    moduleID,
+    semesterID,
+    teacherCode,
+  }) => {
+    const trx = await knex.transaction();
+    try {
+      const [clsId] = await trx("class_subject").insert({
+        class_id: classID,
+        module_id: moduleID,
+        semester_id: semesterID,
+      });
+
+      if (!clsId) {
+        throw new Error("Failed to insert class_subject");
+      }
+
+      await trx("teacher_subject_class").insert({
+        teacher_code: teacherCode,
+        class_subject_id: clsId,
+      });
+
+      await trx.commit();
+      const newClass = await knex("class_subject")
+        .where("class_subject.class_subject_id", clsId)
+        .join("class", "class_subject.class_id", "class.class_id")
+        .join("module", "class_subject.module_id", "module.module_id")
+        .join("semester", "class_subject.semester_id", "semester.semester_id")
+        .join(
+          "teacher_subject_class",
+          "class_subject.class_subject_id",
+          "teacher_subject_class.class_subject_id"
+        )
+        .join(
+          "teacher",
+          "teacher_subject_class.teacher_code",
+          "teacher.teacher_code"
+        )
+        .select(
+          "class_subject.class_subject_id",
+          "module.module_name",
+          "class.class_name",
+          "semester.semester_number",
+          "teacher.teacher_name"
+        )
+        .first();
+
+      return newClass;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error creating class_subject:", error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Cập nhật lớp học.
+   * @param {Object} payload - Dữ liệu lớp học cần cập nhật.
+   * @returns {Promise<Object>} Kết quả cập nhật.
+   */
+  updateClass: async (payload) => {
+    if (!payload.classSubjectID) {
+      throw new Error("Thiếu class_subject_id");
+    }
+
+    const trx = await knex.transaction();
+    try {
+      const updateStatus = await trx("class_subject")
+        .where({ class_subject_id: payload.classSubjectID })
+        .update({
+          semester_id: payload.semesterID,
+          class_status: payload.classStatus,
+        });
+
+      const exist = await trx("teacher_subject_class")
+        .select("*")
+        .where({ class_subject_id: payload.classSubjectID });
+
+      if (exist.length === 0) {
+        await trx("teacher_subject_class").insert({
+          teacher_code: payload.teacherCode,
+          class_subject_id: payload.classSubjectID,
+        });
+      } else {
+        await trx("teacher_subject_class")
+          .update({ teacher_code: payload.teacherCode })
+          .where({ class_subject_id: payload.classSubjectID });
+      }
+
+      await trx.commit();
+
+      return {
+        class_subject_updated: updateStatus,
+        teacher_updated: payload.teacherCode,
+      };
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error updating class_subject:", error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Thêm học viên vào lớp học.
+   * @param {Object} data - Danh sách học viên.
+   * @returns {Promise<Array<string>>} Mã học viên đã thêm.
+   */
+  addStudentsToClass: async ({ class_subject_id, student_codes }) => {
+    const trx = await knex.transaction();
+    try {
+      // Kiểm tra class_subject_id có tồn tại không
+      const classSubject = await trx("class_subject")
+        .where({ class_subject_id })
+        .first();
+
+      if (!classSubject) {
+        throw new Error("Class subject not found");
+      }
+
+      const students = [];
+
+      for (const studentCode of student_codes) {
+        try {
+          // Thêm vào class_student
+          await trx("class_student").insert({
+            class_subject_id,
+            student_code: studentCode,
+          });
+
+          // Thêm vào score (với điểm NULL ban đầu)
+          await trx("score").insert({
+            class_subject_id,
+            student_code: studentCode,
+            score: null, // optional vì mặc định đã là null
+          });
+
+          students.push(studentCode);
+        } catch (err) {
+          // Nếu bị duplicate (đã tồn tại trong class_student hoặc score), ghi log và bỏ qua
+          console.error("Lỗi khi thêm sinh viên:", err.message);
+
+          // Nếu lỗi không phải duplicate thì rollback
+          if (!err.message.includes("duplicate")) {
+            throw err;
+          }
+        }
+      }
+
+      await trx.commit();
+      return students;
+    } catch (error) {
+      await trx.rollback();
+      console.error("Error adding students to class subject:", error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Lấy danh sách lớp và học kỳ.
+   * @returns {Promise<Array<Object>>} Danh sách lớp và học kỳ.
+   */
+  getClassCodeAndSemester: async () => {
+    const classes = await knex("class").select("*");
+    const result = [];
+
+    if (classes && classes.length > 0) {
+      for (const classItem of classes) {
+        const semester = await knex("semester")
+          .select("*")
+          .where({ class_id: classItem.class_id });
+
+        result.push({ class: classItem, semesters: semester });
+      }
+    }
+
+    return result;
+  },
+
+  // Module Management
+  /**
+   * Lấy danh sách tất cả module.
+   * @returns {Promise<Array<Object>|null>} Danh sách module.
+   */
+  getModuleCode: async () => {
+    const module = await knex("module").select("*");
+
+    if (!module) {
+      return null;
+    }
+
+    return module;
+  },
+
+  /**
+   * Lấy danh sách môn học đã phân lớp.
+   * @returns {Promise<Array<Object>|null>} Danh sách lớp môn học.
+   */
+  getModuleList: async () => {
+    const result = await knex("class_subject as cs")
+      .join("class as c", "cs.class_id", "c.class_id")
+      .join("module as m", "cs.module_id", "m.module_id")
+      .join("semester as s", "cs.semester_id", "s.semester_id")
+      .leftJoin(
+        "teacher_subject_class as tsc",
+        "cs.class_subject_id",
+        "tsc.class_subject_id"
+      )
+      .leftJoin("teacher as t", "tsc.teacher_code", "t.teacher_code")
+      .select(
+        "cs.class_subject_id",
+        "c.class_id",
+        "c.class_code",
+        "c.class_name",
+        "m.module_code",
+        "m.module_name",
+        "s.semester_number",
+        "cs.class_status",
+        "s.semester_id",
+        "s.semester_start_date",
+        "s.semester_end_date",
+        "tsc.teacher_code",
+        "t.teacher_name"
+      )
+      .orderBy("s.semester_number", "asc");
+
+    if (!result) return null;
+
+    return result;
+  },
+
+  /**
+   * Lấy danh sách module có phân lớp.
+   * @returns {Promise<Array<Object>>} Danh sách module.
+   */
   getModuleFilter: async () => {
     const modules = await knex("module")
       .distinct()
@@ -2374,33 +2774,12 @@ const admin = {
     return modules || [];
   },
 
-  addNewAccount: async (datas) => {
-    const inserted = [];
-
-    for (const data of datas) {
-      try {
-        const newAccount = await knex("system_user").insert({
-          user_username: data.username,
-          user_pass: data.pass,
-          user_role: data.role,
-        });
-
-        if (newAccount) {
-          inserted.push({
-            user_username: data.username,
-            user_pass: data.pass,
-            user_role: data.role,
-          });
-        }
-      } catch (err) {
-        console.error("Lỗi khi thêm tài khoản:", data.username, err);
-        // Bạn có thể bỏ qua hoặc xử lý thêm ở đây
-      }
-    }
-
-    return inserted.length > 0 ? inserted : null;
-  },
-
+  // Certificate Management
+  /**
+   * Lấy danh sách chứng chỉ theo lớp học phần.
+   * @param {number} class_subject_id - ID lớp học phần.
+   * @returns {Promise<Array<Object>|null>} Danh sách chứng chỉ.
+   */
   getCertificates: async (class_subject_id) => {
     if (!class_subject_id) {
       return;
@@ -2421,6 +2800,7 @@ const admin = {
         "m.module_name",
         "c.class_name",
         "cert.cert_number",
+        "cert.cert_number_id",
         "cert.issued_date",
         "cert.note"
       )
@@ -2441,6 +2821,10 @@ const admin = {
     return certificates;
   },
 
+  /**
+   * Lấy danh sách học viên đủ điều kiện cấp chứng chỉ.
+   * @returns {Promise<Array<Object>>} Danh sách học viên đủ điều kiện.
+   */
   getStudentEligible: async () => {
     const lists = knex("score as sc")
       .select(
@@ -2472,6 +2856,11 @@ const admin = {
     return lists;
   },
 
+  /**
+   * Thêm chứng chỉ cho học viên theo lớp học phần.
+   * @param {Object} data - Dữ liệu chứng chỉ.
+   * @returns {Promise<Array<Object>>} Danh sách chứng chỉ đã thêm.
+   */
   addCertificates: async ({ class_subject_id, student_codes }) => {
     const inserted = [];
 
@@ -2483,33 +2872,49 @@ const admin = {
 
       if (exists) continue;
 
-      // Lấy module_code từ class_subject_id
+      // Lấy module_code và module_name, semester_end_date
       const classInfo = await knex("class_subject as cs")
         .join("module as m", "m.module_id", "cs.module_id")
         .join("semester as sem", "sem.semester_id", "cs.semester_id")
         .where("cs.class_subject_id", class_subject_id)
-        .select("m.module_code", "sem.semester_end_date")
+        .select("m.module_code", "m.module_name", "sem.semester_end_date")
         .first();
 
       if (!classInfo) continue;
 
-      const cert_number = `${classInfo.module_code}-${student_code}`;
-      const issued_date = classInfo.semester_end_date || new Date();
+      const { module_code, module_name, semester_end_date } = classInfo;
+      const issued_date = semester_end_date || new Date();
+      const year = issued_date.getFullYear();
+
+      // Tạo tên viết tắt của môn học (chỉ lấy chữ cái đầu mỗi từ)
+      const initials = module_name
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase())
+        .join("");
+
+      // Tạo mã chứng chỉ theo yêu cầu mới
+      const cert_number = `${student_code}/${initials}`;
+      const cert_number_id = `${student_code}/${module_code}.${year}`;
 
       // Thêm vào bảng certificate
       const [cert_id] = await knex("certificate").insert({
         student_code,
         class_subject_id,
         cert_number,
+        cert_number_id,
         issued_date,
       });
 
-      inserted.push({ student_code, cert_number });
+      inserted.push({ student_code, cert_number, cert_number_id });
     }
 
     return inserted;
   },
 
+  /**
+   * Lấy danh sách lớp đã cấp chứng chỉ.
+   * @returns {Promise<Array<Object>|null>} Danh sách lớp và thông tin chứng chỉ.
+   */
   getClassCert: async () => {
     const classes = await knex("certificate as cert")
       .join(
@@ -2538,6 +2943,11 @@ const admin = {
     return classes;
   },
 
+  // DashBoard Admin
+  /**
+   * Lấy thống kê tổng quan cho dashboard.
+   * @returns {Promise<Object>} Số lượng lớp, học viên, giảng viên và tài khoản.
+   */
   getDashboardStats: async () => {
     try {
       const [classResult] = await knex("class_subject").count(
@@ -2565,6 +2975,10 @@ const admin = {
     }
   },
 
+  /**
+   * Lấy thống kê số lượng học viên theo lớp.
+   * @returns {Promise<Array<Object>|null>} Danh sách lớp và số học viên.
+   */
   getCountStudentInClass: async () => {
     try {
       const result = await knex("class as c")
@@ -2587,6 +3001,10 @@ const admin = {
     }
   },
 
+  /**
+   * Lấy thống kê số chứng chỉ theo module.
+   * @returns {Promise<Array<Object>|null>} Danh sách module và số học viên có chứng chỉ.
+   */
   getModuleCertificateStats: async () => {
     const countCert = await knex("module as m")
       .select(
@@ -2663,6 +3081,11 @@ module.exports = auth;
 const knex = require("../database/knex");
 
 const student = {
+  /**
+   * Lấy tất cả điểm của học viên theo mã học viên.
+   * @param {string} studentCode - Mã học viên.
+   * @returns {Promise<Array<Object>>} Danh sách điểm theo từng môn học và học kỳ.
+   */
   getAllSubjectScore: async (studentCode) => {
     const result = await knex("student as s")
       .join("class_student as cs", "s.student_code", "cs.student_code")
@@ -2699,6 +3122,12 @@ const student = {
     return result;
   },
 
+  /**
+   * Lọc điểm của học viên theo học kỳ.
+   * @param {string} studentCode - Mã học viên.
+   * @param {number|string} semester - Số thứ tự học kỳ (VD: 1, 2, 3...).
+   * @returns {Promise<Array<Object>>} Danh sách điểm lọc theo học kỳ.
+   */
   filterSubjectScoreBySemester: async (studentCode, semester) => {
     const result = await knex("student as s")
       .join("class_student as cs", "s.student_code", "cs.student_code")
@@ -2736,6 +3165,11 @@ const student = {
     return result;
   },
 
+  /**
+   * Lấy thông tin chi tiết của một học viên.
+   * @param {string} studentCode - Mã học viên.
+   * @returns {Promise<Object|null>} Thông tin học viên hoặc null nếu không tìm thấy.
+   */
   getStudentInfo: async (studentCode) => {
     const result = await knex("student").where("student_code", studentCode);
 
@@ -2746,6 +3180,19 @@ const student = {
     return result[0];
   },
 
+  /**
+   * Cập nhật thông tin của học viên.
+   * @param {string} studentCode - Mã học viên cần cập nhật.
+   * @param {Object} updateData - Dữ liệu cần cập nhật.
+   * @param {string} [updateData.student_date_of_birth]
+   * @param {string} updateData.student_address
+   * @param {string} updateData.student_email
+   * @param {string} updateData.student_phone
+   * @param {string} updateData.student_IDCard
+   * @param {string} updateData.student_country
+   * @param {string} updateData.student_gender
+   * @returns {Promise<number|null>} Số lượng bản ghi cập nhật hoặc null nếu không cập nhật.
+   */
   updateStudentInfo: async (studentCode, updateData) => {
     const result = await knex("student")
       .where("student_code", studentCode)
@@ -2765,6 +3212,11 @@ const student = {
     return result;
   },
 
+  /**
+   * Lấy danh sách chứng chỉ của học viên.
+   * @param {string} student_code - Mã học viên.
+   * @returns {Promise<Array<Object>|null>} Danh sách chứng chỉ hoặc null nếu không có.
+   */
   getCertificatesOfStudent: async (student_code) => {
     const certs = await knex("certificate as c")
       .join("student as s", "c.student_code", "s.student_code")
@@ -2802,6 +3254,14 @@ module.exports = student;
 const knex = require("../database/knex");
 
 const teacher = {
+  /**
+   * Lấy thông tin giảng viên theo mã.
+   * @function
+   * @async
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<Object|null>} Thông tin giảng viên hoặc null nếu không tìm thấy.
+   * @route GET /api/teacher/info
+   */
   getTeacherInfo: async (teacherCode) => {
     const result = await knex("teacher").where("teacher_code", teacherCode);
 
@@ -2812,6 +3272,14 @@ const teacher = {
     return result[0];
   },
 
+  /**
+   * Cập nhật thông tin giảng viên.
+   * @function
+   * @async
+   * @param {string} teacherCode - Mã giảng viên.
+   * @param {Object} updateData - Dữ liệu cập nhật.
+   * @returns {Promise<number|null>} Số dòng cập nhật hoặc null nếu không có dòng nào.
+   */
   updateTeacherInfo: async (teacherCode, updateData) => {
     const result = await knex("teacher")
       .where("teacher_code", teacherCode)
@@ -2829,6 +3297,14 @@ const teacher = {
     return result;
   },
 
+  /**
+   * Lấy danh sách lớp môn học mà giảng viên đang dạy.
+   * @function
+   * @async
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<Array|null>} Danh sách lớp môn học hoặc null nếu không có.
+   * @route GET /api/teacher/modules
+   */
   getModuleTeaching: async (teacherCode) => {
     const result = await knex("teacher_subject_class as tsc")
       .join("teacher as t", "tsc.teacher_code", "t.teacher_code")
@@ -2862,6 +3338,14 @@ const teacher = {
     return result;
   },
 
+  /**
+   * Lấy danh sách học viên trong lớp mà giảng viên giảng dạy.
+   * @function
+   * @async
+   * @param {Object} params - Tham số bao gồm mã giảng viên, mã môn học và mã lớp.
+   * @returns {Promise<Array>} Danh sách học viên trong lớp.
+   * @route GET /api/teacher/students-in-class
+   */
   getStudentInClass: async ({ teacherCode, moduleCode, classCode }) => {
     const result = await knex("teacher as t")
       .join(
@@ -2907,6 +3391,15 @@ const teacher = {
     return result;
   },
 
+  /**
+   * Cập nhật điểm cho học viên trong lớp học phần.
+   * @function
+   * @async
+   * @param {number} classSubjectId - ID lớp học phần.
+   * @param {string} studentCode - Mã học viên.
+   * @param {number} score - Điểm cần cập nhật.
+   * @returns {Promise<number|null>} Kết quả cập nhật.
+   */
   updateStudentScore: async (classSubjectId, studentCode, score) => {
     const result = await knex("score")
       .where({
@@ -2921,6 +3414,14 @@ const teacher = {
     return result;
   },
 
+  /**
+   * Lấy danh sách học viên qua môn theo lớp giảng dạy.
+   * @function
+   * @async
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<Array|null>} Danh sách tổng số học viên và số lượng qua môn.
+   * @route GET /api/teacher/students-passed
+   */
   getStudentPassing: async (teacherCode) => {
     const result = await knex("teacher_subject_class as tsc")
       .join(
@@ -2961,6 +3462,14 @@ const teacher = {
     return result;
   },
 
+  /**
+   * Tỷ lệ học viên qua môn của giảng viên.
+   * @function
+   * @async
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<Object|null>} Tỷ lệ phần trăm học viên qua môn.
+   * @route GET /api/teacher/passing-propotion
+   */
   getPassingPropotion: async (teacherCode) => {
     const result = await knex("teacher_subject_class as tsc")
       .join(
@@ -3001,6 +3510,12 @@ const teacher = {
     return result[0]; // vì chỉ có 1 hàng kết quả
   },
 
+  /**
+   * Tính điểm trung bình các môn học mà giảng viên phụ trách, theo từng lớp.
+   * @route GET /api/teacher/avg-score
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<Array<{ class: string, subject: string, average_score: number }>|null>}
+   */
   getAvgScore: async (teacherCode) => {
     const result = await knex("teacher_subject_class as tsc")
       .join(
@@ -3038,6 +3553,13 @@ const teacher = {
     return result;
   },
 
+  /**
+   * Tìm mã học viên theo họ đệm và tên.
+   * @route GET /api/teacher/student-code
+   * @param {string} studentMiddleName - Họ đệm học viên.
+   * @param {string} studentName - Tên học viên.
+   * @returns {Promise<string|null>} - Mã học viên hoặc null nếu không tìm thấy.
+   */
   getStudentCodeByName: async (studentMiddleName, studentName) => {
     const result = await knex("student")
       .where({
@@ -3053,6 +3575,13 @@ const teacher = {
     return result[0].student_code;
   },
 
+  /**
+   * Nhập điểm hàng loạt cho lớp học phần, bỏ qua học viên không hợp lệ hoặc không có thay đổi.
+   * @route POST /api/teacher/import-scores
+   * @param {string} classSubjectId - ID lớp học phần.
+   * @param {Array<{ student_code: string, score: number|string }>} students - Danh sách học viên và điểm.
+   * @returns {Promise<{ updatedCount: number, updated: string[], skipped: string[] }>}
+   */
   importStudentScores: async (classSubjectId, students) => {
     const updated = [];
     const skipped = [];
@@ -3104,6 +3633,12 @@ const teacher = {
     };
   },
 
+  /**
+   * Lấy tiến độ nhập điểm của giảng viên, bao gồm tổng số sinh viên và số sinh viên đã có điểm.
+   * @route GET /api/teacher/score-progress
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<{ tong_sinh_vien: string, so_diem_da_nhap: string }|null>}
+   */
   getScoreProgress: async (teacherCode) => {
     const result = await knex("teacher_subject_class as tsc")
       .join(
@@ -3128,6 +3663,12 @@ const teacher = {
     return result[0];
   },
 
+  /**
+   * Đếm tổng số lớp học phần mà giảng viên đang giảng dạy.
+   * @route GET /api/teacher/count-teaching
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<string|null>} - Số lượng lớp học phần.
+   */
   getCountTeaching: async (teacherCode) => {
     const result = await knex("teacher_subject_class as tsc")
       .where("tsc.teacher_code", teacherCode)
@@ -3140,6 +3681,12 @@ const teacher = {
     return result[0].count_teaching;
   },
 
+  /**
+   * Lấy thời điểm cập nhật điểm gần nhất của giảng viên.
+   * @route GET /api/teacher/last-update
+   * @param {string} teacherCode - Mã giảng viên.
+   * @returns {Promise<{ last_update: string }|null>}
+   */
   getLastUpdate: async (teacherCode) => {
     const result = await knex("score as s")
       .join(
@@ -3427,6 +3974,10 @@ window.showToast = showToast;
 
 ### frontend\js\Administrator\manage_account\account_management.js
 ```js
+/**
+ * Sự kiện sau khi DOM đã tải xong: khởi tạo toggle password, modal, sự kiện submit,
+ * và lấy danh sách tài khoản.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", function () {
@@ -3477,6 +4028,10 @@ document.addEventListener("DOMContentLoaded", function () {
   getAccountList();
 });
 
+/**
+ * Gửi yêu cầu API để lấy danh sách toàn bộ tài khoản.
+ * Gán kết quả vào listAccount và gọi hàm hiển thị.
+ */
 async function getAccountList() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -3502,12 +4057,19 @@ let currentPage = 1;
 let listAccount = [];
 let searchAccounts = [];
 
+/**
+ * Gán danh sách dữ liệu tài khoản cần hiển thị và thực hiện hiển thị theo trang.
+ * @param {Array<Object>} datas - Danh sách tài khoản.
+ */
 function renderListAccount(datas) {
   searchAccounts = datas;
   displayListAccount(currentPage);
   renderPagination();
 }
 
+/**
+ * Tạo các nút phân trang dựa trên số lượng tài khoản và trang hiện tại.
+ */
 function renderPagination() {
   const totalPages = Math.ceil(searchAccounts.length / limitRows);
   const pagination = document.getElementById("pagination");
@@ -3556,7 +4118,12 @@ function renderPagination() {
   }
 }
 
-// Tạo nút trang
+/**
+ * Tạo nút phân trang.
+ * @param {string|number} label - Nội dung nút (số trang hoặc ký tự).
+ * @param {number} pageNum - Số trang tương ứng.
+ * @returns {HTMLLIElement} - Phần tử nút trang.
+ */
 function createPageItem(label, pageNum) {
   const li = document.createElement("li");
   li.className = "page-item";
@@ -3574,7 +4141,10 @@ function createPageItem(label, pageNum) {
   return li;
 }
 
-// Tạo dấu ...
+/**
+ * Tạo phần tử dấu ba chấm (...) trong phân trang.
+ * @returns {HTMLLIElement} - Phần tử dấu ba chấm.
+ */
 function createEllipsis() {
   const li = document.createElement("li");
   li.className = "page-item disabled";
@@ -3582,6 +4152,10 @@ function createEllipsis() {
   return li;
 }
 
+/**
+ * Hiển thị danh sách tài khoản tương ứng với trang hiện tại.
+ * @param {number} page - Trang cần hiển thị.
+ */
 function displayListAccount(page) {
   const accountList = document.getElementById("account-list");
   accountList.innerHTML = ""; // Clear existing rows
@@ -3656,6 +4230,10 @@ function displayListAccount(page) {
   });
 }
 
+/**
+ * Gửi API lấy danh sách tài khoản của học viên.
+ * Gọi render sau khi lấy dữ liệu thành công.
+ */
 async function getStudentAccount() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -3674,6 +4252,10 @@ async function getStudentAccount() {
   }
 }
 
+/**
+ * Gửi API lấy danh sách tài khoản của giảng viên.
+ * Gọi render sau khi lấy dữ liệu thành công.
+ */
 async function getTeacherAccount() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -3692,6 +4274,9 @@ async function getTeacherAccount() {
   }
 }
 
+/**
+ * Lọc tài khoản theo vai trò được chọn từ select box.
+ */
 function filterAccounts() {
   const fliter = document.getElementById("role_filter").value;
 
@@ -3707,6 +4292,13 @@ function filterAccounts() {
   }
 }
 
+/**
+ * Gửi yêu cầu cập nhật mật khẩu và trạng thái của tài khoản.
+ *
+ * @param {string} currentCode - Tên đăng nhập (username).
+ * @param {string} newPassword - Mật khẩu mới.
+ * @param {number|string} newStatus - Trạng thái mới (0 hoặc 1).
+ */
 async function updateAccount(currentCode, newPassword, newStatus) {
   const API_BASE = "http://localhost:3000";
 
@@ -3745,6 +4337,9 @@ async function updateAccount(currentCode, newPassword, newStatus) {
   }
 }
 
+/**
+ * Bắt sự kiện nhập liệu vào ô tìm kiếm, lọc danh sách tài khoản theo tên hoặc username.
+ */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();
 
@@ -3774,6 +4369,10 @@ document.getElementById("searchInput").addEventListener("input", function () {
 ```js
 document.addEventListener("DOMContentLoaded", async () => {});
 
+/**
+ * Sự kiện submit form thêm mới tài khoản.
+ * Kiểm tra có chọn tài khoản nào không, nếu có thì gửi yêu cầu tạo tài khoản.
+ */
 document
   .getElementById("addNewAccountForm")
   .addEventListener("submit", async function (e) {
@@ -3788,6 +4387,12 @@ document
     await addNewAccount(accounts);
   });
 
+/**
+ * Lấy danh sách tài khoản được chọn trong bảng (checkbox đã chọn).
+ *
+ * @returns {Array<{username: string, pass: string, role: string}>}
+ * Mảng các tài khoản chứa username, password và role (vai trò).
+ */
 function selectedRows() {
   const selectedRows = document.querySelectorAll("#form-list tr");
   const accounts = [];
@@ -3814,6 +4419,12 @@ function selectedRows() {
   return accounts;
 }
 
+/**
+ * Gửi dữ liệu tài khoản mới lên server để thêm mới.
+ *
+ * @param {Array<{username: string, pass: string, role: string}>} datas - Mảng tài khoản cần tạo.
+ * @returns {Promise<void>}
+ */
 async function addNewAccount(datas) {
   const API_BASE = "http://localhost:3000";
   try {
@@ -3841,15 +4452,29 @@ async function addNewAccount(datas) {
 
 ### frontend\js\Administrator\manage_account\admin_display_account_list.js
 ```js
+/**
+ * Sự kiện DOMContentLoaded được kích hoạt khi toàn bộ HTML được tải xong.
+ * Gọi hàm load danh sách theo vai trò ban đầu.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   await loadListByRole();
 });
 
+/**
+ * Sự kiện khi thay đổi lựa chọn vai trò (sinh viên / giảng viên).
+ * Đặt lại trang hiện tại về 1 và tải lại danh sách theo vai trò mới.
+ */
 document.getElementById("role").addEventListener("change", async () => {
   currentPage = 1;
   await loadListByRole();
 });
 
+/**
+ * Tạo mật khẩu ngẫu nhiên với độ dài nhất định.
+ *
+ * @param {number} length - Độ dài chuỗi mật khẩu mong muốn.
+ * @returns {string} - Mật khẩu được sinh ra ngẫu nhiên.
+ */
 function generateRandomPassword(length) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*";
@@ -3870,6 +4495,9 @@ let currentPage = 1;
 let filterDatas = [];
 let currentRole = "1";
 
+/**
+ * Kiểm tra vai trò được chọn (sinh viên hoặc giảng viên) và gọi API tương ứng để lấy danh sách.
+ */
 async function loadListByRole() {
   const roleValue = document.getElementById("role").value;
   currentRole = roleValue;
@@ -3883,6 +4511,10 @@ async function loadListByRole() {
   }
 }
 
+/**
+ * Gửi yêu cầu API để lấy danh sách mã học viên.
+ * Gọi hàm render danh sách học viên nếu thành công.
+ */
 async function getListStudentCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -3902,6 +4534,10 @@ async function getListStudentCode() {
   }
 }
 
+/**
+ * Gửi yêu cầu API để lấy danh sách mã giảng viên.
+ * Gọi hàm render danh sách giảng viên nếu thành công.
+ */
 async function getListTeacherCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -3922,8 +4558,9 @@ async function getListTeacherCode() {
 }
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu và hiển thị danh sách học viên trên giao diện, kèm phân trang.
+ *
+ * @param {Array<Object>} students - Mảng dữ liệu học viên từ server.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -3932,8 +4569,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học viên theo trang.
+ *
+ * @param {number} page - Trang cần hiển thị.
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -3966,12 +4604,22 @@ function displayStudentListPage(page) {
   });
 }
 
+/**
+ * Gán dữ liệu và hiển thị danh sách giảng viên trên giao diện, kèm phân trang.
+ *
+ * @param {Array<Object>} teacher - Mảng dữ liệu giảng viên từ server.
+ */
 function renderTeacherList(teacher) {
   filterDatas = teacher;
   displayTeacherListPage(currentPage);
   renderPagination();
 }
 
+/**
+ * Hiển thị danh sách giảng viên theo trang.
+ *
+ * @param {number} page - Trang cần hiển thị.
+ */
 function displayTeacherListPage(page) {
   const teacherList = document.getElementById("form-list");
   teacherList.innerHTML = ""; // Clear existing rows
@@ -4002,8 +4650,8 @@ function displayTeacherListPage(page) {
 }
 
 /**
- * Vẽ thanh phân trang phía dưới bảng.
- * Tự động thêm các nút trang, dấu "..." và nút chuyển trang trước/sau.
+ * Vẽ thanh phân trang ở dưới bảng dữ liệu.
+ * Bao gồm nút "«", "»", các trang hiện tại, đầu/cuối, và dấu "...".
  */
 function renderPagination() {
   const totalPages = Math.ceil(filterDatas.length / limitRows);
@@ -4054,10 +4702,11 @@ function renderPagination() {
 }
 
 /**
- * Tạo một nút trang (số hoặc điều hướng).
- * @param {string|number} label - Nội dung hiển thị của nút
- * @param {number} pageNum - Số trang tương ứng khi click
- * @returns {HTMLLIElement} - Phần tử <li> chứa nút
+ * Tạo một phần tử nút trang (ví dụ: 1, 2, «, »).
+ *
+ * @param {string|number} label - Nhãn hiển thị của nút (ví dụ: "1", "»").
+ * @param {number} pageNum - Trang sẽ được hiển thị khi click.
+ * @returns {HTMLLIElement} - Phần tử <li> tương ứng.
  */
 function createPageItem(label, pageNum) {
   const li = document.createElement("li");
@@ -4082,8 +4731,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử dấu ba chấm (...) trong thanh phân trang.
+ *
+ * @returns {HTMLLIElement} - Phần tử <li> disabled hiển thị "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -4098,7 +4748,10 @@ function createEllipsis() {
 ```js
 let listModule = [];
 
-// ===== SỰ KIỆN CLICK VÀO NÚT CẤP CHỨNG CHỈ =====
+/**
+ * Sự kiện click vào nút "Duyệt chứng chỉ" trên từng dòng học viên.
+ * Gửi mã học viên và class_subject_id để thực hiện Duyệt chứng chỉ.
+ */
 document.getElementById("form-list").addEventListener("click", async (e) => {
   const btn = e.target.closest(".btn-addCert");
   if (!btn) return;
@@ -4117,7 +4770,13 @@ document.getElementById("form-list").addEventListener("click", async (e) => {
   await addCertificates(stCode, clsID);
 });
 
-// ===== HÀM GỬI REQUEST THÊM CHỨNG CHỈ =====
+/**
+ * Gửi yêu cầu API để cấp chứng chỉ cho học viên (hoặc danh sách học viên).
+ *
+ * @param {string|string[]} stCode - Mã học viên (hoặc danh sách mã).
+ * @param {string|number} clsID - ID của lớp học phần (class_subject_id).
+ * @returns {Promise<void>}
+ */
 async function addCertificates(stCode, clsID) {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4146,7 +4805,11 @@ async function addCertificates(stCode, clsID) {
   }
 }
 
-// ===== LẤY DANH SÁCH HỌC SINH ĐƯỢC CHECK =====
+/**
+ * Lấy danh sách mã học viên từ các dòng được checkbox chọn.
+ *
+ * @returns {string[]} - Mảng các mã học viên.
+ */
 function selectedRows() {
   const checkboxes = document.querySelectorAll(".checkbox-input");
   const students = [];
@@ -4164,7 +4827,10 @@ function selectedRows() {
   return students;
 }
 
-// ===== SUBMIT FORM CẤP NHIỀU CHỨNG CHỈ =====
+/**
+ * Sự kiện click vào nút "Phê duyệt" để cấp chứng chỉ hàng loạt.
+ * Gọi `addCertificates` với danh sách mã học viên được chọn.
+ */
 document.getElementById("btnApprove").addEventListener("click", async (e) => {
   e.preventDefault();
   const students = selectedRows();
@@ -4177,7 +4843,11 @@ document.getElementById("btnApprove").addEventListener("click", async (e) => {
   await addCertificates(students, class_subject_id);
 });
 
-// ===== LẤY DANH SÁCH MÔN HỌC =====
+/**
+ * Gửi yêu cầu API để lấy danh sách môn học (module) để lọc.
+ *
+ * @returns {Promise<Array<Object>>} - Danh sách các môn học, hoặc [] nếu lỗi.
+ */
 async function getModuleFilter() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4196,7 +4866,10 @@ async function getModuleFilter() {
   return [];
 }
 
-// ===== SỰ KIỆN LOAD TRANG =====
+/**
+ * Sự kiện DOMContentLoaded: lấy danh sách môn học và hiển thị trong dropdown lọc.
+ * Gán vào biến toàn cục `listModule` và `filterDatas`.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   listModule = await getModuleFilter();
   filterDatas = [...listModule];
@@ -4212,7 +4885,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// ===== SỰ KIỆN CHỌN MÔN HỌC =====
+/**
+ * Sự kiện khi người dùng chọn môn học từ dropdown.
+ * Lọc danh sách học viên theo mã hoặc tên môn học.
+ */
 document.getElementById("courseFilter").addEventListener("change", function () {
   const keyword = this.value.trim().toLowerCase();
 
@@ -4225,7 +4901,7 @@ document.getElementById("courseFilter").addEventListener("change", function () {
 
   currentPage = 1;
   filterDatas = filtered;
-  renderStudentList(filtered); // dùng danh sách học viên
+  renderStudentList(filtered);
 });
 
 ```
@@ -4238,16 +4914,30 @@ let class_subject_id = urlParams.get("class_subject"); // có thể gán trực 
 let className = urlParams.get("class_name");
 let moduleName = urlParams.get("module_name");
 
+/**
+ * Khi DOM đã tải xong, thực hiện:
+ * - Lấy dữ liệu chứng chỉ từ API (`getCertificates`)
+ * - Hiển thị tên môn học và lớp học trên giao diện.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   await getCertificates();
   renderModuleName();
 });
 
+/**
+ * Hiển thị tên môn học và tên lớp học lên giao diện.
+ * Lấy dữ liệu từ URL query params: `module_name`, `class_name`.
+ */
 function renderModuleName() {
   document.querySelector(".module_name").textContent = moduleName;
   document.querySelector(".class_name").textContent = className;
 }
 
+/**
+ * Gửi yêu cầu API để lấy danh sách học viên đã được cấp chứng chỉ cho lớp học phần hiện tại.
+ * Dữ liệu được lấy theo `class_subject_id` trong URL.
+ * Gán dữ liệu vào biến toàn cục `studentDatas` và `filterDatas`, rồi hiển thị ra bảng.
+ */
 async function getCertificates() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4282,8 +4972,9 @@ let studentDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu danh sách học viên và hiển thị bảng danh sách theo trang.
+ *
+ * @param {Array<Object>} students - Mảng đối tượng học viên (có thông tin chứng chỉ).
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -4292,8 +4983,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị bảng danh sách học viên cho một trang cụ thể.
+ *
+ * @param {number} page - Trang cần hiển thị (bắt đầu từ 1).
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -4319,12 +5011,9 @@ function displayStudentListPage(page) {
 			${address}
 		</td>
 		<td>${student.cert_number}</td>
+		<td>${student.cert_number_id}</td>
 		<td>${formatDate}</td>
-		<td>
-		<button class="btn btn-primary">
-			<i class="bi bi-list-ul"></i>
-		</button>
-		</td>
+		
 	`;
     studentList.appendChild(row);
   });
@@ -4383,10 +5072,11 @@ function renderPagination() {
 }
 
 /**
- * Tạo một nút trang (số hoặc điều hướng).
- * @param {string|number} label - Nội dung hiển thị của nút
- * @param {number} pageNum - Số trang tương ứng khi click
- * @returns {HTMLLIElement} - Phần tử <li> chứa nút
+ * Tạo một phần tử nút trang (có thể là số trang hoặc ký hiệu điều hướng).
+ *
+ * @param {string|number} label - Nội dung hiển thị của nút (ví dụ: 1, "«", "»").
+ * @param {number} pageNum - Trang sẽ hiển thị khi người dùng click vào nút này.
+ * @returns {HTMLLIElement} - Phần tử <li> chứa nút chuyển trang.
  */
 function createPageItem(label, pageNum) {
   const li = document.createElement("li");
@@ -4406,8 +5096,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử dấu ba chấm "..." dùng trong phân trang để biểu thị trang bị ẩn.
+ *
+ * @returns {HTMLLIElement} - Phần tử <li> disabled với nội dung "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -4417,8 +5108,9 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * (Tạm thời bị comment)
+ * Tìm kiếm học viên theo mã sinh viên, họ tên hoặc số điện thoại.
+ * Lọc từ `studentDatas` gốc và hiển thị lại bảng theo kết quả lọc.
  */
 // document.getElementById("searchInput").addEventListener("input", function () {
 //   const keyword = this.value.trim().toLowerCase();
@@ -4438,14 +5130,79 @@ function createEllipsis() {
 //   renderStudentList(filtered);
 // });
 
+function sendReminder() {
+  const rows = document.querySelectorAll("#form-list tr");
+  const studentsToRemind = [];
+
+  rows.forEach((row, index) => {
+    const cccd = row.children[3]?.textContent?.trim();
+    const address = row.children[4]?.textContent?.trim();
+    const studentCode = row.children[1]?.textContent?.trim();
+
+    console.log("cccd", cccd);
+    console.log("address", address);
+    console.log("studentCode", studentCode);
+
+    if (
+      cccd.toLowerCase() === "chưa có thông tin" ||
+      address.toLowerCase() === "chưa có thông tin"
+    ) {
+      studentsToRemind.push(studentCode || `Học viên dòng ${index + 1}`);
+    }
+  });
+
+  if (studentsToRemind.length === 0) {
+    Swal.fire({
+      icon: "success",
+      title: "Tất cả thông tin đã đầy đủ!",
+      text: "Không có học viên nào cần nhắc nhở.",
+    });
+  } else {
+    Swal.fire({
+      icon: "warning",
+      title: "Cần nhắc nhở cập nhật thông tin",
+      html: `
+          <p>Các học viên sau chưa cập nhật đầy đủ CCCD hoặc địa chỉ:</p>
+          <ul style="text-align: left;">
+            ${studentsToRemind.map((code) => `<li>${code}</li>`).join("")}
+          </ul>
+          <p>Bạn có muốn gửi thông báo nhắc nhở không?</p>
+        `,
+      showCancelButton: true,
+      confirmButtonText: "Gửi",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: "success",
+          title: "Đã gửi nhắc nhở!",
+          text: "Thông báo đã được gửi đến các học viên.",
+        });
+
+        // TODO: Gửi thông báo thực tế thông qua API hoặc WebSocket nếu cần
+      }
+    });
+  }
+}
+
 ```
 
 ### frontend\js\Administrator\manage_certificate\admin_display_cert_class.js
 ```js
+/**
+ * Sự kiện được gọi khi toàn bộ DOM đã tải hoàn tất.
+ * Gọi hàm `getCertClass` để lấy dữ liệu các lớp đã được cấp chứng chỉ.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getCertClass();
 });
 
+/**
+ * Gửi yêu cầu API để lấy danh sách các lớp học đã cấp chứng chỉ.
+ * Nếu thành công, gọi hàm `renderCertClass` để hiển thị dữ liệu.
+ *
+ * @returns {Promise<void>}
+ */
 async function getCertClass() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4466,6 +5223,20 @@ async function getCertClass() {
   }
 }
 
+/**
+ * Tạo và hiển thị danh sách các lớp học đã cấp chứng chỉ dưới dạng thẻ (card).
+ *
+ * @param {Array<Object>} CertClasses - Mảng đối tượng chứa thông tin lớp, giảng viên, môn học, class_subject_id.
+ *
+ * Mỗi phần tử phải có cấu trúc:
+ * {
+ *   module_code: string,
+ *   module_name: string,
+ *   teacher_name: string,
+ *   class_name: string,
+ *   class_subject_id: number
+ * }
+ */
 function renderCertClass(CertClasses) {
   const certClassList = document.querySelector(".class-cert-list");
   certClassList.innerHTML = ""; // Xoá nội dung cũ
@@ -4507,12 +5278,20 @@ function renderCertClass(CertClasses) {
 
 ### frontend\js\Administrator\manage_certificate\admin_get_student.js
 ```js
+/**
+ * Khi DOM được tải xong, gọi hàm `getStudentEligible` để lấy danh sách học viên đủ điều kiện cấp chứng chỉ.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getStudentEligible();
 });
+
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu đến API để lấy danh sách học viên đủ điều kiện cấp chứng chỉ.
+ * Nếu thành công,
+ * gán dữ liệu vào biến toàn cục `studentDatas` và `filterDatas`,
+ * sau đó hiển thị bằng `renderStudentList`.
+ *
+ * @returns {Promise<void>}
  */
 async function getStudentEligible() {
   const API_BASE = "http://localhost:3000";
@@ -4535,20 +5314,25 @@ async function getStudentEligible() {
   }
 }
 
-// === Biến toàn cục ===
 /** @type {number} */
-const limitRows = 5;
+const limitRows = 5; // Số dòng hiển thị mỗi trang
+
 /** @type {number} */
-let currentPage = 1;
+let currentPage = 1; // Trang hiện tại
+
 /** @type {Array<Object>} */
-let studentDatas = []; // Dữ liệu gốc
+let studentDatas = []; // Danh sách học viên gốc từ API
+
 /** @type {Array<Object>} */
-let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
-let class_subject_id = 0;
+let filterDatas = []; // Dữ liệu học viên sau khi lọc hoặc phân trang
+
+/** @type {number} */
+let class_subject_id = 0; // ID lớp học phần lấy từ từng dòng học viên
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán danh sách học viên và hiển thị dữ liệu cho trang hiện tại.
+ *
+ * @param {Array<Object>} students - Mảng đối tượng học viên từ API.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -4557,8 +5341,10 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị bảng học viên theo một trang cụ thể.
+ * Gồm thông tin mã SV, tên, môn học, lớp, điểm, ngày cấp chứng chỉ và nút "Duyệt".
+ *
+ * @param {number} page - Số trang cần hiển thị.
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -4603,8 +5389,8 @@ function displayStudentListPage(page) {
 }
 
 /**
- * Vẽ thanh phân trang phía dưới bảng.
- * Tự động thêm các nút trang, dấu "..." và nút chuyển trang trước/sau.
+ * Vẽ thanh phân trang cho bảng học viên.
+ * Bao gồm các nút điều hướng "«", "»", số trang, và dấu "..." nếu cần.
  */
 function renderPagination() {
   const totalPages = Math.ceil(filterDatas.length / limitRows);
@@ -4678,8 +5464,10 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử dấu ba chấm "..." trong thanh phân trang.
+ * Dùng khi danh sách trang dài.
+ *
+ * @returns {HTMLLIElement} - Phần tử <li> đã disable, chỉ hiển thị "…"
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -4689,8 +5477,9 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * (Đã bị comment)
+ * Lọc danh sách học viên theo ô tìm kiếm.
+ * Lọc theo mã SV, tên đầy đủ hoặc số điện thoại (nếu có).
  */
 // document.getElementById("searchInput").addEventListener("input", function () {
 //   const keyword = this.value.trim().toLowerCase();
@@ -4714,6 +5503,10 @@ function createEllipsis() {
 
 ### frontend\js\Administrator\manage_class\admin_add_class.js
 ```js
+/**
+ * Khi DOM được load xong, gọi API để lấy danh sách môn học (module),
+ * sau đó render các option vào dropdown filter `#courseFilter`.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   listModule = await getModuleFilter();
   console.log("list filter: ", listModule);
@@ -4728,6 +5521,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
+/**
+ * Lắng nghe sự kiện submit của form tạo lớp.
+ * Lấy dữ liệu từ form và gọi hàm `createClassWithTeacher` để gửi về server.
+ * Sau khi tạo thành công, đóng modal và reset form.
+ */
 document
   .getElementById("createClassForm")
   .addEventListener("submit", async function (e) {
@@ -4747,6 +5545,12 @@ document
     modal.reset();
   });
 
+/**
+ * Gửi yêu cầu lấy danh sách các lớp học và học kỳ tương ứng từ backend.
+ * Dữ liệu này được sử dụng trong modal tạo lớp.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách lớp và học kỳ.
+ */
 async function getClassCodeAndSemester() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4769,6 +5573,11 @@ async function getClassCodeAndSemester() {
   }
 }
 
+/**
+ * Lấy danh sách tất cả môn học (module) từ backend.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách môn học.
+ */
 async function getModuleCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4791,6 +5600,11 @@ async function getModuleCode() {
   }
 }
 
+/**
+ * Lấy danh sách môn học dùng để lọc danh sách lớp hiển thị.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách môn học để hiển thị trong dropdown lọc.
+ */
 async function getModuleFilter() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4813,6 +5627,12 @@ async function getModuleFilter() {
   }
 }
 
+/**
+ * Lấy danh sách giảng viên từ backend.
+ * Dữ liệu dùng để chọn giảng viên khi tạo lớp mới.
+ *
+ * @returns {Promise<Array<Object>|undefined>} - Danh sách giảng viên.
+ */
 async function getTeacherList() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -4830,6 +5650,16 @@ async function getTeacherList() {
   }
 }
 
+/**
+ * Gửi yêu cầu tạo lớp học mới với thông tin lớp, môn học, học kỳ, và giảng viên.
+ * Nếu thành công, hiển thị thông báo và làm mới danh sách lớp học.
+ *
+ * @param {string} classID - ID lớp học được chọn.
+ * @param {string} moduleID - ID môn học được chọn.
+ * @param {string} semesterID - ID học kỳ được chọn.
+ * @param {string} teacherCode - Mã giảng viên được chọn.
+ * @returns {Promise<void>}
+ */
 async function createClassWithTeacher(
   classID,
   moduleID,
@@ -4858,6 +5688,12 @@ async function createClassWithTeacher(
   }
 }
 
+/**
+ * Khi modal `#createClassModal` hiển thị,
+ * load dữ liệu lớp, học kỳ, môn học và giảng viên.
+ * Tự động populate dropdown tương ứng.
+ * Lắng nghe sự kiện thay đổi lớp để hiển thị các học kỳ phù hợp.
+ */
 document
   .getElementById("createClassModal")
   .addEventListener("show.bs.modal", async function (event) {
@@ -4922,6 +5758,10 @@ document
     });
   });
 
+/**
+ * Khi người dùng thay đổi bộ lọc môn học `#courseFilter`,
+ * lọc danh sách lớp hiện tại và hiển thị theo môn học được chọn.
+ */
 document.getElementById("courseFilter").addEventListener("change", function () {
   const keyword = this.value.trim().toLowerCase();
 
@@ -4941,6 +5781,10 @@ document.getElementById("courseFilter").addEventListener("change", function () {
 
 ### frontend\js\Administrator\manage_class\admin_add_student_to_class.js
 ```js
+/**
+ * Lắng nghe sự kiện submit của form `#addStudentForm`.
+ * Kiểm tra các checkbox đã chọn học sinh chưa, sau đó gửi yêu cầu thêm học sinh vào lớp.
+ */
 document
   .getElementById("addStudentForm")
   .addEventListener("submit", async function (e) {
@@ -4955,6 +5799,11 @@ document
     await addStudentsToClass(students);
   });
 
+/**
+ * Lấy danh sách mã học sinh từ các hàng đã được chọn (checkbox).
+ *
+ * @returns {Array<string>} - Mảng mã học sinh đã được chọn.
+ */
 function selectedRows() {
   const checkboxes = document.querySelectorAll(".checkbox-input");
   const students = [];
@@ -4972,6 +5821,13 @@ function selectedRows() {
   return students;
 }
 
+/**
+ * Gửi danh sách mã học sinh được chọn đến backend để thêm vào lớp học phần.
+ * Nếu thành công, gọi lại hàm `getStudentNotInClass` để cập nhật danh sách.
+ *
+ * @param {Array<string>} datas - Mảng mã học sinh.
+ * @returns {Promise<void>}
+ */
 async function addStudentsToClass(datas) {
   const classSubject = getParams();
 
@@ -5004,16 +5860,19 @@ async function addStudentsToClass(datas) {
 
 ### frontend\js\Administrator\manage_class\admin_display_class.js
 ```js
+/**
+ * Khi trang tải xong, gọi API để lấy danh sách lớp học phần (module list).
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getModuleList();
 });
 
 /**
- * Chuyển đổi các giá trị kỹ thuật thành dạng dễ đọc cho người dùng.
- * @param {*} value - Giá trị cần chuyển đổi (string, null, undefined)
- * @returns {string} - Giá trị đã chuyển đổi phù hợp để hiển thị
+ * Chuyển đổi giá trị kỹ thuật thành chuỗi dễ hiểu cho người dùng.
+ *
+ * @param {*} value - Giá trị cần chuyển đổi.
+ * @returns {string} - Giá trị chuyển đổi phù hợp để hiển thị.
  */
-
 function transferValue(value) {
   if (value === null || value === undefined || value === "") {
     return "-";
@@ -5031,8 +5890,8 @@ function transferValue(value) {
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu API để lấy danh sách lớp học phần (module list).
+ * Nếu thành công, render danh sách và phân trang.
  */
 async function getModuleList() {
   const API_BASE = "http://localhost:3000";
@@ -5065,8 +5924,9 @@ let moduleDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} modules - Mảng dữ liệu học viên từ server
+ * Cập nhật dữ liệu hiển thị và vẽ danh sách học phần theo trang.
+ *
+ * @param {Array<Object>} modules - Danh sách học phần từ server.
  */
 function renderModuleList(modules) {
   filterDatas = modules;
@@ -5075,8 +5935,9 @@ function renderModuleList(modules) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học phần theo trang cụ thể.
+ *
+ * @param {number} page - Số trang cần hiển thị.
  */
 function displayModuleListPage(page) {
   const moduleList = document.getElementById("module-list");
@@ -5222,8 +6083,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử phân trang dấu ba chấm "..." khi có nhiều trang.
+ *
+ * @returns {HTMLLIElement} - Thẻ <li> đã disable chứa "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -5253,6 +6115,11 @@ function createEllipsis() {
 //   renderTeacherList(filtered);
 // });
 
+/**
+ * Khi mở modal xem thông tin lớp học:
+ * - Lấy dữ liệu từ nút được click.
+ * - Hiển thị thông tin lớp học lên modal.
+ */
 document
   .getElementById("viewClassModal")
   .addEventListener("show.bs.modal", function (event) {
@@ -5286,6 +6153,12 @@ document
 
 ### frontend\js\Administrator\manage_class\admin_display_class_student.js
 ```js
+/**
+ * Khi tài liệu được tải xong:
+ * - Gọi API để lấy danh sách học viên chưa thuộc lớp học phần.
+ * - Hiển thị thông tin lớp học.
+ * - Cập nhật link "Xem danh sách lớp" dựa theo tham số URL.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getStudentNotInClass();
   displayClass();
@@ -5297,6 +6170,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   viewBtn.href = `page_list_student_in_class.html?class_subject_id=${class_subject_id}&class_name=${class_name}&module_name=${module_name}`;
 });
 
+/**
+ * Trích xuất các tham số từ URL hiện tại.
+ *
+ * @returns {{ class_subject_id: string, class_name: string, module_name: string }}
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -5306,6 +6184,9 @@ function getParams() {
   };
 }
 
+/**
+ * Gán tên lớp học và tên môn học từ URL vào các phần tử tương ứng trong giao diện.
+ */
 function displayClass() {
   class_name = getParams();
   module_name = getParams();
@@ -5315,8 +6196,10 @@ function displayClass() {
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu đến API để lấy danh sách học viên chưa được xếp vào lớp học phần.
+ * Nếu thành công, hiển thị danh sách và phân trang.
+ *
+ * @returns {Promise<void>}
  */
 async function getStudentNotInClass() {
   const API_BASE = "http://localhost:3000";
@@ -5352,8 +6235,9 @@ let studentDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Cập nhật dữ liệu hiển thị và render danh sách học viên cùng phân trang.
+ *
+ * @param {Array<Object>} students - Mảng đối tượng học viên.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -5362,8 +6246,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học viên theo trang hiện tại.
+ *
+ * @param {number} page - Số trang cần hiển thị.
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -5463,8 +6348,9 @@ function createPageItem(label, pageNum) {
 }
 
 /**
- * Tạo một phần tử phân trang dạng "..." (dấu ba chấm).
- * @returns {HTMLLIElement} - Phần tử <li> disabled
+ * Tạo phần tử dấu ba chấm "..." dùng trong phân trang.
+ *
+ * @returns {HTMLLIElement} - Thẻ <li> có style disabled chứa "...".
  */
 function createEllipsis() {
   const li = document.createElement("li");
@@ -5474,8 +6360,8 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * Xử lý sự kiện nhập liệu trong ô tìm kiếm.
+ * Lọc danh sách học viên theo tên, mã số hoặc số điện thoại.
  */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();
@@ -5499,11 +6385,21 @@ document.getElementById("searchInput").addEventListener("input", function () {
 
 ### frontend\js\Administrator\manage_class\admin_student_in_class.js
 ```js
+/**
+ * Khi trang được tải xong, gọi API để lấy danh sách học viên trong lớp
+ * và hiển thị thông tin lớp học lên giao diện.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getStudentInClass();
   displayClass();
 });
 
+/**
+ * Lấy các tham số từ URL hiện tại để phục vụ việc truy xuất dữ liệu lớp học.
+ *
+ * @returns {{ class_subject_id: string|null, class_name: string|null, module_name: string|null }}
+ * Các thông tin: mã lớp học phần, tên lớp, tên môn học.
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -5513,6 +6409,9 @@ function getParams() {
   };
 }
 
+/**
+ * Hiển thị tên lớp và tên môn học lên giao diện dựa trên tham số từ URL.
+ */
 function displayClass() {
   const { class_name, module_name } = getParams();
 
@@ -5521,8 +6420,8 @@ function displayClass() {
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu đến backend để lấy danh sách học viên đã thuộc lớp học phần.
+ * Sau đó cập nhật giao diện và phân trang danh sách.
  */
 async function getStudentInClass() {
   const API_BASE = "http://localhost:3000";
@@ -5554,13 +6453,14 @@ const limitRows = 10;
 /** @type {number} */
 let currentPage = 1;
 /** @type {Array<Object>} */
-let studentDatas = []; // Dữ liệu gốc
+let studentDatas = []; // Dữ liệu học viên từ server
 /** @type {Array<Object>} */
-let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
+let filterDatas = []; // Dữ liệu học viên sau khi lọc tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu và hiển thị danh sách học viên theo trang.
+ *
+ * @param {Array<Object>} students - Mảng dữ liệu học viên từ server.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -5569,8 +6469,9 @@ function renderStudentList(students) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
- * @param {number} page - Số trang cần hiển thị
+ * Hiển thị danh sách học viên trong một trang cụ thể.
+ *
+ * @param {number} page - Số trang cần hiển thị.
  */
 function displayStudentListPage(page) {
   const studentList = document.getElementById("form-list");
@@ -5678,8 +6579,8 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * Lắng nghe sự kiện nhập liệu trong ô tìm kiếm và lọc danh sách học viên
+ * theo mã sinh viên, họ tên hoặc số điện thoại.
  */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();
@@ -5703,8 +6604,20 @@ document.getElementById("searchInput").addEventListener("input", function () {
 
 ### frontend\js\Administrator\manage_class\admin_update_class.js
 ```js
+/**
+ * Biến toàn cục
+ * @type {string|null}
+ */
 let classSubjectID = null;
 
+/**
+ * Sự kiện được gọi khi modal chỉnh sửa lớp học phần được hiển thị.
+ * - Lấy danh sách học kỳ và giảng viên
+ * - Đổ dữ liệu từ nút trigger vào form modal
+ * - Gán các giá trị đã chọn vào các ô input tương ứng trong modal
+ *
+ * @param {Event} event - Sự kiện Bootstrap modal show
+ */
 document
   .getElementById("editClassModal")
   .addEventListener("show.bs.modal", async function (event) {
@@ -5768,6 +6681,15 @@ document
     }
   });
 
+/**
+ * Gửi yêu cầu cập nhật thông tin lớp học phần đến backend.
+ *
+ * @param {Object} payload - Dữ liệu cập nhật lớp học phần.
+ * @param {string} payload.classSubjectID - ID lớp học phần.
+ * @param {string} payload.semesterID - ID học kỳ.
+ * @param {string} payload.classStatus - Trạng thái lớp (active/inactive...).
+ * @param {string} payload.teacherCode - Mã giảng viên phụ trách.
+ */
 async function updateClass(payload) {
   if (!payload) {
     Swal.fire("Lỗi", "Thiếu thông tin để cập nhật!", "error");
@@ -5801,6 +6723,14 @@ async function updateClass(payload) {
   }
 }
 
+/**
+ * Xử lý khi người dùng nhấn nút "Lưu" trên form chỉnh sửa lớp học phần.
+ * - Lấy dữ liệu từ form
+ * - Đóng modal
+ * - Gửi yêu cầu cập nhật qua `updateClass()`
+ *
+ * @param {Event} e - Sự kiện submit của form
+ */
 document
   .getElementById("editClassForm")
   .addEventListener("submit", function (e) {
@@ -5828,10 +6758,33 @@ document
 
 ### frontend\js\Administrator\manage_dashboard\admin_display_stats.js
 ```js
+/**
+ * Khi DOM đã được tải hoàn tất, tự động lấy và hiển thị dữ liệu thống kê dashboard.
+ */
 document.addEventListener("DOMContentLoaded", async function () {
   getDashboardStats();
+  const message = localStorage.getItem("loginSuccess");
+  if (message) {
+    // Hiển thị toast
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: message,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
+
+    // Xóa sau khi hiển thị
+    localStorage.removeItem("loginSuccess");
+  }
 });
 
+/**
+ * Gửi request đến API backend để lấy dữ liệu thống kê tổng quan.
+ * Nếu thành công, gọi hàm `renderStatData()` để hiển thị lên UI.
+ */
 async function getDashboardStats() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -5851,6 +6804,15 @@ async function getDashboardStats() {
   }
 }
 
+/**
+ * Hiển thị các số liệu thống kê lên giao diện người dùng.
+ *
+ * @param {Object} statDatas - Dữ liệu thống kê nhận từ server
+ * @param {number} statDatas.total_classes - Tổng số lớp học
+ * @param {number} statDatas.total_students - Tổng số học viên
+ * @param {number} statDatas.total_teachers - Tổng số giảng viên
+ * @param {number} statDatas.total_accounts - Tổng số tài khoản hệ thống
+ */
 function renderStatData(statDatas) {
   const total_class = statDatas.total_classes;
   const total_student = statDatas.total_students;
@@ -5866,11 +6828,18 @@ function renderStatData(statDatas) {
 
 ### frontend\js\Administrator\manage_dashboard\dashboard_chart.js
 ```js
+/**
+ * Khi trang được load hoàn tất, thực hiện gọi các API thống kê.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getCountStudentInClass();
   getModuleCertificateStats();
 });
 
+/**
+ * Gửi yêu cầu đến API để lấy số lượng sinh viên theo từng lớp học.
+ * Nếu thành công, hiển thị biểu đồ cột bằng Chart.js.
+ */
 async function getCountStudentInClass() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -5890,6 +6859,10 @@ async function getCountStudentInClass() {
   }
 }
 
+/**
+ * Gửi yêu cầu đến API để lấy thống kê số sinh viên đã và chưa đạt chứng chỉ theo môn học.
+ * Nếu thành công, hiển thị hai biểu đồ: biểu đồ tròn và biểu đồ cột.
+ */
 async function getModuleCertificateStats() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -5914,6 +6887,13 @@ async function getModuleCertificateStats() {
   }
 }
 
+/**
+ * Hiển thị biểu đồ tròn tỷ lệ sinh viên đã được cấp chứng chỉ.
+ *
+ * @param {Array<Object>} data - Danh sách thống kê theo từng module.
+ * @param {number} data[].certified_students - Số sinh viên đã có chứng chỉ.
+ * @param {number} data[].total_students - Tổng số sinh viên của module.
+ */
 function renderPieChart(data) {
   const certifiedTotal = data.reduce(
     (sum, item) => sum + item.certified_students,
@@ -5949,6 +6929,14 @@ function renderPieChart(data) {
   });
 }
 
+/**
+ * Hiển thị biểu đồ cột so sánh tổng sinh viên và số sinh viên đã đạt chứng chỉ theo từng môn học.
+ *
+ * @param {Array<Object>} data - Danh sách thống kê theo từng module.
+ * @param {string} data[].module_name - Tên môn học.
+ * @param {number} data[].total_students - Tổng số sinh viên.
+ * @param {number} data[].certified_students - Số sinh viên có chứng chỉ.
+ */
 function renderModuleChart(data) {
   const labels = data.map((item) => item.module_name);
   const totalStudents = data.map((item) => item.total_students);
@@ -6022,6 +7010,13 @@ function renderModuleChart(data) {
   });
 }
 
+/**
+ * Hiển thị biểu đồ cột thể hiện số sinh viên theo từng lớp học.
+ *
+ * @param {Array<Object>} data - Dữ liệu số lượng sinh viên theo lớp.
+ * @param {string} data[].class_name - Tên lớp.
+ * @param {number} data[].student_count - Số sinh viên trong lớp.
+ */
 function renderCountStudentInClass(data) {
   const labels = data.map((item) => item.class_name);
   const values = data.map((item) => item.student_count);
@@ -6145,7 +7140,6 @@ document
  * Gửi thông tin học viên mới đến backend để thêm vào hệ thống.
  * @param {Object} student - Đối tượng học viên chứa các trường cần thiết
  */
-
 async function addNewStudent(student) {
   if (!student) {
     Swal.fire("Cảnh Báo", "Không nhận được dữ liệu nhập vào!!!", "error");
@@ -6629,31 +7623,48 @@ document
 ### frontend\js\Administrator\manage_student\admin_update_student.js
 ```js
 /**
- * Khi modal học viên hiển thị, tự động gán mã học viên vào input.
+ * Khi modal chỉnh sửa học viên hiển thị, tự động gán thông tin học viên vào các ô input.
  */
 document
   .getElementById("editModal")
   .addEventListener("show.bs.modal", async function (event) {
+    /** @type {HTMLElement} */
     const button = event.relatedTarget;
+
+    /** @type {string} Mã số sinh viên */
     const studentCode = button.getAttribute("data-student-code");
+
+    /** @type {string} Họ đệm */
     const middle_name = button.getAttribute("data-middle-name");
+
+    /** @type {string} Tên */
     const name = button.getAttribute("data-name");
+
+    /** @type {string} Trạng thái */
     const status = button.getAttribute("data-status");
 
+    // Gán giá trị vào các trường trong form
     document.getElementById("editMaSV").value = studentCode;
     document.getElementById("editHoDem").value = middle_name;
     document.getElementById("editTen").value = name;
     document.getElementById("editTrangThai").value = status;
   });
 
+/**
+ * Xử lý sự kiện submit form cập nhật thông tin học viên.
+ */
 document
   .getElementById("editStudentForm")
   .addEventListener("submit", function (e) {
-    e.preventDefault(); // Ngăn reload trang
+    e.preventDefault(); // Ngăn form reload trang
+
+    // Lấy giá trị từ các input
     const code = document.getElementById("editMaSV").value.trim();
     const middle_name = document.getElementById("editHoDem").value.trim();
     const name = document.getElementById("editTen").value.trim();
-    const stauts = document.getElementById("editTrangThai").value.trim();
+    const stauts = document.getElementById("editTrangThai").value.trim(); // typo: 'stauts' nên sửa thành 'status'
+
+    /** @type {{student_code: string, student_middle_name: string, student_name: string, student_status: string}} */
     const student = {
       student_code: code,
       student_middle_name: middle_name,
@@ -6661,17 +7672,26 @@ document
       student_status: stauts,
     };
 
+    // Đóng modal sau khi submit
     bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
 
+    // Gọi API cập nhật
     updateStudentInfor(student);
   });
 
+/**
+ * Gửi yêu cầu cập nhật thông tin học viên lên server.
+ *
+ * @param {{student_code: string, student_middle_name: string, student_name: string, student_status: string}} student - Đối tượng thông tin học viên.
+ */
 async function updateStudentInfor(student) {
   if (!student) {
     Swal.fire("Lỗi", "Thiếu thông tin của học viên!", "error");
     return;
   }
+
   const API_BASE = "http://localhost:3000";
+
   try {
     const res = await fetch(`${API_BASE}/api/v1/admin/updateStudentInfor`, {
       method: "PUT",
@@ -6685,7 +7705,7 @@ async function updateStudentInfor(student) {
 
     if (data.status === "success") {
       Swal.fire("Thành công", "Thông tin đã được cập nhật!", "success");
-      getStudentList();
+      getStudentList?.(); // Làm mới danh sách nếu hàm tồn tại
     } else {
       Swal.fire(
         "Lỗi",
@@ -6703,6 +7723,10 @@ async function updateStudentInfor(student) {
 
 ### frontend\js\Administrator\manage_teacher\admin_add_teacher.js
 ```js
+/**
+ * Khi tài liệu HTML được tải xong:
+ * - Tự động lấy mã giáo viên mới và mã cuối cùng hiện tại để hiển thị trong console.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   const newCode = await getNewCode();
   const oldCode = await getLastTeacherCode();
@@ -6711,10 +7735,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /**
- * Gửi yêu cầu đến backend để lấy mã học viên cuối cùng hiện tại.
- * @returns {Promise<string|undefined>} - Mã học viên cuối nếu thành công
+ * Gửi yêu cầu đến backend để lấy mã giáo viên cuối cùng đã có trong hệ thống.
+ *
+ * @returns {Promise<string|undefined>} - Mã giáo viên cuối nếu thành công, ngược lại trả về `undefined`.
  */
-
 async function getLastTeacherCode() {
   const API_BASE = "http://localhost:3000";
   try {
@@ -6735,11 +7759,11 @@ async function getLastTeacherCode() {
 }
 
 /**
- * Tăng số thứ tự của mã học viên lên 1 và định dạng lại.
- * @param {string} teacherCode - Mã học viên hiện tại dạng chuỗi
- * @returns {string|null} - Mã mới được định dạng hoặc null nếu lỗi
+ * Tăng số thứ tự trong mã giáo viên cũ và định dạng lại theo quy chuẩn.
+ *
+ * @param {string} teacherCode - Mã giáo viên hiện tại (ví dụ: "GV00012")
+ * @returns {string|null} - Mã mới (ví dụ: "GV00013"), hoặc null nếu có lỗi.
  */
-
 function formatTeacherCode(teacherCode) {
   if (!teacherCode) {
     Swal.fire("Thông báo", "Không lấy được mã học viên cuối!", "warning");
@@ -6756,8 +7780,9 @@ function formatTeacherCode(teacherCode) {
 }
 
 /**
- * Lấy mã học viên cuối và tạo mã học viên mới.
- * @returns {Promise<string|null>} - Mã mới được tạo
+ * Lấy mã giáo viên cuối cùng từ hệ thống và trả về mã mới được định dạng.
+ *
+ * @returns {Promise<string|null>} - Mã giáo viên mới (ví dụ: "GV00013")
  */
 async function getNewCode() {
   const beforeFormat = await getLastTeacherCode();
@@ -6766,7 +7791,7 @@ async function getNewCode() {
 }
 
 /**
- * Khi modal thêm học viên hiển thị, tự động gán mã học viên mới vào input.
+ * Khi modal "Thêm giáo viên" được mở, tự động gán mã giáo viên mới vào ô input.
  */
 document
   .getElementById("addTeacherModal")
@@ -6778,10 +7803,17 @@ document
   });
 
 /**
- * Gửi thông tin học viên mới đến backend để thêm vào hệ thống.
- * @param {Object} student - Đối tượng học viên chứa các trường cần thiết
+ * Gửi dữ liệu giáo viên mới lên server thông qua API.
+ *
+ * @param {Object} teacher - Đối tượng giáo viên cần thêm.
+ * @param {string} teacher.teacher_code
+ * @param {string} teacher.teacher_name
+ * @param {string} teacher.teacher_date_of_birth
+ * @param {string} teacher.teacher_gender
+ * @param {string} teacher.teacher_address
+ * @param {string} teacher.teacher_email
+ * @param {string} teacher.teacher_phone
  */
-
 async function addNewTeacher(teacher) {
   if (!teacher) {
     Swal.fire("Cảnh Báo", "Không nhận được dữ liệu nhập vào!!!", "error");
@@ -6816,8 +7848,10 @@ async function addNewTeacher(teacher) {
 }
 
 /**
- * Lắng nghe sự kiện submit form thêm học viên.
- * Tạo object học viên, gọi hàm thêm và reset form sau khi hoàn tất.
+ * Lắng nghe sự kiện submit của form thêm giáo viên.
+ * - Tạo object giáo viên từ input form.
+ * - Gửi dữ liệu lên server.
+ * - Đóng modal và reset form sau khi thêm thành công.
  */
 document.getElementById("teacherForm").addEventListener("submit", async (e) => {
   e.preventDefault(); // Ngăn form reload trang
@@ -6850,41 +7884,36 @@ document.getElementById("teacherForm").addEventListener("submit", async (e) => {
 
 ### frontend\js\Administrator\manage_teacher\admin_display_teacher.js
 ```js
+/**
+ * Sự kiện DOMContentLoaded: Khi tài liệu được tải xong, gọi hàm lấy danh sách giáo viên.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   getTeacherList();
 });
 
 /**
- * Chuyển đổi các giá trị kỹ thuật thành dạng dễ đọc cho người dùng.
- * @param {*} value - Giá trị cần chuyển đổi (string, null, undefined)
+ * Chuyển đổi các giá trị kỹ thuật (status, gender, v.v.) thành dạng dễ đọc cho người dùng.
+ *
+ * @param {*} value - Giá trị cần chuyển đổi (string hoặc null/undefined)
  * @returns {string} - Giá trị đã chuyển đổi phù hợp để hiển thị
  */
-
 function transferValue(value) {
-  if (value === null || value === undefined || value === "") {
-    return "-";
-  } else if (value === "female") {
-    return "Nữ";
-  } else if (value === "male") {
-    return "Nam";
-  } else if (value === "other") {
-    return "Khác";
-  } else if (value === "teaching") {
-    return "Đang dạy";
-  } else if (value === "on_leave") {
-    return "Nghỉ phép";
-  } else if (value === "resigned") {
-    return "Nghỉ việc";
-  } else if (value === "retired") {
-    return "Nghỉ hưu";
-  } else {
-    return value;
-  }
+  if (value === null || value === undefined || value === "") return "-";
+  const dictionary = {
+    female: "Nữ",
+    male: "Nam",
+    other: "Khác",
+    teaching: "Đang dạy",
+    on_leave: "Nghỉ phép",
+    resigned: "Nghỉ việc",
+    retired: "Nghỉ hưu",
+  };
+  return dictionary[value] || value;
 }
 
 /**
- * Gửi request đến API backend để lấy danh sách học viên.
- * Nếu thành công sẽ gọi hàm hiển thị dữ liệu và phân trang.
+ * Gửi yêu cầu đến API backend để lấy danh sách giáo viên.
+ * Nếu thành công, gọi hàm hiển thị danh sách và phân trang.
  */
 async function getTeacherList() {
   const API_BASE = "http://localhost:3000";
@@ -6917,8 +7946,9 @@ let teacherDatas = []; // Dữ liệu gốc
 let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} teachers - Mảng dữ liệu học viên từ server
+ * Gán dữ liệu và hiển thị danh sách giáo viên kèm phân trang.
+ *
+ * @param {Array<Object>} teachers - Mảng dữ liệu giáo viên
  */
 function renderTeacherList(teachers) {
   filterDatas = teachers;
@@ -6927,7 +7957,8 @@ function renderTeacherList(teachers) {
 }
 
 /**
- * Hiển thị học viên cho một trang cụ thể.
+ * Hiển thị danh sách giáo viên cho một trang cụ thể.
+ *
  * @param {number} page - Số trang cần hiển thị
  */
 function displayTeacherListPage(page) {
@@ -7064,8 +8095,7 @@ function createEllipsis() {
 }
 
 /**
- * Lắng nghe input ô tìm kiếm và lọc dữ liệu từ `studentDatas` gốc.
- * Hiển thị danh sách học viên phù hợp.
+ * Lọc dữ liệu giáo viên theo từ khóa tìm kiếm và hiển thị kết quả.
  */
 document.getElementById("searchInput").addEventListener("input", function () {
   const keyword = this.value.trim().toLowerCase();
@@ -7089,7 +8119,8 @@ document.getElementById("searchInput").addEventListener("input", function () {
 ### frontend\js\Administrator\manage_teacher\admin_update_teacher.js
 ```js
 /**
- * Khi modal học viên hiển thị, tự động gán mã học viên vào input.
+ * Khi modal sửa thông tin giảng viên được hiển thị, tự động lấy dữ liệu từ nút trigger
+ * và gán các giá trị vào các input trong form chỉnh sửa.
  */
 document
   .getElementById("editTeacherModal")
@@ -7114,6 +8145,10 @@ document
     document.getElementById("editTrangThai").value = status;
   });
 
+/**
+ * Bắt sự kiện submit của form sửa giảng viên.
+ * Thu thập dữ liệu từ form, đóng modal, reset form và gọi hàm cập nhật thông tin giảng viên.
+ */
 document
   .getElementById("editTeacherForm")
   .addEventListener("submit", function (e) {
@@ -7145,6 +8180,19 @@ document
     updateTeacherInfor(teacher);
   });
 
+/**
+ * Gửi yêu cầu cập nhật thông tin giảng viên đến backend.
+ *
+ * @param {Object} teacher - Đối tượng chứa dữ liệu giảng viên cần cập nhật
+ * @param {string} teacher.teacher_code - Mã số giảng viên
+ * @param {string} teacher.teacher_name - Họ và tên
+ * @param {string} teacher.teacher_date_of_birth - Ngày sinh (YYYY-MM-DD)
+ * @param {string} teacher.teacher_gender - Giới tính
+ * @param {string} teacher.teacher_address - Địa chỉ
+ * @param {string} teacher.teacher_email - Email
+ * @param {string} teacher.teacher_phone - Số điện thoại
+ * @param {string} teacher.teacher_status - Trạng thái giảng viên
+ */
 async function updateTeacherInfor(teacher) {
   if (!teacher) {
     Swal.fire("Lỗi", "Thiếu thông tin của học viên!", "error");
@@ -7183,32 +8231,71 @@ async function updateTeacherInfor(teacher) {
 
 ### frontend\js\Authentication\login.js
 ```js
+/**
+ * Xử lý sự kiện đăng nhập người dùng khi form được submit.
+ * Gửi yêu cầu đến API xác thực, xử lý token và chuyển hướng dựa trên vai trò.
+ */
 const loginForm = document.getElementById("loginForm");
+
 if (loginForm) {
   loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
+
     const username = loginForm.querySelector('input[type="text"]').value;
     const password = loginForm.querySelector('input[type="password"]').value;
 
+    /**
+     * Kiểm tra thông tin nhập vào. Nếu thiếu sẽ hiển thị cảnh báo bằng SweetAlert2.
+     */
     if (!username || !password) {
-      showToast("Please enter complete information!", "warn");
+      Swal.fire({
+        icon: "warning",
+        title: "Thiếu thông tin",
+        text: "Vui lòng nhập đầy đủ tài khoản và mật khẩu!",
+      });
       return;
     }
+
     try {
       const API_BASE = "http://localhost:3000";
+
+      /**
+       * Gửi yêu cầu đăng nhập đến API backend.
+       * @typedef {Object} LoginResponse
+       * @property {string} status - Trạng thái phản hồi ("success" hoặc "fail")
+       * @property {Object} data - Dữ liệu trả về khi thành công
+       * @property {string} data.token - Token JWT xác thực
+       * @property {Object} data.user - Thông tin người dùng
+       * @property {number} data.user.role - Vai trò người dùng (0: admin, 1: student, 2: teacher)
+       */
+
       const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
+      /** @type {LoginResponse} */
       const result = await response.json();
 
       if (result.status === "success") {
         const { token, user } = result.data;
+
+        // Lưu thông tin người dùng và token vào localStorage thông qua hàm Storage tự định nghĩa
         Storage.saveUser(user, token);
 
-        // Chuyển hướng theo phân quyền
+        // Lưu thông báo thành công để hiển thị tại trang sau đăng nhập
+        localStorage.setItem(
+          "loginSuccess",
+          `Chào mừng ${user.username || "người dùng"} trở lại!`
+        );
+
+        /**
+         * Chuyển hướng người dùng đến trang phù hợp theo role:
+         * 0 - Admin
+         * 1 - Student
+         * 2 - Teacher
+         */
         switch (user.role) {
           case 0:
             window.location.href = "../admin/page_admin.html";
@@ -7220,14 +8307,27 @@ if (loginForm) {
             window.location.href = "../teacher/page_teacher_home.html";
             break;
           default:
-            showToast("User role not determined!!!", "warn");
+            Swal.fire(
+              "Cảnh báo",
+              "Không xác định vai trò người dùng!",
+              "warning"
+            );
         }
       } else {
-        showToast(`Login Fail: ${result.message}`, "error");
+        // Đăng nhập thất bại
+        Swal.fire({
+          icon: "error",
+          title: "Đăng nhập thất bại",
+          text: result.message || "Sai tài khoản hoặc mật khẩu!",
+        });
       }
     } catch (error) {
       console.error(error);
-      showToast(`Unable to connect to server: ${error.message}`, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi kết nối",
+        text: `Không thể kết nối đến máy chủ: ${error.message}`,
+      });
     }
   });
 } else {
@@ -7238,26 +8338,43 @@ if (loginForm) {
 
 ### frontend\js\Authentication\logout.js
 ```js
+/**
+ * Xử lý đăng xuất người dùng khỏi hệ thống.
+ *
+ * Gọi API `/logout` để hủy phiên trên server (nếu áp dụng),
+ * sau đó xóa dữ liệu người dùng khỏi `localStorage/sessionStorage` (thông qua Storage),
+ * và chuyển hướng người dùng về trang đăng nhập.
+ */
 function handleLogout() {
-  // Gọi API logout nếu muốn xoá session trên server
+  // Gọi API logout để hủy session phía server (nếu cần)
   fetch("http://localhost:3000/api/v1/auth/logout", {
     method: "POST",
-    credentials: "include",
+    credentials: "include", // Bao gồm cookie khi gửi request
   }).catch((err) => {
     console.warn("Không thể gọi logout từ server:", err.message);
   });
 
+  // Xóa toàn bộ dữ liệu lưu trữ của người dùng ở phía client
   Storage.clear();
+
+  // Chuyển hướng người dùng về trang đăng nhập
   window.location.href = "../login/login.html";
 }
 
-// Gắn tự động nếu có phần tử logout nào
+/**
+ * Khi DOM được tải xong, tự động gắn sự kiện `click` vào các nút đăng xuất
+ * nếu chúng tồn tại trong DOM.
+ */
 window.addEventListener("DOMContentLoaded", () => {
   const btns = [
     document.getElementById("logoutBtn"),
     document.getElementById("sidebarLogout"),
   ];
 
+  /**
+   * Gắn sự kiện `click` để gọi hàm `handleLogout` cho từng nút.
+   * Dùng để đảm bảo mọi giao diện logout đều hoạt động.
+   */
   btns.forEach((btn) => {
     if (btn) {
       btn.addEventListener("click", handleLogout);
@@ -7269,27 +8386,67 @@ window.addEventListener("DOMContentLoaded", () => {
 
 ### frontend\js\Authentication\storage.js
 ```js
+/**
+ * Đối tượng `Storage` dùng để quản lý thông tin đăng nhập của người dùng
+ * thông qua `localStorage`, bao gồm lưu, lấy và xóa token và user.
+ * Được gắn vào `window` để sử dụng toàn cục.
+ */
 const Storage = {
+  /**
+   * Lưu thông tin người dùng và token vào `localStorage`.
+   *
+   * @param {Object} user - Đối tượng thông tin người dùng.
+   * @param {string} token - Mã thông báo xác thực JWT.
+   */
   saveUser: (user, token) => {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
   },
+
+  /**
+   * Lấy thông tin người dùng từ `localStorage`.
+   *
+   * @returns {Object|null} - Đối tượng người dùng hoặc `null` nếu không có.
+   */
   getUser: () => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;
   },
+
+  /**
+   * Lấy `token` xác thực từ `localStorage`.
+   *
+   * @returns {string|null} - Token JWT hoặc `null` nếu không tồn tại.
+   */
   getToken: () => localStorage.getItem("token"),
+
+  /**
+   * Lấy vai trò (role) của người dùng hiện tại.
+   *
+   * @returns {number|null} - Mã vai trò (ví dụ: 0 = admin, 1 = student, 2 = teacher) hoặc `null`.
+   */
   getRole: () => {
     const user = Storage.getUser();
     return user ? user.role : null;
   },
+
+  /**
+   * Kiểm tra xem người dùng đã đăng nhập hay chưa.
+   *
+   * @returns {boolean} - `true` nếu có token, ngược lại `false`.
+   */
   isLoggedIn: () => !!Storage.getToken(),
+
+  /**
+   * Xóa toàn bộ thông tin người dùng và token khỏi `localStorage`.
+   */
   clear: () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   },
 };
 
+// Gắn đối tượng Storage lên `window` để có thể sử dụng toàn cục
 window.Storage = Storage;
 
 ```
@@ -7299,8 +8456,28 @@ window.Storage = Storage;
 document.addEventListener("DOMContentLoaded", function () {
   fetchStudentScores();
   displayStudentName();
+  const message = localStorage.getItem("loginSuccess");
+  if (message) {
+    // Hiển thị toast
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: message,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
+
+    // Xóa sau khi hiển thị
+    localStorage.removeItem("loginSuccess");
+  }
 });
 
+/**
+ * Gọi API để lấy bảng điểm sinh viên và hiển thị ra giao diện.
+ * Đồng thời tính toán và hiển thị thống kê tổng kết trên các card.
+ */
 async function fetchStudentScores() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -7328,6 +8505,10 @@ async function fetchStudentScores() {
   }
 }
 
+/**
+ * Hiển thị danh sách điểm chi tiết vào bảng HTML.
+ * @param {Array<Object>} scores - Danh sách điểm theo môn học
+ */
 function renderScoresToTable(scores) {
   const tbody = document.querySelector("table tbody");
   tbody.innerHTML = "";
@@ -7359,6 +8540,11 @@ function renderScoresToTable(scores) {
   });
 }
 
+/**
+ * Tính toán điểm trung bình (thang 10, thang 4),
+ * kết luận kết quả (Đạt/Không) và điểm chữ.
+ * @param {Array<Object>} scores - Danh sách điểm theo môn học
+ */
 function summaryCard(scores) {
   const avg10Score = document.querySelector(".card.yellow .h3");
   const avg4Score = document.querySelector(".card.red .h3");
@@ -7397,6 +8583,11 @@ function summaryCard(scores) {
   letterGrade.textContent = letter;
 }
 
+/**
+ * Chuyển điểm từ thang 10 sang thang 4.
+ * @param {number} score - Điểm theo thang 10
+ * @returns {number} - Điểm quy đổi theo thang 4
+ */
 function convertToHeSo4(score) {
   if (score >= 9) return 4.0;
   if (score >= 7.0) return 3.0;
@@ -7405,6 +8596,11 @@ function convertToHeSo4(score) {
   return 0.0;
 }
 
+/**
+ * Chuyển điểm thang 10 sang xếp loại điểm chữ.
+ * @param {number} score - Điểm thang 10
+ * @returns {string} - Xếp loại: A, B+, B, C+, C, D+, D, F
+ */
 function convertToLetterGrade(score) {
   if (score >= 8.5) return "A";
   if (score >= 8.0) return "B+";
@@ -7416,6 +8612,10 @@ function convertToLetterGrade(score) {
   return "F";
 }
 
+/**
+ * Gọi API để lọc điểm theo học kỳ được nhập.
+ * Hiển thị dữ liệu điểm tương ứng và cập nhật thống kê.
+ */
 async function filterStudentScores() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -7446,6 +8646,9 @@ async function filterStudentScores() {
   }
 }
 
+/**
+ * Gọi API lấy thông tin sinh viên và hiển thị tên đầy đủ.
+ */
 async function displayStudentName() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -7478,11 +8681,19 @@ async function displayStudentName() {
 
 ### frontend\js\Student\student_cert.js
 ```js
+/**
+ * Khởi chạy khi DOM đã tải xong.
+ * Gọi hàm lấy chứng chỉ và hiển thị tên sinh viên.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   await getCertificatesOfStudent();
   await displayStudentName();
 });
 
+/**
+ * Hiển thị tên sinh viên hiện tại đang đăng nhập.
+ * Dựa vào thông tin người dùng được lưu trong localStorage.
+ */
 async function displayStudentName() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -7511,6 +8722,10 @@ async function displayStudentName() {
   }
 }
 
+/**
+ * Gửi yêu cầu lấy danh sách chứng chỉ của sinh viên hiện tại.
+ * Nếu thành công thì hiển thị danh sách chứng chỉ kèm phân trang.
+ */
 async function getCertificatesOfStudent() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -7548,11 +8763,11 @@ let currentPage = 1;
 /** @type {Array<Object>} */
 let studentDatas = []; // Dữ liệu gốc
 /** @type {Array<Object>} */
-let filterDatas = []; // Dữ liệu sẽ hiển thị khi tìm kiếm
+let filterDatas = []; // Dữ liệu sau khi lọc hoặc tìm kiếm
 
 /**
- * Gán dữ liệu và hiển thị danh sách học viên trên giao diện kèm phân trang.
- * @param {Array<Object>} students - Mảng dữ liệu học viên từ server
+ * Hiển thị bảng chứng chỉ theo từng trang.
+ * @param {number} page - Trang hiện tại cần hiển thị.
  */
 function renderStudentList(students) {
   filterDatas = students;
@@ -7686,11 +8901,19 @@ function createEllipsis() {
 
 ### frontend\js\Student\student_information.js
 ```js
+/**
+ * Khởi chạy khi DOM đã tải xong.
+ * Gọi các hàm để lấy và cập nhật thông tin sinh viên.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   fetchStudentInfo();
   updateStudentInfo();
 });
 
+/**
+ * Lấy thông tin sinh viên từ localStorage và gọi API để lấy chi tiết.
+ * Hiển thị thông tin sinh viên lên trang và modal cập nhật.
+ */
 async function fetchStudentInfo() {
   const student = Storage.getUser();
   if (!student || !student.username) {
@@ -7717,6 +8940,10 @@ async function fetchStudentInfo() {
   }
 }
 
+/**
+ * Hiển thị thông tin sinh viên vào các thẻ trong trang chính.
+ * @param {Object} info - Dữ liệu thông tin sinh viên từ API.
+ */
 function displayStudentInfo(info) {
   // Họ tên + mã số
   document.querySelector(
@@ -7749,16 +8976,31 @@ function displayStudentInfo(info) {
   );
 }
 
+/**
+ * Định dạng ngày sinh sang kiểu hiển thị tiếng Việt.
+ * @param {string} dateStr - Chuỗi ngày ISO.
+ * @returns {string} - Ngày được định dạng dd/mm/yyyy.
+ */
 function formatDate(dateStr) {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
   return date.toLocaleDateString("vi-VN");
 }
 
+/**
+ * Định dạng giới tính từ mã kỹ thuật sang tiếng Việt.
+ * @param {string} gender - Mã giới tính ("male", "female", "other").
+ * @returns {string} - Chuỗi giới tính tương ứng.
+ */
 function formatGender(gender) {
   return gender === "male" ? "Nam" : gender === "female" ? "Nữ" : "Khác";
 }
 
+/**
+ * Định dạng trạng thái học tập.
+ * @param {string} status - Trạng thái học ("studying", "graduated", "inactive").
+ * @returns {string} - Chuỗi trạng thái tiếng Việt.
+ */
 function formatStatus(status) {
   switch (status) {
     case "studying":
@@ -7772,6 +9014,10 @@ function formatStatus(status) {
   }
 }
 
+/**
+ * Hiển thị thông tin sinh viên vào các input trong modal cập nhật.
+ * @param {Object} info - Dữ liệu thông tin sinh viên từ API.
+ */
 function displayStudentInfoInModal(info) {
   document.getElementById("inputMiddleName").value =
     info.student_middle_name || "";
@@ -7792,6 +9038,11 @@ function displayStudentInfoInModal(info) {
   document.getElementById("inputAddress").value = info.student_address || "";
 }
 
+/**
+ * Gửi yêu cầu cập nhật thông tin sinh viên lên server.
+ * Lấy dữ liệu từ form modal và gọi API PUT.
+ * Hiển thị thông báo phản hồi bằng Swal.
+ */
 function updateStudentInfo() {
   document
     .getElementById("updateStudentForm")
@@ -7862,6 +9113,10 @@ function updateStudentInfo() {
 
 ### frontend\js\Teacher\teacher_chart.js
 ```js
+/**
+ * Hàm chính được gọi khi trang tải xong.
+ * Gọi các API thống kê và hiển thị dữ liệu lên dashboard giảng viên.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getStudentPassing();
   getPassingPropotion();
@@ -7871,6 +9126,9 @@ document.addEventListener("DOMContentLoaded", function () {
   getLastUpdate();
 });
 
+/**
+ * Gọi API để lấy số lượng sinh viên đạt theo môn học và vẽ biểu đồ cột.
+ */
 async function getStudentPassing() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -7897,6 +9155,9 @@ async function getStudentPassing() {
   }
 }
 
+/**
+ * Gọi API để lấy tổng số sinh viên đạt/chưa đạt và hiển thị biểu đồ tròn.
+ */
 async function getPassingPropotion() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -7923,6 +9184,9 @@ async function getPassingPropotion() {
   }
 }
 
+/**
+ * Gọi API để lấy điểm trung bình theo lớp-môn và hiển thị biểu đồ ngang.
+ */
 async function getAvgScore() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -7949,6 +9213,9 @@ async function getAvgScore() {
   }
 }
 
+/**
+ * Gọi API để lấy tiến độ nhập điểm và hiển thị lên dashboard.
+ */
 async function getScoreProgress() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -7975,6 +9242,10 @@ async function getScoreProgress() {
   }
 }
 
+/**
+ * Hiển thị phần trăm tiến độ nhập điểm trên giao diện.
+ * @param {Object} datas - Dữ liệu gồm tong_sinh_vien và so_diem_da_nhap
+ */
 function renderScoreProgress(datas) {
   const score = document.querySelector(".score_progress");
 
@@ -7990,6 +9261,9 @@ function renderScoreProgress(datas) {
   score.textContent = progressPercentage + "%";
 }
 
+/**
+ * Gọi API để lấy số lượng lớp mà giảng viên đang giảng dạy.
+ */
 async function getCountTeaching() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -8015,6 +9289,10 @@ async function getCountTeaching() {
   }
 }
 
+/**
+ * Hiển thị tổng số lớp đang giảng dạy lên dashboard.
+ * @param {number|string} data - Số lượng lớp hoặc chuỗi lỗi
+ */
 function renderCountTeaching(data) {
   const countElement = document.querySelector(".count_teaching");
   if (data) {
@@ -8025,6 +9303,9 @@ function renderCountTeaching(data) {
   console.log("Count Teaching Data:", data);
 }
 
+/**
+ * Gọi API để lấy lần cuối cùng giảng viên cập nhật điểm.
+ */
 async function getLastUpdate() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -8050,6 +9331,10 @@ async function getLastUpdate() {
   }
 }
 
+/**
+ * Hiển thị thời gian cập nhật điểm gần nhất lên dashboard.
+ * @param {string} data - Dữ liệu thời gian (đã được định dạng sẵn từ server)
+ */
 function renderLastUpdate(data) {
   const lastUpdateElement = document.querySelector(".last_update");
   if (data) {
@@ -8059,6 +9344,10 @@ function renderLastUpdate(data) {
   }
 }
 
+/**
+ * Vẽ biểu đồ cột so sánh số sinh viên đạt và tổng sinh viên theo môn học.
+ * @param {Array<Object>} datas - Dữ liệu gồm các môn và số sinh viên đạt
+ */
 function renderStudentPassingChart(datas) {
   const ctx = document.getElementById("studentPassingChart").getContext("2d");
   const labels = datas.map((item) => `${item.subject}`);
@@ -8095,6 +9384,10 @@ function renderStudentPassingChart(datas) {
   });
 }
 
+/**
+ * Vẽ biểu đồ tròn tỉ lệ sinh viên đạt và chưa đạt.
+ * @param {Object} data - Dữ liệu có dạng { passed_students, total_students }
+ */
 function renderPieChart(data) {
   const ctx = document.getElementById("pieChart").getContext("2d");
 
@@ -8123,6 +9416,10 @@ function renderPieChart(data) {
   });
 }
 
+/**
+ * Vẽ biểu đồ ngang điểm trung bình theo lớp - môn học.
+ * @param {Array<Object>} datas - Dữ liệu gồm class, subject, average_score
+ */
 function renderAvgScoreChart(datas) {
   const ctx = document.getElementById("avgScoreChart").getContext("2d");
 
@@ -8181,10 +9478,35 @@ function renderAvgScoreChart(datas) {
 
 ### frontend\js\Teacher\teacher_home_page.js
 ```js
+/**
+ * Hàm chính được gọi khi tài liệu DOM đã sẵn sàng.
+ * Gọi hàm lấy danh sách môn học mà giảng viên đang dạy và hiển thị thông báo nếu có.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getModules();
+  const message = localStorage.getItem("loginSuccess");
+  if (message) {
+    // Hiển thị toast
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: message,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    });
+
+    // Xóa sau khi hiển thị
+    localStorage.removeItem("loginSuccess");
+  }
 });
 
+/**
+ * Gọi API để lấy danh sách các môn học mà giảng viên hiện tại đang giảng dạy.
+ * Nếu thành công sẽ hiển thị danh sách qua `renderModulesList`.
+ * Hiển thị thông báo nếu không xác định được người dùng hoặc lỗi kết nối.
+ */
 async function getModules() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -8211,6 +9533,12 @@ async function getModules() {
   }
 }
 
+/**
+ * Hiển thị danh sách môn học dưới dạng card (thẻ) Bootstrap trong DOM.
+ * Mỗi môn sẽ bao gồm mã, tên môn, tên giảng viên, lớp học và nút truy cập.
+ *
+ * @param {Array<Object>} modules - Mảng đối tượng môn học (module_code, module_name, teacher_name, class_name, class_code, class_subject_id)
+ */
 function renderModulesList(modules) {
   const moduleList = document.querySelector(".module-list");
   moduleList.innerHTML = ""; // Xoá nội dung cũ
@@ -8250,10 +9578,18 @@ function renderModulesList(modules) {
 
 ### frontend\js\Teacher\teacher_import_excel.js
 ```js
+/**
+ * Khi trang được tải xong, thực thi hàm để lấy danh sách sinh viên.
+ */
 document.addEventListener("DOMContentLoaded", function () {
   getStudentList();
 });
 
+/**
+ * Lấy và phân tích các tham số từ URL hiện tại.
+ *
+ * @returns {Object} - Đối tượng chứa các tham số module, class, class_subject, class_name, module_name
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -8265,6 +9601,13 @@ function getParams() {
   };
 }
 
+/**
+ * Lấy mã số sinh viên từ tên đệm và tên chính của sinh viên.
+ *
+ * @param {string} studentMiddleName - Họ và tên đệm của sinh viên
+ * @param {string} studentName - Tên chính của sinh viên
+ * @returns {Promise<string|undefined>} - Mã sinh viên nếu thành công, undefined nếu lỗi
+ */
 async function getStudentCode(studentMiddleName, studentName) {
   if (!studentMiddleName || !studentName) {
     Swal.fire("Lỗi", "Không nhận được tên của sinh viên!", "error");
@@ -8292,6 +9635,12 @@ async function getStudentCode(studentMiddleName, studentName) {
   }
 }
 
+/**
+ * Đọc file Excel đầu vào và chuyển đổi thành danh sách sinh viên với tên và điểm.
+ *
+ * @param {File} file - File Excel người dùng chọn
+ * @returns {Promise<Array<Object>|null>} - Danh sách sinh viên đã parse hoặc null nếu lỗi
+ */
 async function parseExcelFile(file) {
   if (!file) {
     console.error("Không có file Excel được chọn");
@@ -8333,6 +9682,12 @@ async function parseExcelFile(file) {
   }
 }
 
+/**
+ * Chuyển đổi danh sách họ tên trong file Excel thành mã sinh viên tương ứng.
+ *
+ * @param {Array<Object>} names - Mảng đối tượng gồm hoDem, ten và score
+ * @returns {Promise<Array<Object>>} - Mảng gồm các object {student_code, score}
+ */
 async function parseNametoStudentCode(names) {
   names = names.slice(1); // Bỏ qua dòng tiêu đề
   if (!Array.isArray(names) || names.length === 0) {
@@ -8373,6 +9728,11 @@ async function parseNametoStudentCode(names) {
   return studentCodes;
 }
 
+/**
+ * Gửi dữ liệu điểm sinh viên lên server để lưu trữ vào hệ thống.
+ *
+ * @param {Object} payload - Dữ liệu bao gồm classSubjectId và danh sách sinh viên (student_code + score)
+ */
 async function importStudentScores(payload) {
   if (!payload || !payload.classSubjectId || !Array.isArray(payload.students)) {
     Swal.fire("Lỗi", "Dữ liệu không hợp lệ!", "error");
@@ -8418,6 +9778,10 @@ async function importStudentScores(payload) {
   }
 }
 
+/**
+ * Sự kiện khi người dùng chọn file Excel.
+ * Đọc file, chuyển đổi dữ liệu và gửi nhập điểm vào hệ thống.
+ */
 document
   .getElementById("excelFile")
   .addEventListener("change", async function () {
@@ -8446,6 +9810,12 @@ document.addEventListener("DOMContentLoaded", function () {
   getTeacherInformation();
 });
 
+/**
+ * Gửi yêu cầu tới API để lấy thông tin của giảng viên hiện đang đăng nhập.
+ * Hiển thị thông tin tên giảng viên trên giao diện nếu thành công.
+ *
+ * @returns {Promise<void>}
+ */
 async function getTeacherInformation() {
   const teacher = Storage.getUser();
   if (!teacher || !teacher.username) {
@@ -8474,6 +9844,12 @@ async function getTeacherInformation() {
   }
 }
 
+/**
+ * Gán tên giảng viên vào các phần tử có class `teacher_name`.
+ *
+ * @param {Object} teacherInfo - Đối tượng chứa thông tin giảng viên từ server
+ * @param {string} teacherInfo.teacher_name - Tên giảng viên cần hiển thị
+ */
 function renderDropdownMenu(teacherInfo) {
   const name = teacherInfo.teacher_name || "Giảng viên";
   document.querySelectorAll(".teacher_name").forEach((el) => {
@@ -8489,6 +9865,11 @@ document.addEventListener("DOMContentLoaded", function () {
   getStudentList();
 });
 
+/**
+ * Lấy các tham số từ URL query string.
+ *
+ * @returns {Object} Các tham số liên quan đến module, lớp học, môn học
+ */
 function getParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
@@ -8500,6 +9881,9 @@ function getParams() {
   };
 }
 
+/**
+ * Lấy thông tin từ URL và xác thực người dùng, sau đó gọi hàm fetch dữ liệu sinh viên.
+ */
 function getStudentList() {
   const { moduleCode, classCode, classSubjectId, className, moduleName } =
     getParams();
@@ -8530,6 +9914,15 @@ function getStudentList() {
   );
 }
 
+/**
+ * Gửi yêu cầu đến API để lấy danh sách sinh viên trong lớp.
+ *
+ * @param {string} teacherCode - Mã giảng viên
+ * @param {string} moduleCode - Mã học phần
+ * @param {string} classCode - Mã lớp
+ * @param {string} className - Tên lớp
+ * @param {string} moduleName - Tên học phần
+ */
 async function fetchStudentList(
   teacherCode,
   moduleCode,
@@ -8568,6 +9961,11 @@ async function fetchStudentList(
   }
 }
 
+/**
+ * Hiển thị danh sách sinh viên vào bảng HTML.
+ *
+ * @param {Array<Object>} students - Mảng danh sách sinh viên từ API
+ */
 function renderStudentList(students) {
   const tbody = document.getElementById("studentTable");
   tbody.innerHTML = "";
@@ -8607,6 +10005,12 @@ function renderStudentList(students) {
   });
 }
 
+/**
+ * Cập nhật điểm cho sinh viên theo mã lớp học phần.
+ *
+ * @param {string} studentCode - Mã sinh viên
+ * @param {string|number} score - Điểm cần cập nhật
+ */
 async function updateStudentScore(studentCode, score) {
   const { classSubjectId } = getParams();
 
@@ -8650,6 +10054,9 @@ async function updateStudentScore(studentCode, score) {
 
 let currentStudentCode = "";
 
+/**
+ * Gán thông tin sinh viên vào modal khi nhấn nút "Sửa".
+ */
 const editModal = document.getElementById("editModal");
 editModal.addEventListener("show.bs.modal", function (event) {
   const button = event.relatedTarget;
@@ -8664,6 +10071,9 @@ editModal.addEventListener("show.bs.modal", function (event) {
   document.getElementById("studentScore").value = score;
 });
 
+/**
+ * Lắng nghe sự kiện submit của form chỉnh sửa điểm và cập nhật điểm.
+ */
 document
   .getElementById("editScoreForm")
   .addEventListener("submit", function (e) {

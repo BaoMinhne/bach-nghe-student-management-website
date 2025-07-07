@@ -71,7 +71,7 @@ async function getStudentNotInClass() {
 
 // === Biến toàn cục ===
 /** @type {number} */
-const limitRows = 10;
+const limitRows = 5;
 /** @type {number} */
 let currentPage = 1;
 /** @type {Array<Object>} */

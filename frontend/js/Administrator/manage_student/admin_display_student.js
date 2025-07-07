@@ -56,7 +56,7 @@ async function getStudentList() {
 
 // === Biến toàn cục ===
 /** @type {number} */
-const limitRows = 10;
+const limitRows = 5;
 /** @type {number} */
 let currentPage = 1;
 /** @type {Array<Object>} */
@@ -93,8 +93,12 @@ function displayStudentListPage(page) {
       <td class="marquee-hover"><span>${student.student_middle_name} ${
       student.student_name
     }</span></td>
-      <td class="marquee-hover"><span>${transferValue(student.student_gender)}</span></td>
-      <td class="marquee-hover"><span>${transferValue(student.student_date_of_birth)}</span></td>
+      <td class="marquee-hover"><span>${transferValue(
+        student.student_gender
+      )}</span></td>
+      <td class="marquee-hover"><span>${transferValue(
+        student.student_date_of_birth
+      )}</span></td>
       <td class="marquee-hover"><span>${transferValue(
         student.student_address
       )}</span></td>
@@ -104,7 +108,9 @@ function displayStudentListPage(page) {
       <td class="marquee-hover"><span>${transferValue(
         student.student_phone
       )}</span></td>
-      <td class="marquee-hover"><span>${transferValue(student.student_status)}</span></td>
+      <td class="marquee-hover"><span>${transferValue(
+        student.student_status
+      )}</span></td>
       <td >
         <button
       data-bs-toggle="modal"
